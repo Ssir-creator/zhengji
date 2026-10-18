@@ -1,0 +1,777 @@
+{
+  "archive_sha256": "0fbacc34e4f22c9aee61b5253800b7eb753b023825d80be5bc507333e9e29f41",
+  "files": 28,
+  "triangles": 342095,
+  "bytes": 17107102,
+  "bounds_min": [
+    -30.324243545532227,
+    -31.91827392578125,
+    -8.137517929077148
+  ],
+  "bounds_max": [
+    20.164207458496094,
+    31.671415328979492,
+    7.516785621643066
+  ],
+  "unit": "u",
+  "unit_confirmed": false,
+  "id_policy": "Direct original filename stem, not array index and not FDI. Teaching role association remains provisional.",
+  "meshes": [
+    {
+      "mesh_id": "2",
+      "mesh_uri": "2.stl",
+      "checksum": "d0dd69a80cfba81d0a8da74e3ff42bcbe09994b500226af7c49ae636190d61ea",
+      "bytes": 686184,
+      "triangles": 13722,
+      "vertices_unique": 6968,
+      "bounds_min": [
+        8.70013427734375,
+        20.28077507019043,
+        -0.5599532723426819
+      ],
+      "bounds_max": [
+        20.164207458496094,
+        31.671415328979492,
+        6.334334373474121
+      ],
+      "pivot": [
+        14.432170867919922,
+        25.97609519958496,
+        2.8871905505657196
+      ],
+      "degenerate_triangles": 0,
+      "zero_stl_normals": 0,
+      "boundary_edges": 212,
+      "nonmanifold_edges": 0
+    },
+    {
+      "mesh_id": "3",
+      "mesh_uri": "3.stl",
+      "checksum": "3fd2524840ea4506c0e0a634e047078fadeb69a0921322d04b385cf12b4f1a9b",
+      "bytes": 876534,
+      "triangles": 17529,
+      "vertices_unique": 8869,
+      "bounds_min": [
+        -1.148382544517517,
+        18.12922477722168,
+        -0.985238254070282
+      ],
+      "bounds_max": [
+        10.098422050476074,
+        29.352693557739258,
+        7.053973197937012
+      ],
+      "pivot": [
+        4.475019752979279,
+        23.74095916748047,
+        3.034367471933365
+      ],
+      "degenerate_triangles": 0,
+      "zero_stl_normals": 0,
+      "boundary_edges": 207,
+      "nonmanifold_edges": 0
+    },
+    {
+      "mesh_id": "4",
+      "mesh_uri": "4.stl",
+      "checksum": "4d05090c39032a3135c979fff6f646fb98fa9ccebd36a835ae0d5218faea0596",
+      "bytes": 648334,
+      "triangles": 12965,
+      "vertices_unique": 6560,
+      "bounds_min": [
+        -7.357107639312744,
+        16.45513343811035,
+        -1.2138117551803589
+      ],
+      "bounds_max": [
+        0.7564558386802673,
+        26.20733070373535,
+        6.765693664550781
+      ],
+      "pivot": [
+        -3.3003259003162384,
+        21.33123207092285,
+        2.775940954685211
+      ],
+      "degenerate_triangles": 0,
+      "zero_stl_normals": 0,
+      "boundary_edges": 153,
+      "nonmanifold_edges": 0
+    },
+    {
+      "mesh_id": "5",
+      "mesh_uri": "5.stl",
+      "checksum": "1d21f54ba8752677f2713f81478d28dd2f119fd7e2c29a860bf865973fe42046",
+      "bytes": 661584,
+      "triangles": 13230,
+      "vertices_unique": 6696,
+      "bounds_min": [
+        -14.247747421264648,
+        14.024164199829102,
+        -1.7742016315460205
+      ],
+      "bounds_max": [
+        -5.885298252105713,
+        24.01856231689453,
+        6.238269329071045
+      ],
+      "pivot": [
+        -10.06652283668518,
+        19.021363258361816,
+        2.232033848762512
+      ],
+      "degenerate_triangles": 0,
+      "zero_stl_normals": 0,
+      "boundary_edges": 160,
+      "nonmanifold_edges": 0
+    },
+    {
+      "mesh_id": "6",
+      "mesh_uri": "6.stl",
+      "checksum": "ef233824cedccbf2664866b9ed13b6e934c2fd15cf8be0c5ec06ef6a8e32d2ce",
+      "bytes": 533934,
+      "triangles": 10677,
+      "vertices_unique": 5417,
+      "bounds_min": [
+        -21.25159454345703,
+        12.848528861999512,
+        -1.7371326684951782
+      ],
+      "bounds_max": [
+        -12.952800750732422,
+        20.509166717529297,
+        7.330458641052246
+      ],
+      "pivot": [
+        -17.102197647094727,
+        16.678847789764404,
+        2.796662986278534
+      ],
+      "degenerate_triangles": 0,
+      "zero_stl_normals": 0,
+      "boundary_edges": 155,
+      "nonmanifold_edges": 0
+    },
+    {
+      "mesh_id": "7",
+      "mesh_uri": "7.stl",
+      "checksum": "31a61d4afe89e5069a3883d9fa5c2ff9e75cb54cc58ef5a52a5ed8d242e9eee7",
+      "bytes": 542634,
+      "triangles": 10851,
+      "vertices_unique": 5496,
+      "bounds_min": [
+        -27.328458786010742,
+        7.613780975341797,
+        -1.200077772140503
+      ],
+      "bounds_max": [
+        -18.284618377685547,
+        15.563652992248535,
+        6.997872352600098
+      ],
+      "pivot": [
+        -22.806538581848145,
+        11.588716983795166,
+        2.8988972902297974
+      ],
+      "degenerate_triangles": 0,
+      "zero_stl_normals": 0,
+      "boundary_edges": 139,
+      "nonmanifold_edges": 0
+    },
+    {
+      "mesh_id": "8",
+      "mesh_uri": "8.stl",
+      "checksum": "6837844063d95b7d3638c6dbd107eab0cc2112a4fa56ff88ef02c518bc41fe63",
+      "bytes": 642434,
+      "triangles": 12847,
+      "vertices_unique": 6501,
+      "bounds_min": [
+        -30.08757209777832,
+        0.20396724343299866,
+        -1.9188112020492554
+      ],
+      "bounds_max": [
+        -21.057615280151367,
+        8.775689125061035,
+        7.516785621643066
+      ],
+      "pivot": [
+        -25.572593688964844,
+        4.489828184247017,
+        2.7989872097969055
+      ],
+      "degenerate_triangles": 0,
+      "zero_stl_normals": 0,
+      "boundary_edges": 155,
+      "nonmanifold_edges": 1
+    },
+    {
+      "mesh_id": "9",
+      "mesh_uri": "9.stl",
+      "checksum": "8b3f101362f09474c8bb95e7cca7aa3157f629225076d4d06faf6821fa73ebeb",
+      "bytes": 667634,
+      "triangles": 13351,
+      "vertices_unique": 6753,
+      "bounds_min": [
+        -30.324243545532227,
+        -8.73180866241455,
+        -1.8522905111312866
+      ],
+      "bounds_max": [
+        -21.65835952758789,
+        0.05422859266400337,
+        6.97230863571167
+      ],
+      "pivot": [
+        -25.99130153656006,
+        -4.338790034875274,
+        2.5600090622901917
+      ],
+      "degenerate_triangles": 0,
+      "zero_stl_normals": 0,
+      "boundary_edges": 153,
+      "nonmanifold_edges": 0
+    },
+    {
+      "mesh_id": "10",
+      "mesh_uri": "10.stl",
+      "checksum": "19b3faf997d5d271b6ea7d279e5ce5bd1cab46518d2e41cd2f776eefad682b96",
+      "bytes": 548834,
+      "triangles": 10975,
+      "vertices_unique": 5556,
+      "bounds_min": [
+        -27.87580680847168,
+        -15.519773483276367,
+        -1.5861082077026367
+      ],
+      "bounds_max": [
+        -19.213884353637695,
+        -7.4125518798828125,
+        6.893638610839844
+      ],
+      "pivot": [
+        -23.544845581054688,
+        -11.46616268157959,
+        2.6537652015686035
+      ],
+      "degenerate_triangles": 0,
+      "zero_stl_normals": 0,
+      "boundary_edges": 135,
+      "nonmanifold_edges": 0
+    },
+    {
+      "mesh_id": "11",
+      "mesh_uri": "11.stl",
+      "checksum": "10fee33b2357f8b5c226fac9a9027256c56e332e8688a7bcb08adbaa9fb87bfd",
+      "bytes": 498784,
+      "triangles": 9974,
+      "vertices_unique": 5062,
+      "bounds_min": [
+        -21.81515121459961,
+        -19.947402954101562,
+        -1.7360799312591553
+      ],
+      "bounds_max": [
+        -13.979216575622559,
+        -12.347670555114746,
+        6.611868858337402
+      ],
+      "pivot": [
+        -17.897183895111084,
+        -16.147536754608154,
+        2.4378944635391235
+      ],
+      "degenerate_triangles": 0,
+      "zero_stl_normals": 0,
+      "boundary_edges": 148,
+      "nonmanifold_edges": 0
+    },
+    {
+      "mesh_id": "12",
+      "mesh_uri": "12.stl",
+      "checksum": "8753005741079d59d4a5364cc4e42427d94a8ce62000fcb364a2132d7a2a42cb",
+      "bytes": 610284,
+      "triangles": 12204,
+      "vertices_unique": 6188,
+      "bounds_min": [
+        -14.872808456420898,
+        -23.42961883544922,
+        -1.3083100318908691
+      ],
+      "bounds_max": [
+        -6.318796157836914,
+        -13.632362365722656,
+        5.621991157531738
+      ],
+      "pivot": [
+        -10.595802307128906,
+        -18.530990600585938,
+        2.1568405628204346
+      ],
+      "degenerate_triangles": 0,
+      "zero_stl_normals": 0,
+      "boundary_edges": 170,
+      "nonmanifold_edges": 0
+    },
+    {
+      "mesh_id": "13",
+      "mesh_uri": "13.stl",
+      "checksum": "7ef1594939767db9906452aae7b019a9db695cd20e74ec7fcfeb9231bc312bc8",
+      "bytes": 582634,
+      "triangles": 11651,
+      "vertices_unique": 5909,
+      "bounds_min": [
+        -7.430727481842041,
+        -25.099239349365234,
+        -0.3203519880771637
+      ],
+      "bounds_max": [
+        0.7660475373268127,
+        -15.70930290222168,
+        5.5848307609558105
+      ],
+      "pivot": [
+        -3.332339972257614,
+        -20.404271125793457,
+        2.6322393864393234
+      ],
+      "degenerate_triangles": 0,
+      "zero_stl_normals": 0,
+      "boundary_edges": 165,
+      "nonmanifold_edges": 0
+    },
+    {
+      "mesh_id": "14",
+      "mesh_uri": "14.stl",
+      "checksum": "7d808c81c112025400357989f6a018bd4f0e7f17912b51a59213c9dbe99a1792",
+      "bytes": 837034,
+      "triangles": 16739,
+      "vertices_unique": 8466,
+      "bounds_min": [
+        -1.7988684177398682,
+        -29.86292266845703,
+        0.1459423005580902
+      ],
+      "bounds_max": [
+        9.166539192199707,
+        -18.789152145385742,
+        6.995001316070557
+      ],
+      "pivot": [
+        3.6838353872299194,
+        -24.326037406921387,
+        3.5704718083143234
+      ],
+      "degenerate_triangles": 0,
+      "zero_stl_normals": 0,
+      "boundary_edges": 191,
+      "nonmanifold_edges": 0
+    },
+    {
+      "mesh_id": "15",
+      "mesh_uri": "15.stl",
+      "checksum": "e912f7d6042787ba47db4ebf2ec3b88fc4ee14feecd8f0f00591d32610a4659a",
+      "bytes": 723034,
+      "triangles": 14459,
+      "vertices_unique": 7331,
+      "bounds_min": [
+        7.92903995513916,
+        -31.91827392578125,
+        0.40937376022338867
+      ],
+      "bounds_max": [
+        19.026208877563477,
+        -20.40155792236328,
+        7.162903308868408
+      ],
+      "pivot": [
+        13.477624416351318,
+        -26.159915924072266,
+        3.7861385345458984
+      ],
+      "degenerate_triangles": 0,
+      "zero_stl_normals": 0,
+      "boundary_edges": 201,
+      "nonmanifold_edges": 0
+    },
+    {
+      "mesh_id": "18",
+      "mesh_uri": "18.stl",
+      "checksum": "46ffbb0ceea5130e10d86176a4d3ab39d49635167bdd8f45f5ff6deeecf476f8",
+      "bytes": 728484,
+      "triangles": 14568,
+      "vertices_unique": 7390,
+      "bounds_min": [
+        7.434257507324219,
+        -30.368574142456055,
+        -3.980211019515991
+      ],
+      "bounds_max": [
+        18.816911697387695,
+        -19.34723472595215,
+        2.396977663040161
+      ],
+      "pivot": [
+        13.125584602355957,
+        -24.8579044342041,
+        -0.791616678237915
+      ],
+      "degenerate_triangles": 0,
+      "zero_stl_normals": 0,
+      "boundary_edges": 210,
+      "nonmanifold_edges": 0
+    },
+    {
+      "mesh_id": "19",
+      "mesh_uri": "19.stl",
+      "checksum": "caa2bedcb472a20785ca7283b78eecf6b6901dd8bdcbb3ff9920d2a146e71511",
+      "bytes": 801084,
+      "triangles": 16020,
+      "vertices_unique": 8113,
+      "bounds_min": [
+        -4.6488447189331055,
+        -29.533044815063477,
+        -4.203366756439209
+      ],
+      "bounds_max": [
+        7.69891357421875,
+        -18.052324295043945,
+        1.0542834997177124
+      ],
+      "pivot": [
+        1.5250344276428223,
+        -23.79268455505371,
+        -1.5745416283607483
+      ],
+      "degenerate_triangles": 0,
+      "zero_stl_normals": 0,
+      "boundary_edges": 204,
+      "nonmanifold_edges": 0
+    },
+    {
+      "mesh_id": "20",
+      "mesh_uri": "20.stl",
+      "checksum": "25ed28a51eb7af670787df7a614b5e16a7339ea0b343ce7bc4891f546e9fe01a",
+      "bytes": 522234,
+      "triangles": 10443,
+      "vertices_unique": 5302,
+      "bounds_min": [
+        -10.427022933959961,
+        -22.972196578979492,
+        -6.063538551330566
+      ],
+      "bounds_max": [
+        -1.5490608215332031,
+        -15.371081352233887,
+        0.784984827041626
+      ],
+      "pivot": [
+        -5.988041877746582,
+        -19.17163896560669,
+        -2.63927686214447
+      ],
+      "degenerate_triangles": 0,
+      "zero_stl_normals": 0,
+      "boundary_edges": 159,
+      "nonmanifold_edges": 0
+    },
+    {
+      "mesh_id": "21",
+      "mesh_uri": "21.stl",
+      "checksum": "20b3cdf9db4946621111678ab719055cf5feb6c06a857621bd02c53ff322a5d2",
+      "bytes": 551734,
+      "triangles": 11033,
+      "vertices_unique": 5594,
+      "bounds_min": [
+        -16.776151657104492,
+        -20.15846824645996,
+        -7.124893665313721
+      ],
+      "bounds_max": [
+        -8.731500625610352,
+        -12.14044189453125,
+        0.92933589220047
+      ],
+      "pivot": [
+        -12.753826141357422,
+        -16.149455070495605,
+        -3.0977788865566254
+      ],
+      "degenerate_triangles": 0,
+      "zero_stl_normals": 0,
+      "boundary_edges": 153,
+      "nonmanifold_edges": 0
+    },
+    {
+      "mesh_id": "22",
+      "mesh_uri": "22.stl",
+      "checksum": "5048c19809fa0f76fd715032d3bb2a6f8514b4e224f6fff0f402d65acda60775",
+      "bytes": 514884,
+      "triangles": 10296,
+      "vertices_unique": 5220,
+      "bounds_min": [
+        -22.413421630859375,
+        -15.791766166687012,
+        -7.9529876708984375
+      ],
+      "bounds_max": [
+        -15.101527214050293,
+        -8.223711013793945,
+        0.9340894818305969
+      ],
+      "pivot": [
+        -18.757474422454834,
+        -12.007738590240479,
+        -3.5094490945339203
+      ],
+      "degenerate_triangles": 0,
+      "zero_stl_normals": 0,
+      "boundary_edges": 142,
+      "nonmanifold_edges": 0
+    },
+    {
+      "mesh_id": "23",
+      "mesh_uri": "23.stl",
+      "checksum": "2fa9468ced58e45cbad0dd0d2a9379f2896b90222df9b34ac360ac54879b1b57",
+      "bytes": 489984,
+      "triangles": 9798,
+      "vertices_unique": 4960,
+      "bounds_min": [
+        -25.38192367553711,
+        -10.807326316833496,
+        -8.137517929077148
+      ],
+      "bounds_max": [
+        -18.31415557861328,
+        -4.627303123474121,
+        1.3129619359970093
+      ],
+      "pivot": [
+        -21.848039627075195,
+        -7.717314720153809,
+        -3.4122779965400696
+      ],
+      "degenerate_triangles": 0,
+      "zero_stl_normals": 0,
+      "boundary_edges": 120,
+      "nonmanifold_edges": 0
+    },
+    {
+      "mesh_id": "24",
+      "mesh_uri": "24.stl",
+      "checksum": "d1283856f233b68b543894f33741b03fd53a6f2f3c1d82d1932bab42c0c03f0c",
+      "bytes": 426384,
+      "triangles": 8526,
+      "vertices_unique": 4322,
+      "bounds_min": [
+        -25.773983001708984,
+        -5.339972972869873,
+        -7.477830410003662
+      ],
+      "bounds_max": [
+        -19.043319702148438,
+        0.31400054693222046,
+        0.9457586407661438
+      ],
+      "pivot": [
+        -22.40865135192871,
+        -2.5129862129688263,
+        -3.266035884618759
+      ],
+      "degenerate_triangles": 0,
+      "zero_stl_normals": 0,
+      "boundary_edges": 116,
+      "nonmanifold_edges": 0
+    },
+    {
+      "mesh_id": "25",
+      "mesh_uri": "25.stl",
+      "checksum": "d5cbb15e1f92060bce81e4f22417470950e8e6b72086c3ca99d7d676974c7ee4",
+      "bytes": 420884,
+      "triangles": 8416,
+      "vertices_unique": 4263,
+      "bounds_min": [
+        -25.121610641479492,
+        0.03829397261142731,
+        -7.068777561187744
+      ],
+      "bounds_max": [
+        -18.39763641357422,
+        5.767093658447266,
+        0.9883841276168823
+      ],
+      "pivot": [
+        -21.759623527526855,
+        2.9026938155293465,
+        -3.040196716785431
+      ],
+      "degenerate_triangles": 0,
+      "zero_stl_normals": 0,
+      "boundary_edges": 110,
+      "nonmanifold_edges": 1
+    },
+    {
+      "mesh_id": "26",
+      "mesh_uri": "26.stl",
+      "checksum": "ad5829756fb254816524cde981ba094af02f6d6a0272dbd20d355f1db45d2acb",
+      "bytes": 505234,
+      "triangles": 10103,
+      "vertices_unique": 5112,
+      "bounds_min": [
+        -25.030900955200195,
+        5.3195319175720215,
+        -7.428462028503418
+      ],
+      "bounds_max": [
+        -17.260902404785156,
+        11.628314971923828,
+        1.2419931888580322
+      ],
+      "pivot": [
+        -21.145901679992676,
+        8.473923444747925,
+        -3.093234419822693
+      ],
+      "degenerate_triangles": 0,
+      "zero_stl_normals": 0,
+      "boundary_edges": 119,
+      "nonmanifold_edges": 0
+    },
+    {
+      "mesh_id": "27",
+      "mesh_uri": "27.stl",
+      "checksum": "5376735c6b34cc7d622964a9a12e75390775c34d473d9d4d9c95f9108d481f63",
+      "bytes": 527934,
+      "triangles": 10557,
+      "vertices_unique": 5352,
+      "bounds_min": [
+        -22.116384506225586,
+        9.047893524169922,
+        -7.890334129333496
+      ],
+      "bounds_max": [
+        -14.552067756652832,
+        16.869220733642578,
+        1.0014796257019043
+      ],
+      "pivot": [
+        -18.33422613143921,
+        12.95855712890625,
+        -3.444427251815796
+      ],
+      "degenerate_triangles": 0,
+      "zero_stl_normals": 0,
+      "boundary_edges": 147,
+      "nonmanifold_edges": 1
+    },
+    {
+      "mesh_id": "28",
+      "mesh_uri": "28.stl",
+      "checksum": "f0bf82254541006c525718badd23cb1d091a2105af12ea79bb7dc7a95d05d675",
+      "bytes": 512334,
+      "triangles": 10245,
+      "vertices_unique": 5199,
+      "bounds_min": [
+        -16.4365234375,
+        12.929618835449219,
+        -6.956284999847412
+      ],
+      "bounds_max": [
+        -8.730255126953125,
+        21.276092529296875,
+        0.7986053824424744
+      ],
+      "pivot": [
+        -12.583389282226562,
+        17.102855682373047,
+        -3.078839808702469
+      ],
+      "degenerate_triangles": 0,
+      "zero_stl_normals": 0,
+      "boundary_edges": 151,
+      "nonmanifold_edges": 0
+    },
+    {
+      "mesh_id": "29",
+      "mesh_uri": "29.stl",
+      "checksum": "52c68bbcc9e426ac3060ecc153da9a12ab0104d65ebe92251961b3fb2840690f",
+      "bytes": 513984,
+      "triangles": 10278,
+      "vertices_unique": 5215,
+      "bounds_min": [
+        -9.57496452331543,
+        14.98534107208252,
+        -5.941336154937744
+      ],
+      "bounds_max": [
+        -1.4351589679718018,
+        23.518314361572266,
+        0.5496596693992615
+      ],
+      "pivot": [
+        -5.505061745643616,
+        19.251827716827393,
+        -2.6958382427692413
+      ],
+      "degenerate_triangles": 0,
+      "zero_stl_normals": 0,
+      "boundary_edges": 150,
+      "nonmanifold_edges": 0
+    },
+    {
+      "mesh_id": "30",
+      "mesh_uri": "30.stl",
+      "checksum": "41bd44fa896ebbeb31c9d08778d92480e77ade646048f2dda5110265c9f118c9",
+      "bytes": 776634,
+      "triangles": 15531,
+      "vertices_unique": 7867,
+      "bounds_min": [
+        -2.8775596618652344,
+        17.134851455688477,
+        -5.189286231994629
+      ],
+      "bounds_max": [
+        8.647612571716309,
+        28.0876407623291,
+        0.5742922425270081
+      ],
+      "pivot": [
+        2.885026454925537,
+        22.61124610900879,
+        -2.3074969947338104
+      ],
+      "degenerate_triangles": 0,
+      "zero_stl_normals": 0,
+      "boundary_edges": 201,
+      "nonmanifold_edges": 0
+    },
+    {
+      "mesh_id": "31",
+      "mesh_uri": "31.stl",
+      "checksum": "2a74a590a3c6a1c09c1463f9c1e71a5b969873bf16048ec0fd6d0453befbffc4",
+      "bytes": 755434,
+      "triangles": 15107,
+      "vertices_unique": 7658,
+      "bounds_min": [
+        7.7469162940979,
+        19.622421264648438,
+        -5.34471321105957
+      ],
+      "bounds_max": [
+        19.109439849853516,
+        30.928800582885742,
+        1.681776762008667
+      ],
+      "pivot": [
+        13.428178071975708,
+        25.27561092376709,
+        -1.8314682245254517
+      ],
+      "degenerate_triangles": 0,
+      "zero_stl_normals": 0,
+      "boundary_edges": 207,
+      "nonmanifold_edges": 0
+    }
+  ]
+}

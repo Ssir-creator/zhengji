@@ -1,0 +1,26 @@
+{
+  "runner": "Playwright 1.56.1",
+  "browser": "Chromium 154.0.8037.57",
+  "result": "passed",
+  "test_count": 7,
+  "approx_duration_seconds": 144,
+  "environment": "Linux / SwiftShader software WebGL",
+  "viewports": [
+    [
+      1440,
+      900
+    ],
+    [
+      1366,
+      768
+    ],
+    [
+      1024,
+      768
+    ]
+  ],
+  "geometry": "6 regression cases use test-only tetrahedra; 1 end-to-end case uses user actual 28 STL crowns via verified GLB derivatives",
+  "real_case_functional_acceptance": "passed_three_stage_LOD_restore_replay_practice_checks",
+  "teaching_acceptance": "not_completed_unconfirmed_metadata",
+  "performance_acceptance": "software rendering observed about3-5fps below targets; target GPU untested"
+}

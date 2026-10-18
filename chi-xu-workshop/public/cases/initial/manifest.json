@@ -1,0 +1,1378 @@
+{
+  "generated_by": "chi-xu-prepare-case-v1",
+  "case_id": "initial-uploaded-28",
+  "asset_version": "initial-0fbacc34-lod-v1",
+  "config_version": "prd-v1-provisional",
+  "unit": "u",
+  "unit_confirmed": false,
+  "scale": 1,
+  "source": "用户于2026-10-18上传initial.zip；原始数据来源待核对",
+  "usage_status": "仅本项目开发；正式发布使用范围待核对",
+  "teaching_reviewed": false,
+  "adjacency_confirmed": false,
+  "adjacency": [],
+  "camera_reviewed": false,
+  "camera_labels": {
+    "overview": "整体斜视",
+    "occlusal": "坐标俯视 (+Z)",
+    "front": "坐标观察 (−X)",
+    "side": "坐标观察 (−Y)"
+  },
+  "cameras": {
+    "overview": {
+      "position": [
+        -67.09821363745829,
+        -33.19980028183567,
+        69.97692218608188
+      ],
+      "target": [
+        -5.080018043518066,
+        -0.1234292984008789,
+        -0.310366153717041
+      ],
+      "up": [
+        0,
+        0,
+        1
+      ]
+    },
+    "occlusal": {
+      "position": [
+        -5.080018043518066,
+        -0.1234292984008789,
+        156.8023960175982
+      ],
+      "target": [
+        -5.080018043518066,
+        -0.1234292984008789,
+        -0.310366153717041
+      ],
+      "up": [
+        1,
+        0,
+        0
+      ]
+    },
+    "front": {
+      "position": [
+        -162.1927802148333,
+        -0.1234292984008789,
+        7.958726592141657
+      ],
+      "target": [
+        -5.080018043518066,
+        -0.1234292984008789,
+        -0.310366153717041
+      ],
+      "up": [
+        0,
+        0,
+        1
+      ]
+    },
+    "side": {
+      "position": [
+        -5.080018043518066,
+        -157.23619146971612,
+        7.958726592141657
+      ],
+      "target": [
+        -5.080018043518066,
+        -0.1234292984008789,
+        -0.310366153717041
+      ],
+      "up": [
+        0,
+        0,
+        1
+      ]
+    }
+  },
+  "teeth": [
+    {
+      "mesh_id": "2",
+      "mesh_uri": "original/2.stl",
+      "checksum": "d0dd69a80cfba81d0a8da74e3ff42bcbe09994b500226af7c49ae636190d61ea",
+      "jaw_group": "unknown",
+      "FDI": null,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "source": "用户上传 initial.zip；保持原始文件编号；数据原始出处待项目方核对",
+      "usage_status": "用户提供用于本项目开发；后续发布使用范围待核对"
+    },
+    {
+      "mesh_id": "3",
+      "mesh_uri": "original/3.stl",
+      "checksum": "3fd2524840ea4506c0e0a634e047078fadeb69a0921322d04b385cf12b4f1a9b",
+      "jaw_group": "unknown",
+      "FDI": null,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "source": "用户上传 initial.zip；保持原始文件编号；数据原始出处待项目方核对",
+      "usage_status": "用户提供用于本项目开发；后续发布使用范围待核对"
+    },
+    {
+      "mesh_id": "4",
+      "mesh_uri": "original/4.stl",
+      "checksum": "4d05090c39032a3135c979fff6f646fb98fa9ccebd36a835ae0d5218faea0596",
+      "jaw_group": "unknown",
+      "FDI": null,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "source": "用户上传 initial.zip；保持原始文件编号；数据原始出处待项目方核对",
+      "usage_status": "用户提供用于本项目开发；后续发布使用范围待核对"
+    },
+    {
+      "mesh_id": "5",
+      "mesh_uri": "original/5.stl",
+      "checksum": "1d21f54ba8752677f2713f81478d28dd2f119fd7e2c29a860bf865973fe42046",
+      "jaw_group": "unknown",
+      "FDI": null,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "source": "用户上传 initial.zip；保持原始文件编号；数据原始出处待项目方核对",
+      "usage_status": "用户提供用于本项目开发；后续发布使用范围待核对"
+    },
+    {
+      "mesh_id": "6",
+      "mesh_uri": "original/6.stl",
+      "checksum": "ef233824cedccbf2664866b9ed13b6e934c2fd15cf8be0c5ec06ef6a8e32d2ce",
+      "jaw_group": "unknown",
+      "FDI": null,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "source": "用户上传 initial.zip；保持原始文件编号；数据原始出处待项目方核对",
+      "usage_status": "用户提供用于本项目开发；后续发布使用范围待核对"
+    },
+    {
+      "mesh_id": "7",
+      "mesh_uri": "original/7.stl",
+      "checksum": "31a61d4afe89e5069a3883d9fa5c2ff9e75cb54cc58ef5a52a5ed8d242e9eee7",
+      "jaw_group": "unknown",
+      "FDI": null,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "source": "用户上传 initial.zip；保持原始文件编号；数据原始出处待项目方核对",
+      "usage_status": "用户提供用于本项目开发；后续发布使用范围待核对"
+    },
+    {
+      "mesh_id": "8",
+      "mesh_uri": "original/8.stl",
+      "checksum": "6837844063d95b7d3638c6dbd107eab0cc2112a4fa56ff88ef02c518bc41fe63",
+      "jaw_group": "unknown",
+      "FDI": null,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "source": "用户上传 initial.zip；保持原始文件编号；数据原始出处待项目方核对",
+      "usage_status": "用户提供用于本项目开发；后续发布使用范围待核对"
+    },
+    {
+      "mesh_id": "9",
+      "mesh_uri": "original/9.stl",
+      "checksum": "8b3f101362f09474c8bb95e7cca7aa3157f629225076d4d06faf6821fa73ebeb",
+      "jaw_group": "unknown",
+      "FDI": null,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "source": "用户上传 initial.zip；保持原始文件编号；数据原始出处待项目方核对",
+      "usage_status": "用户提供用于本项目开发；后续发布使用范围待核对"
+    },
+    {
+      "mesh_id": "10",
+      "mesh_uri": "original/10.stl",
+      "checksum": "19b3faf997d5d271b6ea7d279e5ce5bd1cab46518d2e41cd2f776eefad682b96",
+      "jaw_group": "unknown",
+      "FDI": null,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "source": "用户上传 initial.zip；保持原始文件编号；数据原始出处待项目方核对",
+      "usage_status": "用户提供用于本项目开发；后续发布使用范围待核对"
+    },
+    {
+      "mesh_id": "11",
+      "mesh_uri": "original/11.stl",
+      "checksum": "10fee33b2357f8b5c226fac9a9027256c56e332e8688a7bcb08adbaa9fb87bfd",
+      "jaw_group": "unknown",
+      "FDI": null,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "source": "用户上传 initial.zip；保持原始文件编号；数据原始出处待项目方核对",
+      "usage_status": "用户提供用于本项目开发；后续发布使用范围待核对"
+    },
+    {
+      "mesh_id": "12",
+      "mesh_uri": "original/12.stl",
+      "checksum": "8753005741079d59d4a5364cc4e42427d94a8ce62000fcb364a2132d7a2a42cb",
+      "jaw_group": "unknown",
+      "FDI": null,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "source": "用户上传 initial.zip；保持原始文件编号；数据原始出处待项目方核对",
+      "usage_status": "用户提供用于本项目开发；后续发布使用范围待核对"
+    },
+    {
+      "mesh_id": "13",
+      "mesh_uri": "original/13.stl",
+      "checksum": "7ef1594939767db9906452aae7b019a9db695cd20e74ec7fcfeb9231bc312bc8",
+      "jaw_group": "unknown",
+      "FDI": null,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "source": "用户上传 initial.zip；保持原始文件编号；数据原始出处待项目方核对",
+      "usage_status": "用户提供用于本项目开发；后续发布使用范围待核对"
+    },
+    {
+      "mesh_id": "14",
+      "mesh_uri": "original/14.stl",
+      "checksum": "7d808c81c112025400357989f6a018bd4f0e7f17912b51a59213c9dbe99a1792",
+      "jaw_group": "unknown",
+      "FDI": null,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "source": "用户上传 initial.zip；保持原始文件编号；数据原始出处待项目方核对",
+      "usage_status": "用户提供用于本项目开发；后续发布使用范围待核对"
+    },
+    {
+      "mesh_id": "15",
+      "mesh_uri": "original/15.stl",
+      "checksum": "e912f7d6042787ba47db4ebf2ec3b88fc4ee14feecd8f0f00591d32610a4659a",
+      "jaw_group": "unknown",
+      "FDI": null,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "source": "用户上传 initial.zip；保持原始文件编号；数据原始出处待项目方核对",
+      "usage_status": "用户提供用于本项目开发；后续发布使用范围待核对"
+    },
+    {
+      "mesh_id": "18",
+      "mesh_uri": "original/18.stl",
+      "checksum": "46ffbb0ceea5130e10d86176a4d3ab39d49635167bdd8f45f5ff6deeecf476f8",
+      "jaw_group": "unknown",
+      "FDI": null,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "source": "用户上传 initial.zip；保持原始文件编号；数据原始出处待项目方核对",
+      "usage_status": "用户提供用于本项目开发；后续发布使用范围待核对"
+    },
+    {
+      "mesh_id": "19",
+      "mesh_uri": "original/19.stl",
+      "checksum": "caa2bedcb472a20785ca7283b78eecf6b6901dd8bdcbb3ff9920d2a146e71511",
+      "jaw_group": "unknown",
+      "FDI": null,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "source": "用户上传 initial.zip；保持原始文件编号；数据原始出处待项目方核对",
+      "usage_status": "用户提供用于本项目开发；后续发布使用范围待核对"
+    },
+    {
+      "mesh_id": "20",
+      "mesh_uri": "original/20.stl",
+      "checksum": "25ed28a51eb7af670787df7a614b5e16a7339ea0b343ce7bc4891f546e9fe01a",
+      "jaw_group": "unknown",
+      "FDI": null,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "source": "用户上传 initial.zip；保持原始文件编号；数据原始出处待项目方核对",
+      "usage_status": "用户提供用于本项目开发；后续发布使用范围待核对"
+    },
+    {
+      "mesh_id": "21",
+      "mesh_uri": "original/21.stl",
+      "checksum": "20b3cdf9db4946621111678ab719055cf5feb6c06a857621bd02c53ff322a5d2",
+      "jaw_group": "unknown",
+      "FDI": null,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "source": "用户上传 initial.zip；保持原始文件编号；数据原始出处待项目方核对",
+      "usage_status": "用户提供用于本项目开发；后续发布使用范围待核对"
+    },
+    {
+      "mesh_id": "22",
+      "mesh_uri": "original/22.stl",
+      "checksum": "5048c19809fa0f76fd715032d3bb2a6f8514b4e224f6fff0f402d65acda60775",
+      "jaw_group": "unknown",
+      "FDI": null,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "source": "用户上传 initial.zip；保持原始文件编号；数据原始出处待项目方核对",
+      "usage_status": "用户提供用于本项目开发；后续发布使用范围待核对"
+    },
+    {
+      "mesh_id": "23",
+      "mesh_uri": "original/23.stl",
+      "checksum": "2fa9468ced58e45cbad0dd0d2a9379f2896b90222df9b34ac360ac54879b1b57",
+      "jaw_group": "unknown",
+      "FDI": null,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "source": "用户上传 initial.zip；保持原始文件编号；数据原始出处待项目方核对",
+      "usage_status": "用户提供用于本项目开发；后续发布使用范围待核对"
+    },
+    {
+      "mesh_id": "24",
+      "mesh_uri": "original/24.stl",
+      "checksum": "d1283856f233b68b543894f33741b03fd53a6f2f3c1d82d1932bab42c0c03f0c",
+      "jaw_group": "unknown",
+      "FDI": null,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "source": "用户上传 initial.zip；保持原始文件编号；数据原始出处待项目方核对",
+      "usage_status": "用户提供用于本项目开发；后续发布使用范围待核对"
+    },
+    {
+      "mesh_id": "25",
+      "mesh_uri": "original/25.stl",
+      "checksum": "d5cbb15e1f92060bce81e4f22417470950e8e6b72086c3ca99d7d676974c7ee4",
+      "jaw_group": "unknown",
+      "FDI": null,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "source": "用户上传 initial.zip；保持原始文件编号；数据原始出处待项目方核对",
+      "usage_status": "用户提供用于本项目开发；后续发布使用范围待核对"
+    },
+    {
+      "mesh_id": "26",
+      "mesh_uri": "original/26.stl",
+      "checksum": "ad5829756fb254816524cde981ba094af02f6d6a0272dbd20d355f1db45d2acb",
+      "jaw_group": "unknown",
+      "FDI": null,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "source": "用户上传 initial.zip；保持原始文件编号；数据原始出处待项目方核对",
+      "usage_status": "用户提供用于本项目开发；后续发布使用范围待核对"
+    },
+    {
+      "mesh_id": "27",
+      "mesh_uri": "original/27.stl",
+      "checksum": "5376735c6b34cc7d622964a9a12e75390775c34d473d9d4d9c95f9108d481f63",
+      "jaw_group": "unknown",
+      "FDI": null,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "source": "用户上传 initial.zip；保持原始文件编号；数据原始出处待项目方核对",
+      "usage_status": "用户提供用于本项目开发；后续发布使用范围待核对"
+    },
+    {
+      "mesh_id": "28",
+      "mesh_uri": "original/28.stl",
+      "checksum": "f0bf82254541006c525718badd23cb1d091a2105af12ea79bb7dc7a95d05d675",
+      "jaw_group": "unknown",
+      "FDI": null,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "source": "用户上传 initial.zip；保持原始文件编号；数据原始出处待项目方核对",
+      "usage_status": "用户提供用于本项目开发；后续发布使用范围待核对"
+    },
+    {
+      "mesh_id": "29",
+      "mesh_uri": "original/29.stl",
+      "checksum": "52c68bbcc9e426ac3060ecc153da9a12ab0104d65ebe92251961b3fb2840690f",
+      "jaw_group": "unknown",
+      "FDI": null,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "source": "用户上传 initial.zip；保持原始文件编号；数据原始出处待项目方核对",
+      "usage_status": "用户提供用于本项目开发；后续发布使用范围待核对"
+    },
+    {
+      "mesh_id": "30",
+      "mesh_uri": "original/30.stl",
+      "checksum": "41bd44fa896ebbeb31c9d08778d92480e77ade646048f2dda5110265c9f118c9",
+      "jaw_group": "unknown",
+      "FDI": null,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "source": "用户上传 initial.zip；保持原始文件编号；数据原始出处待项目方核对",
+      "usage_status": "用户提供用于本项目开发；后续发布使用范围待核对"
+    },
+    {
+      "mesh_id": "31",
+      "mesh_uri": "original/31.stl",
+      "checksum": "2a74a590a3c6a1c09c1463f9c1e71a5b969873bf16048ec0fd6d0453befbffc4",
+      "jaw_group": "unknown",
+      "FDI": null,
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "source": "用户上传 initial.zip；保持原始文件编号；数据原始出处待项目方核对",
+      "usage_status": "用户提供用于本项目开发；后续发布使用范围待核对"
+    }
+  ],
+  "levels": [
+    {
+      "level_id": 1,
+      "name": "创造空间",
+      "allowed_teeth": [
+        "3",
+        "5"
+      ],
+      "allowed_axes": {
+        "3": {
+          "translate": [
+            "X"
+          ],
+          "rotate": []
+        },
+        "5": {
+          "translate": [
+            "X"
+          ],
+          "rotate": []
+        }
+      },
+      "target_pose": {
+        "3": {
+          "translation": [
+            1.5,
+            0,
+            0
+          ],
+          "quaternion": [
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        "5": {
+          "translation": [
+            -1.5,
+            0,
+            0
+          ],
+          "quaternion": [
+            0,
+            0,
+            0,
+            1
+          ]
+        }
+      },
+      "tolerances": {
+        "position": 0.35,
+        "rotation": 3,
+        "fixed_position": 0.00001,
+        "fixed_rotation": 0.001
+      },
+      "required_checks": [
+        "pose",
+        "fixed"
+      ]
+    },
+    {
+      "level_id": 2,
+      "name": "排齐错位牙",
+      "allowed_teeth": [
+        "4"
+      ],
+      "allowed_axes": {
+        "4": {
+          "translate": [
+            "Y"
+          ],
+          "rotate": [
+            "Z"
+          ]
+        }
+      },
+      "target_pose": {
+        "4": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "quaternion": [
+            0,
+            0,
+            0,
+            1
+          ]
+        }
+      },
+      "tolerances": {
+        "position": 0.35,
+        "rotation": 3,
+        "fixed_position": 0.00001,
+        "fixed_rotation": 0.001
+      },
+      "required_checks": [
+        "pose",
+        "fixed"
+      ]
+    },
+    {
+      "level_id": 3,
+      "name": "整体协调",
+      "allowed_teeth": [
+        "3",
+        "5",
+        "6"
+      ],
+      "allowed_axes": {
+        "3": {
+          "translate": [
+            "X"
+          ],
+          "rotate": []
+        },
+        "5": {
+          "translate": [
+            "X"
+          ],
+          "rotate": []
+        },
+        "6": {
+          "translate": [
+            "Y"
+          ],
+          "rotate": [
+            "Z"
+          ]
+        }
+      },
+      "target_pose": {
+        "3": {
+          "translation": [
+            1,
+            0,
+            0
+          ],
+          "quaternion": [
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        "5": {
+          "translation": [
+            -1,
+            0,
+            0
+          ],
+          "quaternion": [
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        "6": {
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "quaternion": [
+            0,
+            0,
+            0,
+            1
+          ]
+        }
+      },
+      "tolerances": {
+        "position": 0.35,
+        "rotation": 3,
+        "fixed_position": 0.00001,
+        "fixed_rotation": 0.001
+      },
+      "required_checks": [
+        "pose",
+        "fixed",
+        "stage2"
+      ]
+    }
+  ],
+  "prepared_assets": {
+    "2": {
+      "pivot": [
+        14.432170867919922,
+        25.97609519958496,
+        2.8871905505657196
+      ],
+      "original_triangles": 13722,
+      "original_checksum": "d0dd69a80cfba81d0a8da74e3ff42bcbe09994b500226af7c49ae636190d61ea",
+      "desktop": {
+        "uri": "desktop/DEN_tooth_mesh2_LOD1.glb",
+        "checksum": "47e3ce337f33f91c763c23d55aee35803d1adfd4a58552ae88f63a467184bc92",
+        "triangles": 6000,
+        "bytes": 147872,
+        "relative_error": 0.0004186074365861714,
+        "error_estimate_u": 0.004798946287198458
+      },
+      "low": {
+        "uri": "low/DEN_tooth_mesh2_LOD2.glb",
+        "checksum": "fde3f9c12d7c2038917e82b4edec19304cce2ca89806ba76f15f4d980f24bcf4",
+        "triangles": 3000,
+        "bytes": 75868,
+        "relative_error": 0.0008075173827819526,
+        "error_estimate_u": 0.009257438371264914
+      }
+    },
+    "3": {
+      "pivot": [
+        4.475019752979279,
+        23.74095916748047,
+        3.034367471933365
+      ],
+      "original_triangles": 17529,
+      "original_checksum": "3fd2524840ea4506c0e0a634e047078fadeb69a0921322d04b385cf12b4f1a9b",
+      "desktop": {
+        "uri": "desktop/DEN_tooth_mesh3_LOD1.glb",
+        "checksum": "dc52796fb6c14d7ee12955350f4cfc87e3ec90b11963e6db476d7f39852c880f",
+        "triangles": 5999,
+        "bytes": 147784,
+        "relative_error": 0.0005107676843181252,
+        "error_estimate_u": 0.005744504156298569
+      },
+      "low": {
+        "uri": "low/DEN_tooth_mesh3_LOD2.glb",
+        "checksum": "9292f44255a7f7a2f2cda98ba0a4094d537ec66256d5c6fb4e8abbc7209586a1",
+        "triangles": 2999,
+        "bytes": 75780,
+        "relative_error": 0.0010356835555285215,
+        "error_estimate_u": 0.011648130200888174
+      }
+    },
+    "4": {
+      "pivot": [
+        -3.3003259003162384,
+        21.33123207092285,
+        2.775940954685211
+      ],
+      "original_triangles": 12965,
+      "original_checksum": "4d05090c39032a3135c979fff6f646fb98fa9ccebd36a835ae0d5218faea0596",
+      "desktop": {
+        "uri": "desktop/DEN_tooth_mesh4_LOD1.glb",
+        "checksum": "df04cf2498bb386314427473dd9e5af14d7b2372a546cdadb76438b20430c18d",
+        "triangles": 5999,
+        "bytes": 147136,
+        "relative_error": 0.000460772862425074,
+        "error_estimate_u": 0.004493547849016011
+      },
+      "low": {
+        "uri": "low/DEN_tooth_mesh4_LOD2.glb",
+        "checksum": "ec31b28bf99ab44ecffd4779f0d0a435cba3cef6db67eb8e1e595cda81cfd9f1",
+        "triangles": 2999,
+        "bytes": 75132,
+        "relative_error": 0.0009295868221670389,
+        "error_estimate_u": 0.00906551406529843
+      }
+    },
+    "5": {
+      "pivot": [
+        -10.06652283668518,
+        19.021363258361816,
+        2.232033848762512
+      ],
+      "original_triangles": 13230,
+      "original_checksum": "1d21f54ba8752677f2713f81478d28dd2f119fd7e2c29a860bf865973fe42046",
+      "desktop": {
+        "uri": "desktop/DEN_tooth_mesh5_LOD1.glb",
+        "checksum": "7f167d454a15bec7f8bec9586c5b76e22965247ed4993f4dc0824b263b97bda3",
+        "triangles": 6000,
+        "bytes": 147248,
+        "relative_error": 0.0004567220457829535,
+        "error_estimate_u": 0.0045646619543954214
+      },
+      "low": {
+        "uri": "low/DEN_tooth_mesh5_LOD2.glb",
+        "checksum": "d16221340cff5539a731ef57faad5f62a86155cc55cf2c7692b5adbf9962b876",
+        "triangles": 3000,
+        "bytes": 75244,
+        "relative_error": 0.0009289983427152038,
+        "error_estimate_u": 0.009284779287189737
+      }
+    },
+    "6": {
+      "pivot": [
+        -17.102197647094727,
+        16.678847789764404,
+        2.796662986278534
+      ],
+      "original_triangles": 10677,
+      "original_checksum": "ef233824cedccbf2664866b9ed13b6e934c2fd15cf8be0c5ec06ef6a8e32d2ce",
+      "desktop": {
+        "uri": "desktop/DEN_tooth_mesh6_LOD1.glb",
+        "checksum": "8b5d4654e264795dca9dc2178ffd6068833ffa763064466f4938a0f7a30eb267",
+        "triangles": 5999,
+        "bytes": 147168,
+        "relative_error": 0.00037615743349306285,
+        "error_estimate_u": 0.003410842009487741
+      },
+      "low": {
+        "uri": "low/DEN_tooth_mesh6_LOD2.glb",
+        "checksum": "b0ca55d0a87d7968331239928a642b67a86fdad032b1896b1f10fccb5797f7a9",
+        "triangles": 2999,
+        "bytes": 75168,
+        "relative_error": 0.0008617887506261468,
+        "error_estimate_u": 0.007814348494043055
+      }
+    },
+    "7": {
+      "pivot": [
+        -22.806538581848145,
+        11.588716983795166,
+        2.8988972902297974
+      ],
+      "original_triangles": 10851,
+      "original_checksum": "31a61d4afe89e5069a3883d9fa5c2ff9e75cb54cc58ef5a52a5ed8d242e9eee7",
+      "desktop": {
+        "uri": "desktop/DEN_tooth_mesh7_LOD1.glb",
+        "checksum": "04894e608d8335d1258d47e8395d897671468cb713efb1e63a2b7cf3efbb78ed",
+        "triangles": 5999,
+        "bytes": 146972,
+        "relative_error": 0.0004025724483653903,
+        "error_estimate_u": 0.003640800975805325
+      },
+      "low": {
+        "uri": "low/DEN_tooth_mesh7_LOD2.glb",
+        "checksum": "29b769b9a81424c6d30c19dc92137f1311fd167ba45731d560bc313292bb9fd2",
+        "triangles": 2999,
+        "bytes": 74972,
+        "relative_error": 0.0009294809424318373,
+        "error_estimate_u": 0.008406077305933235
+      }
+    },
+    "8": {
+      "pivot": [
+        -25.572593688964844,
+        4.489828184247017,
+        2.7989872097969055
+      ],
+      "original_triangles": 12847,
+      "original_checksum": "6837844063d95b7d3638c6dbd107eab0cc2112a4fa56ff88ef02c518bc41fe63",
+      "desktop": {
+        "uri": "desktop/DEN_tooth_mesh8_LOD1.glb",
+        "checksum": "7e7856f2ea9f0130d4ff06a12253386edadf9a9a7fc7e460151dae96559feedc",
+        "triangles": 5999,
+        "bytes": 147140,
+        "relative_error": 0.0004580360255204141,
+        "error_estimate_u": 0.004321843103730627
+      },
+      "low": {
+        "uri": "low/DEN_tooth_mesh8_LOD2.glb",
+        "checksum": "cc3f6e8c1499a2d0b4513efef076cc9a75d8baf1fa7b40713c382c7b6d916866",
+        "triangles": 2999,
+        "bytes": 75164,
+        "relative_error": 0.0009437342523597181,
+        "error_estimate_u": 0.008904695576469335
+      }
+    },
+    "9": {
+      "pivot": [
+        -25.99130153656006,
+        -4.338790034875274,
+        2.5600090622901917
+      ],
+      "original_triangles": 13351,
+      "original_checksum": "8b3f101362f09474c8bb95e7cca7aa3157f629225076d4d06faf6821fa73ebeb",
+      "desktop": {
+        "uri": "desktop/DEN_tooth_mesh9_LOD1.glb",
+        "checksum": "4298935128b311fcb2e182c1ce0d4b93ec75e6563696b7dbc18cb8eb00a833b7",
+        "triangles": 5999,
+        "bytes": 147140,
+        "relative_error": 0.00048043267452158034,
+        "error_estimate_u": 0.0042396258269706555
+      },
+      "low": {
+        "uri": "low/DEN_tooth_mesh9_LOD2.glb",
+        "checksum": "9e3d3db5f7eb40399457ff143dac632badc154aafc7d82dc42b60be6c0c53875",
+        "triangles": 2999,
+        "bytes": 75140,
+        "relative_error": 0.0009750398457981646,
+        "error_estimate_u": 0.008604335907602179
+      }
+    },
+    "10": {
+      "pivot": [
+        -23.544845581054688,
+        -11.46616268157959,
+        2.6537652015686035
+      ],
+      "original_triangles": 10975,
+      "original_checksum": "19b3faf997d5d271b6ea7d279e5ce5bd1cab46518d2e41cd2f776eefad682b96",
+      "desktop": {
+        "uri": "desktop/DEN_tooth_mesh10_LOD1.glb",
+        "checksum": "e702e589c44b71f3b43e43bae288d70270181c8629ac3de3ccfc33a158b925bb",
+        "triangles": 5999,
+        "bytes": 146928,
+        "relative_error": 0.00042167346691712737,
+        "error_estimate_u": 0.003652502871697161
+      },
+      "low": {
+        "uri": "low/DEN_tooth_mesh10_LOD2.glb",
+        "checksum": "cf04d370a857fe32d27d4159f7e2f60b78d876f2b80b04175bf99d0f07eb0788",
+        "triangles": 2999,
+        "bytes": 74924,
+        "relative_error": 0.0009600079501979053,
+        "error_estimate_u": 0.008315514420638381
+      }
+    },
+    "11": {
+      "pivot": [
+        -17.897183895111084,
+        -16.147536754608154,
+        2.4378944635391235
+      ],
+      "original_triangles": 9974,
+      "original_checksum": "10fee33b2357f8b5c226fac9a9027256c56e332e8688a7bcb08adbaa9fb87bfd",
+      "desktop": {
+        "uri": "desktop/DEN_tooth_mesh11_LOD1.glb",
+        "checksum": "dc4e10e52ff799cd70d972cf407e5d74327cf02c0e2719520eab55ba006b680c",
+        "triangles": 6000,
+        "bytes": 147112,
+        "relative_error": 0.0003558418247848749,
+        "error_estimate_u": 0.002970549415340029
+      },
+      "low": {
+        "uri": "low/DEN_tooth_mesh11_LOD2.glb",
+        "checksum": "e069bde21f48583fb22c3f732f3dcfbb3e5fb4446895e30704618268be033b69",
+        "triangles": 3000,
+        "bytes": 75108,
+        "relative_error": 0.0008433075854554772,
+        "error_estimate_u": 0.007039888738320843
+      }
+    },
+    "12": {
+      "pivot": [
+        -10.595802307128906,
+        -18.530990600585938,
+        2.1568405628204346
+      ],
+      "original_triangles": 12204,
+      "original_checksum": "8753005741079d59d4a5364cc4e42427d94a8ce62000fcb364a2132d7a2a42cb",
+      "desktop": {
+        "uri": "desktop/DEN_tooth_mesh12_LOD1.glb",
+        "checksum": "bfedf01b874a5172acd6c7a735adddf913c77f99137b6902f92edace783276b7",
+        "triangles": 6000,
+        "bytes": 147376,
+        "relative_error": 0.00040483634802512825,
+        "error_estimate_u": 0.003966285529869662
+      },
+      "low": {
+        "uri": "low/DEN_tooth_mesh12_LOD2.glb",
+        "checksum": "e4824ee8f30f8a2de847a0dac08bcb349550d6bcd80aec55f19095b2ab03a43d",
+        "triangles": 3000,
+        "bytes": 75372,
+        "relative_error": 0.0008630880038253963,
+        "error_estimate_u": 0.008455894529421748
+      }
+    },
+    "13": {
+      "pivot": [
+        -3.332339972257614,
+        -20.404271125793457,
+        2.6322393864393234
+      ],
+      "original_triangles": 11651,
+      "original_checksum": "7ef1594939767db9906452aae7b019a9db695cd20e74ec7fcfeb9231bc312bc8",
+      "desktop": {
+        "uri": "desktop/DEN_tooth_mesh13_LOD1.glb",
+        "checksum": "47de023c8a4e355bd4120f39b5e0df34898b71ac4fc8448e8ed1ed419487e680",
+        "triangles": 5999,
+        "bytes": 147288,
+        "relative_error": 0.0004126330022700131,
+        "error_estimate_u": 0.003874597667309465
+      },
+      "low": {
+        "uri": "low/DEN_tooth_mesh13_LOD2.glb",
+        "checksum": "9d41b5e60aa85f9f984adebbd81400f0d525d76de0985d70aa62c9485fb065ea",
+        "triangles": 2999,
+        "bytes": 75288,
+        "relative_error": 0.0009288419387303293,
+        "error_estimate_u": 0.0087217667741194
+      }
+    },
+    "14": {
+      "pivot": [
+        3.6838353872299194,
+        -24.326037406921387,
+        3.5704718083143234
+      ],
+      "original_triangles": 16739,
+      "original_checksum": "7d808c81c112025400357989f6a018bd4f0e7f17912b51a59213c9dbe99a1792",
+      "desktop": {
+        "uri": "desktop/DEN_tooth_mesh14_LOD1.glb",
+        "checksum": "0d3ac673fe83d90521fecf9f0d7ded92950060f496be046fb5d926a9cbb7a5a0",
+        "triangles": 5999,
+        "bytes": 147604,
+        "relative_error": 0.00048804134712554514,
+        "error_estimate_u": 0.005404457883838865
+      },
+      "low": {
+        "uri": "low/DEN_tooth_mesh14_LOD2.glb",
+        "checksum": "0f733c281788a32f8a23a0817df9fc2d8e8ce53568f460a9d5778e6d91b533ac",
+        "triangles": 2999,
+        "bytes": 75600,
+        "relative_error": 0.0009763696580193937,
+        "error_estimate_u": 0.010812093538596357
+      }
+    },
+    "15": {
+      "pivot": [
+        13.477624416351318,
+        -26.159915924072266,
+        3.7861385345458984
+      ],
+      "original_triangles": 14459,
+      "original_checksum": "e912f7d6042787ba47db4ebf2ec3b88fc4ee14feecd8f0f00591d32610a4659a",
+      "desktop": {
+        "uri": "desktop/DEN_tooth_mesh15_LOD1.glb",
+        "checksum": "480beb569eeb7179bc59dcd334d0290ece3f80e7aa140d6518301ee3003e279e",
+        "triangles": 5999,
+        "bytes": 147724,
+        "relative_error": 0.0004434279107954353,
+        "error_estimate_u": 0.005106833316619985
+      },
+      "low": {
+        "uri": "low/DEN_tooth_mesh15_LOD2.glb",
+        "checksum": "6648f50ee81e48d4e88128983d89aeb86969bca966fe99e3419bacf1e679b707",
+        "triangles": 2999,
+        "bytes": 75720,
+        "relative_error": 0.0008926159352995455,
+        "error_estimate_u": 0.010280004226970174
+      }
+    },
+    "18": {
+      "pivot": [
+        13.125584602355957,
+        -24.8579044342041,
+        -0.791616678237915
+      ],
+      "original_triangles": 14568,
+      "original_checksum": "46ffbb0ceea5130e10d86176a4d3ab39d49635167bdd8f45f5ff6deeecf476f8",
+      "desktop": {
+        "uri": "desktop/DEN_tooth_mesh18_LOD1.glb",
+        "checksum": "683dad9dea1880ce01d50d42724992d054fa6b9078e5befe3e62295e722fce1f",
+        "triangles": 6000,
+        "bytes": 147852,
+        "relative_error": 0.0004308419593144208,
+        "error_estimate_u": 0.00490412503344545
+      },
+      "low": {
+        "uri": "low/DEN_tooth_mesh18_LOD2.glb",
+        "checksum": "19a7e5e8110170ddf6d838f7160142db2ad83e182395d184f05ca2fe4e7bca02",
+        "triangles": 3000,
+        "bytes": 75848,
+        "relative_error": 0.0008448558510281146,
+        "error_estimate_u": 0.009616701992704813
+      }
+    },
+    "19": {
+      "pivot": [
+        1.5250344276428223,
+        -23.79268455505371,
+        -1.5745416283607483
+      ],
+      "original_triangles": 16020,
+      "original_checksum": "caa2bedcb472a20785ca7283b78eecf6b6901dd8bdcbb3ff9920d2a146e71511",
+      "desktop": {
+        "uri": "desktop/DEN_tooth_mesh19_LOD1.glb",
+        "checksum": "71ed687a1dc0fe651a536845e6dc78fb06856dde16f6ecfc0495139a51b58826",
+        "triangles": 6000,
+        "bytes": 147780,
+        "relative_error": 0.00047260220162570477,
+        "error_estimate_u": 0.005835577754485621
+      },
+      "low": {
+        "uri": "low/DEN_tooth_mesh19_LOD2.glb",
+        "checksum": "8b042964e2c78a77bebeb78283e19844fc9aba6fb1ca4bb227d75579ab5925fe",
+        "triangles": 3000,
+        "bytes": 75780,
+        "relative_error": 0.000928221910726279,
+        "error_estimate_u": 0.011461459796055673
+      }
+    },
+    "20": {
+      "pivot": [
+        -5.988041877746582,
+        -19.17163896560669,
+        -2.63927686214447
+      ],
+      "original_triangles": 10443,
+      "original_checksum": "25ed28a51eb7af670787df7a614b5e16a7339ea0b343ce7bc4891f546e9fe01a",
+      "desktop": {
+        "uri": "desktop/DEN_tooth_mesh20_LOD1.glb",
+        "checksum": "7c6d78f11b62b3b1452d3c57c9133968f46ab8c4d4af780cfbc62f1b7dfe205c",
+        "triangles": 5999,
+        "bytes": 147216,
+        "relative_error": 0.00040447822539135814,
+        "error_estimate_u": 0.003590942360326088
+      },
+      "low": {
+        "uri": "low/DEN_tooth_mesh20_LOD2.glb",
+        "checksum": "6c0950ce932f840ab536cdce88711c9b172b47410aabddb4ee5690bff41f01bb",
+        "triangles": 2999,
+        "bytes": 75216,
+        "relative_error": 0.0009068567887879908,
+        "error_estimate_u": 0.008051040212256777
+      }
+    },
+    "21": {
+      "pivot": [
+        -12.753826141357422,
+        -16.149455070495605,
+        -3.0977788865566254
+      ],
+      "original_triangles": 11033,
+      "original_checksum": "20b3cdf9db4946621111678ab719055cf5feb6c06a857621bd02c53ff322a5d2",
+      "desktop": {
+        "uri": "desktop/DEN_tooth_mesh21_LOD1.glb",
+        "checksum": "4052a5dcf02c53c1b74489d472ca906a6e64815990225cf57693d873f2db8d67",
+        "triangles": 5999,
+        "bytes": 147148,
+        "relative_error": 0.0004879308398813009,
+        "error_estimate_u": 0.003929907079843531
+      },
+      "low": {
+        "uri": "low/DEN_tooth_mesh21_LOD2.glb",
+        "checksum": "ce9920707d3ecea25a993eef5439c63c1274aa02eaa3a82cc8d137d8c33018be",
+        "triangles": 2999,
+        "bytes": 75148,
+        "relative_error": 0.001089242985472083,
+        "error_estimate_u": 0.008773013243676075
+      }
+    },
+    "22": {
+      "pivot": [
+        -18.757474422454834,
+        -12.007738590240479,
+        -3.5094490945339203
+      ],
+      "original_triangles": 10296,
+      "original_checksum": "5048c19809fa0f76fd715032d3bb2a6f8514b4e224f6fff0f402d65acda60775",
+      "desktop": {
+        "uri": "desktop/DEN_tooth_mesh22_LOD1.glb",
+        "checksum": "f3b54f5de2e2cb0092a71f1ffb0777ef50b00c6cff6bfb5b966f0535d3cac712",
+        "triangles": 6000,
+        "bytes": 147040,
+        "relative_error": 0.00031683698762208223,
+        "error_estimate_u": 0.002815754810490567
+      },
+      "low": {
+        "uri": "low/DEN_tooth_mesh22_LOD2.glb",
+        "checksum": "a3edff1f71f4acdb5794a247dd25be1c59a97fc4bf45605cfa3370c929b05fe7",
+        "triangles": 3000,
+        "bytes": 75036,
+        "relative_error": 0.0007524621323682368,
+        "error_estimate_u": 0.006687189159414242
+      }
+    },
+    "23": {
+      "pivot": [
+        -21.848039627075195,
+        -7.717314720153809,
+        -3.4122779965400696
+      ],
+      "original_triangles": 9798,
+      "original_checksum": "2fa9468ced58e45cbad0dd0d2a9379f2896b90222df9b34ac360ac54879b1b57",
+      "desktop": {
+        "uri": "desktop/DEN_tooth_mesh23_LOD1.glb",
+        "checksum": "fd9389898c3ee3d6207f5fee0a043d07cd883bfaf18e16edb768fcb33486fcee",
+        "triangles": 6000,
+        "bytes": 146776,
+        "relative_error": 0.00028621108504012227,
+        "error_estimate_u": 0.0027048319939756427
+      },
+      "low": {
+        "uri": "low/DEN_tooth_mesh23_LOD2.glb",
+        "checksum": "d763828478fe294d5e734b488b7ebeeda67546fb11c834d60e17a600e3f4d906",
+        "triangles": 3000,
+        "bytes": 74776,
+        "relative_error": 0.0007507381378673017,
+        "error_estimate_u": 0.007094835387373322
+      }
+    },
+    "24": {
+      "pivot": [
+        -22.40865135192871,
+        -2.5129862129688263,
+        -3.266035884618759
+      ],
+      "original_triangles": 8526,
+      "original_checksum": "d1283856f233b68b543894f33741b03fd53a6f2f3c1d82d1932bab42c0c03f0c",
+      "desktop": {
+        "uri": "desktop/DEN_tooth_mesh24_LOD1.glb",
+        "checksum": "56fd2e2a5970ee571c1cdb512fdc7a862f7ae0b88a94b30eab9b983fe0d98009",
+        "triangles": 6000,
+        "bytes": 146728,
+        "relative_error": 0.0002500711125321686,
+        "error_estimate_u": 0.0021064962109128005
+      },
+      "low": {
+        "uri": "low/DEN_tooth_mesh24_LOD2.glb",
+        "checksum": "b5db77cda144e19a0ae619123a3de7f6082d8351802309cfb11fb60af4940744",
+        "triangles": 3000,
+        "bytes": 74724,
+        "relative_error": 0.0007099299691617489,
+        "error_estimate_u": 0.005980158103468636
+      }
+    },
+    "25": {
+      "pivot": [
+        -21.759623527526855,
+        2.9026938155293465,
+        -3.040196716785431
+      ],
+      "original_triangles": 8416,
+      "original_checksum": "d5cbb15e1f92060bce81e4f22417470950e8e6b72086c3ca99d7d676974c7ee4",
+      "desktop": {
+        "uri": "desktop/DEN_tooth_mesh25_LOD1.glb",
+        "checksum": "1979449fed772b9f284cc722ed82691c651671ee423beb6ef4c660ee288225c9",
+        "triangles": 6000,
+        "bytes": 146656,
+        "relative_error": 0.0002859785745386034,
+        "error_estimate_u": 0.0023041755123174856
+      },
+      "low": {
+        "uri": "low/DEN_tooth_mesh25_LOD2.glb",
+        "checksum": "c06c2910ca15c935ef99d109bd209678ff3876c82732b51c55b4e99e393249ae",
+        "triangles": 3000,
+        "bytes": 74656,
+        "relative_error": 0.0008084045257419348,
+        "error_estimate_u": 0.006513445684756203
+      }
+    },
+    "26": {
+      "pivot": [
+        -21.145901679992676,
+        8.473923444747925,
+        -3.093234419822693
+      ],
+      "original_triangles": 10103,
+      "original_checksum": "ad5829756fb254816524cde981ba094af02f6d6a0272dbd20d355f1db45d2acb",
+      "desktop": {
+        "uri": "desktop/DEN_tooth_mesh26_LOD1.glb",
+        "checksum": "805a76e993af545e791b966a6053d63a0ce17dc95cafaff23ad725ec5315ef1c",
+        "triangles": 5999,
+        "bytes": 146740,
+        "relative_error": 0.00035563745768740773,
+        "error_estimate_u": 0.003083538565704369
+      },
+      "low": {
+        "uri": "low/DEN_tooth_mesh26_LOD2.glb",
+        "checksum": "33dc9b9790045cbaa84bc0ace9da4c51878a530ffe713f57abb4f61f70754e8e",
+        "triangles": 2999,
+        "bytes": 74740,
+        "relative_error": 0.0008596093975938857,
+        "error_estimate_u": 0.007453204581313988
+      }
+    },
+    "27": {
+      "pivot": [
+        -18.33422613143921,
+        12.95855712890625,
+        -3.444427251815796
+      ],
+      "original_triangles": 10557,
+      "original_checksum": "5376735c6b34cc7d622964a9a12e75390775c34d473d9d4d9c95f9108d481f63",
+      "desktop": {
+        "uri": "desktop/DEN_tooth_mesh27_LOD1.glb",
+        "checksum": "c865b840e70de148bd7f4507c5d4e76ecc00e91ec94c6030e8decf3a66d0c9be",
+        "triangles": 5999,
+        "bytes": 147048,
+        "relative_error": 0.0003661125956568867,
+        "error_estimate_u": 0.0032554048393775292
+      },
+      "low": {
+        "uri": "low/DEN_tooth_mesh27_LOD2.glb",
+        "checksum": "758e5442289de3f7570fd8ced35e85cd6de56d18507e5f03c9c98724f2164f89",
+        "triangles": 2999,
+        "bytes": 75044,
+        "relative_error": 0.0008093789219856262,
+        "error_estimate_u": 0.00719684624560557
+      }
+    },
+    "28": {
+      "pivot": [
+        -12.583389282226562,
+        17.102855682373047,
+        -3.078839808702469
+      ],
+      "original_triangles": 10245,
+      "original_checksum": "f0bf82254541006c525718badd23cb1d091a2105af12ea79bb7dc7a95d05d675",
+      "desktop": {
+        "uri": "desktop/DEN_tooth_mesh28_LOD1.glb",
+        "checksum": "19b357979a96d1df3451b9132f7c384052e68667b0fae3feaa52abbb65783d4e",
+        "triangles": 5999,
+        "bytes": 147124,
+        "relative_error": 0.00042273057624697685,
+        "error_estimate_u": 0.003528309634230453
+      },
+      "low": {
+        "uri": "low/DEN_tooth_mesh28_LOD2.glb",
+        "checksum": "0c3a9b75fa11f3d0c754664b79a32771724c5a97dd60ef57df867503184ee439",
+        "triangles": 2999,
+        "bytes": 75124,
+        "relative_error": 0.001006414880976081,
+        "error_estimate_u": 0.00840001532916368
+      }
+    },
+    "29": {
+      "pivot": [
+        -5.505061745643616,
+        19.251827716827393,
+        -2.6958382427692413
+      ],
+      "original_triangles": 10278,
+      "original_checksum": "52c68bbcc9e426ac3060ecc153da9a12ab0104d65ebe92251961b3fb2840690f",
+      "desktop": {
+        "uri": "desktop/DEN_tooth_mesh29_LOD1.glb",
+        "checksum": "1038cde9760724b8ad9915bf9f49bc129e7553aeea9f967e9d8c4336a9a3130b",
+        "triangles": 6000,
+        "bytes": 147132,
+        "relative_error": 0.0004305092734284699,
+        "error_estimate_u": 0.0036735241310427713
+      },
+      "low": {
+        "uri": "low/DEN_tooth_mesh29_LOD2.glb",
+        "checksum": "00ea9b9d5ac5bed9b49d1290e14c0b1c2e998b50185fb49cbbc2f0dc7e24c24a",
+        "triangles": 3000,
+        "bytes": 75132,
+        "relative_error": 0.0010064118541777134,
+        "error_estimate_u": 0.008587685469924278
+      }
+    },
+    "30": {
+      "pivot": [
+        2.885026454925537,
+        22.61124610900879,
+        -2.3074969947338104
+      ],
+      "original_triangles": 15531,
+      "original_checksum": "41bd44fa896ebbeb31c9d08778d92480e77ade646048f2dda5110265c9f118c9",
+      "desktop": {
+        "uri": "desktop/DEN_tooth_mesh30_LOD1.glb",
+        "checksum": "7a8359e209f94cff2ff3c319fb54fa792955c4aff46b552d43325d2995958c51",
+        "triangles": 5999,
+        "bytes": 147724,
+        "relative_error": 0.00046440804726444185,
+        "error_estimate_u": 0.00535238273138397
+      },
+      "low": {
+        "uri": "low/DEN_tooth_mesh30_LOD2.glb",
+        "checksum": "ea9175636d949c2a2a5db3d7d2af44b1d951eb21a9043a599f8aa6fb34136ff7",
+        "triangles": 2999,
+        "bytes": 75716,
+        "relative_error": 0.0009448729106225073,
+        "error_estimate_u": 0.010889823033769896
+      }
+    },
+    "31": {
+      "pivot": [
+        13.428178071975708,
+        25.27561092376709,
+        -1.8314682245254517
+      ],
+      "original_triangles": 15107,
+      "original_checksum": "2a74a590a3c6a1c09c1463f9c1e71a5b969873bf16048ec0fd6d0453befbffc4",
+      "desktop": {
+        "uri": "desktop/DEN_tooth_mesh31_LOD1.glb",
+        "checksum": "79fd4b18f6a34a87ee35b7067cd5ca89e6239c981e7ec67cf9438dceb98257a2",
+        "triangles": 5999,
+        "bytes": 147792,
+        "relative_error": 0.0004803880874533206,
+        "error_estimate_u": 0.0054584211886596345
+      },
+      "low": {
+        "uri": "low/DEN_tooth_mesh31_LOD2.glb",
+        "checksum": "a8394e3685826e584ac9e5e8f337fe88d8ab922fd07651f1d5cf52eac39b60ab",
+        "triangles": 2999,
+        "bytes": 75788,
+        "relative_error": 0.000919576152227819,
+        "error_estimate_u": 0.010448706129487784
+      }
+    }
+  },
+  "surface_samples": {
+    "uri": "surface-samples.json",
+    "checksum": "c4473a3695f06e222676c5d869912ef855490a33102d93aaaca05b72231d4dbc"
+  }
+}

@@ -1,0 +1,3 @@
+import {defaultLevels,type Manifest} from '../src/core';
+/** Metadata only; no anatomical assets. */
+export const manifest=():Manifest=>({case_id:'non-anatomical-test-fixture',asset_version:'fixture-v1',config_version:'prd-v1',unit:'u',unit_confirmed:false,scale:1,source:'synthetic automated test only',usage_status:'test only',teaching_reviewed:false,adjacency_confirmed:false,adjacency:[],teeth:Array.from({length:28},(_,i)=>({mesh_id:String(i+1),mesh_uri:`fixture-${i+1}.stl`,checksum:'0'.repeat(64),jaw_group:'unknown',FDI:null,origin:[0,0,0],source:'synthetic test only',usage_status:'test only'})),levels:defaultLevels()});
