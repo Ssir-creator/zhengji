@@ -2,8 +2,8 @@
   "runner": "Playwright 1.56.1",
   "browser": "Chromium 154.0.8037.57",
   "result": "passed",
-  "test_count": 7,
-  "approx_duration_seconds": 144,
+  "test_count": 9,
+  "approx_duration_seconds": 240,
   "environment": "Linux / SwiftShader software WebGL",
   "viewports": [
     [
@@ -19,8 +19,10 @@
       768
     ]
   ],
-  "geometry": "6 regression cases use test-only tetrahedra; 1 end-to-end case uses user actual 28 STL crowns via verified GLB derivatives",
+  "geometry": "6 legacy regression cases plus 2 player-interface cases plus 1 full actual 28-crown three-stage flow",
   "real_case_functional_acceptance": "passed_three_stage_LOD_restore_replay_practice_checks",
   "teaching_acceptance": "not_completed_unconfirmed_metadata",
-  "performance_acceptance": "software rendering observed about3-5fps below targets; target GPU untested"
+  "performance_acceptance": "software rendering observed about3-5fps below targets; target GPU untested",
+  "player_redesign": "full regression passed; source schema1 real-case restore and marker click tested",
+  "rendering": "render on demand; target GPU performance remains unmeasured"
 }

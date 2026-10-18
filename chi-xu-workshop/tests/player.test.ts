@@ -1,0 +1,11 @@
+import {it,expect} from 'vitest';
+import {manifest} from './fixtures';
+import {initialPoses,copy,zQuaternion} from '../src/core';
+import {guidance,taskName} from '../src/player';
+const setup=()=>{const m=manifest(),p=initialPoses(m,Object.fromEntries(m.teeth.map(t=>[t.mesh_id,[0,0,0] as [number,number,number]])));return{m,p};};
+it('标记的是关卡任务次序，不伪造牙位编号',()=>{const{m}=setup();expect(taskName(m,1,'3')).toBe('①号任务牙');expect(taskName(m,1,'5')).toBe('②号任务牙');expect(taskName(m,3,'6')).toBe('③号任务牙');expect(taskName(m,3,'7')).toBe('这颗牙');});
+it('误点非任务牙会给出返回任务的明确动作',()=>{const{m,p}=setup();const g=guidance(m,1,p,p,'9','translate','X');expect(g.action).toBe('select');expect(g.nextId).toBe('3');expect(g.heading).toContain('先不用动');});
+it('箭头是受限微调的方向提示，正负方向均正确',()=>{const{m,p}=setup();expect(guidance(m,1,p,p,'3','translate','X').sign).toBe(1);expect(guidance(m,1,p,p,'5','translate','X').sign).toBe(-1);const s=copy(p);s['3'].translation=[1.5,0,0];expect(guidance(m,3,s,s,'3','translate','X').sign).toBe(-1);});
+it('位置达标而朝向未达标时提示切换旋转，不会判为完成',()=>{const{m,p}=setup();const current=copy(p);current['4'].translation=[0,0,0];const g=guidance(m,2,current,p,'4','translate','Y');expect(g.action).toBe('rotate');expect(g.ready).toBe(false);expect(g.sign).toBe(1);const rotate=guidance(m,2,current,p,'4','rotate','Z');expect(rotate.sign).toBe(-1);});
+it('第三关只列出三颗任务牙，第二关保留目标仍参与判断',()=>{const{m,p}=setup();const current=copy(p);current['3'].translation=[1,0,0];current['5'].translation=[-1,0,0];current['6'].translation=[0,0,0];current['6'].quaternion=zQuaternion(0);const g=guidance(m,3,current,p,'6','rotate','Z');expect(g.tasks).toHaveLength(3);expect(g.completed).toBe(3);expect(g.ready).toBe(false);});
+it('达标后继续移动会取消完成，提示不会自动吸附位姿',()=>{const{m,p}=setup();const current=copy(p);current['3'].translation=[1.5,0,0];const before=copy(current);expect(guidance(m,1,current,p,'3','translate','X').action).toBe('next');expect(current).toEqual(before);current['3'].translation=[2,0,0];expect(guidance(m,1,current,p,'3','translate','X').active?.passed).toBe(false);});
