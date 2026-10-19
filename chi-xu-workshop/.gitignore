@@ -4,3 +4,4 @@ test-results/
 playwright-report/
 local-assets/
 *.local.json
+.chi-xu-version.json

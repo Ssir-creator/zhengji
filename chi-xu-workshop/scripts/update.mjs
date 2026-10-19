@@ -1,0 +1,179 @@
+import * as http from 'node:http';
+import {createHash,randomUUID} from 'node:crypto';
+import {spawn} from 'node:child_process';
+import {createConnection} from 'node:net';
+import {access,copyFile,cp,mkdir,mkdtemp,readFile,readdir,rename,rm,stat,lstat,readlink,symlink,writeFile} from 'node:fs/promises';
+import {basename,dirname,isAbsolute,join,resolve,sep} from 'node:path';
+import {fileURLToPath,pathToFileURL} from 'node:url';
+
+const branch='chi-xu-workshop-dev';
+const repository='Ssir-creator/zhengji';
+const versionFile='.chi-xu-version.json';
+const archiveURL=`https://codeload.github.com/${repository}/zip/refs/heads/${branch}`;
+if(typeof http.setGlobalProxyFromEnv==='function')http.setGlobalProxyFromEnv();
+const archiveVersion=etag=>createHash('sha256').update(etag).digest('hex');
+const exists=async path=>{try{await access(path);return true;}catch{return false;}};
+export async function run(command,args,cwd,{capture=false,env=process.env}={}){
+ return new Promise((accept,reject)=>{
+  const child=spawn(command,args,{cwd,env,stdio:capture?['ignore','pipe','inherit']:'inherit'});
+  let output='';if(capture)child.stdout.on('data',data=>{output+=data;});
+  child.once('error',reject);
+  child.once('exit',code=>code===0?accept(output.trim()):reject(new Error(`${basename(command)} 执行失败（${code}）。请保留上方错误信息。`)));
+ });
+}
+export async function gitRoot(root){
+ for(let dir=resolve(root);;dir=dirname(dir)){
+  const metadata=join(dir,'.git');
+  if(await exists(metadata)){
+   const info=await stat(metadata);
+   if(info.isDirectory()&&await exists(join(metadata,'HEAD')))return dir;
+   if(info.isFile()&&(await readFile(metadata,'utf8')).startsWith('gitdir:'))return dir;
+  }
+  if(dirname(dir)===dir)return null;
+ }
+}
+async function assertStopped(){
+ const busy=await new Promise(accept=>{
+  const socket=createConnection({host:'127.0.0.1',port:5173});
+  socket.setTimeout(1000);
+  socket.once('connect',()=>{socket.destroy();accept(true);});
+  socket.once('error',()=>{socket.destroy();accept(false);});
+  socket.once('timeout',()=>{socket.destroy();accept(true);});
+ });
+ if(busy)throw new Error('请先关闭游戏的黑色启动窗口，再双击“更新游戏”。5173 端口仍在使用。');
+}
+async function latestVersion(){
+ const response=await fetch(archiveURL,{method:'HEAD',signal:AbortSignal.timeout(30000)});
+ if(!response.ok)throw new Error(`检查新版失败（HTTP ${response.status}）。请检查网络或仓库访问；旧版未替换。`);
+ const etag=response.headers.get('etag');
+ if(!etag)throw new Error('服务器未提供资源版本，已停止更新；旧版未替换。');
+ return archiveVersion(etag);
+}
+async function downloadArchive(version,destination){
+ const response=await fetch(archiveURL,{signal:AbortSignal.timeout(180000)});
+ if(!response.ok)throw new Error(`下载新版失败（HTTP ${response.status}）；旧版未替换。`);
+ const etag=response.headers.get('etag');
+ if(!etag||archiveVersion(etag)!==version)throw new Error('下载期间新版发生变化，请重新更新；旧版未替换。');
+ await writeFile(destination,new Uint8Array(await response.arrayBuffer()));
+}
+async function extractArchive(archive,destination){
+ if(process.platform==='win32'){
+  // Paths are passed as environment data rather than interpolated into PowerShell code.
+  await run('powershell.exe',['-NoProfile','-NonInteractive','-Command',"Expand-Archive -LiteralPath $env:CHIXU_UPDATE_ARCHIVE -DestinationPath $env:CHIXU_UPDATE_EXTRACT"],dirname(archive),{env:{...process.env,CHIXU_UPDATE_ARCHIVE:archive,CHIXU_UPDATE_EXTRACT:destination}});
+ }else{
+  await mkdir(destination);await run('unzip',['-q',archive,'-d',destination],dirname(archive));
+ }
+}
+async function validateProject(root){
+ const pkg=JSON.parse(await readFile(join(root,'package.json'),'utf8'));
+ if(pkg.name!=='chi-xu-workshop')throw new Error('没有找到齿序工坊工程，已停止更新。');
+ for(const path of ['package-lock.json','src/main.ts','public/cases/initial/manifest.json','scripts/start-windows.ps1','scripts/update-windows.ps1','scripts/update.mjs']){
+  if(!await exists(join(root,path)))throw new Error(`新版缺少 ${path}，旧版未替换。`);
+ }
+}
+async function prepare(root){
+ for(const step of ['ci','run build']){
+  if(process.platform==='win32')await run('cmd.exe',['/d','/s','/c',`npm ${step}`],root);
+  else await run('npm',step.split(' '),root);
+ }
+}
+async function files(root,prefix=''){
+ const result=[];
+ for(const entry of await readdir(join(root,prefix),{withFileTypes:true})){
+  const path=join(prefix,entry.name);result.push(path);
+  if(entry.isDirectory())result.push(...await files(root,path));
+ }
+ return result;
+}
+export async function deployTree(source,destination,boundary=source){
+ await mkdir(destination,{recursive:true});
+ for(const entry of await readdir(source,{withFileTypes:true})){
+  const from=join(source,entry.name),to=join(destination,entry.name);
+  if(entry.isDirectory()){await deployTree(from,to,boundary);continue;}
+  if(entry.isSymbolicLink()){
+   const target=await readlink(from),resolved=resolve(source,target),base=resolve(boundary);
+   if(isAbsolute(target)||(resolved!==base&&!resolved.startsWith(base+sep)))throw new Error(`不支持指向工程外的链接：${entry.name}`);
+   if(await exists(to)&&(await lstat(to)).isSymbolicLink()&&await readlink(to)===target)continue;
+   const temporary=to+'.update-'+randomUUID()+'.tmp';
+   try{await symlink(target,temporary);await rename(temporary,to);}finally{await rm(temporary,{force:true});}
+   continue;
+  }
+  if(!entry.isFile())throw new Error(`更新包包含不支持的文件类型：${entry.name}`);
+  if(await exists(to)&&(await readFile(from)).equals(await readFile(to)))continue;
+  const temporary=to+'.update-'+randomUUID()+'.tmp';
+  try{await copyFile(from,temporary);await rename(temporary,to);}finally{await rm(temporary,{force:true});}
+ }
+}
+/** Prepare in a sibling directory; keep the installation directory stable for Windows launchers. */
+export async function updateZip(root,options={}){
+ const {latest=latestVersion,download=downloadArchive,extract=extractArchive,build=prepare,deploy=deployTree,log=console.log}=options;
+ if(await gitRoot(root))throw new Error('检测到 Git 工作区，请使用开发分支的 Git 更新流程。');
+ const pkg=JSON.parse(await readFile(join(root,'package.json'),'utf8'));
+ if(pkg.name!=='chi-xu-workshop')throw new Error('请从齿序工坊工程目录运行更新。');
+ const lock=root+'.update-lock';
+ try{await mkdir(lock);}catch{throw new Error(`已有更新任务或上次更新未正常结束。请确认其他更新窗口已关闭。锁目录：${lock}`);}
+ let work;
+ try{
+  const version=await latest();
+  if(!/^[a-f0-9]{64}$/.test(version))throw new Error('无效的远程版本号，已停止更新。');
+  let previous;
+  try{previous=JSON.parse(await readFile(join(root,versionFile),'utf8'));}catch{}
+  if(previous?.version===version){log('已经是最新版，无需下载。');return{updated:false,version};}
+  log('正在下载新版并检查；旧游戏目录暂不改动……');
+  work=await mkdtemp(join(dirname(root),'.chi-xu-update-'));
+  const archive=join(work,'game.zip'),extracted=join(work,'extracted');
+  await download(version,archive);await extract(archive,extracted);
+  const entries=await readdir(extracted,{withFileTypes:true});
+  if(entries.length!==1||!entries[0].isDirectory())throw new Error('下载包目录结构异常，旧版未替换。');
+  const next=join(extracted,entries[0].name,'chi-xu-workshop');
+  await validateProject(next);
+  // Keep supported local settings and imported local assets; every old file also remains in backup.
+  for(const entry of await readdir(root,{withFileTypes:true})){
+   if(entry.name==='local-assets'||entry.name.endsWith('.local.json')){
+    if(await exists(join(next,entry.name)))throw new Error(`新版与本机文件 ${entry.name} 冲突，旧版未替换。`);
+    await cp(join(root,entry.name),join(next,entry.name),{recursive:true,errorOnExist:true,force:false,verbatimSymlinks:true});
+   }
+  }
+  log('正在安装依赖并构建新版；此步骤失败会保留旧版……');
+  await build(next);
+  const backup=await mkdtemp(root+'.backup-');
+  await cp(root,backup,{recursive:true,verbatimSymlinks:true});
+  const additions=[];
+  for(const path of [...await files(next),versionFile])if(!await exists(join(root,path)))additions.push(path);
+  try{
+   await deploy(next,root);
+   // Write the release marker last, so an interrupted copy can be retried.
+   await writeFile(join(root,versionFile),JSON.stringify({version,updated_at:new Date().toISOString()},null,2)+'\n');
+  }catch(error){
+   try{
+    for(const path of additions.reverse())await rm(join(root,path),{recursive:true,force:true});
+    await deployTree(backup,root);
+   }catch(restore){throw new Error(`替换失败，自动恢复也失败。旧文件仍保留在 ${backup}。${restore.message}`);}
+   throw new Error(`更新失败，已恢复旧文件。备份保留在 ${backup}。${error.message}`);
+  }
+  log(`更新完成（资源版本 ${version.slice(0,7)}）。旧文件备份：${backup}`);
+  log('请双击“开始游戏”。继续使用原浏览器和原地址，浏览器进度不会被清理。');
+  return{updated:true,version,backup};
+ }finally{
+  if(work)await rm(work,{recursive:true,force:true});
+  await rm(lock,{recursive:true,force:true});
+ }
+}
+async function updateGit(root){
+ const current=await run('git',['branch','--show-current'],root,{capture:true});
+ if(current!==branch)throw new Error('只允许更新 chi-xu-workshop-dev；不会切换或修改 main。');
+ if(await run('git',['status','--porcelain'],root,{capture:true}))throw new Error('存在本地修改，请先保存或提交；不会覆盖文件。');
+ await run('git',['fetch','origin',`refs/heads/${branch}`],root);
+ await run('git',['merge','--ff-only','FETCH_HEAD'],root);
+ await prepare(root);
+ console.log('更新完成。请双击“开始游戏”；浏览器进度未清除。');
+}
+export async function main(root){
+ const [major,minor]=process.versions.node.split('.').map(Number);
+ if(major<22||(major===22&&minor<12))throw new Error('需要 Node.js 22.12+，推荐 24 LTS。');
+ await assertStopped();
+ if(await gitRoot(root))await updateGit(root);else await updateZip(root);
+}
+if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){
+ main(fileURLToPath(new URL('../',import.meta.url))).catch(error=>{console.error(`更新未完成：${error.message}`);process.exitCode=1;});
+}
