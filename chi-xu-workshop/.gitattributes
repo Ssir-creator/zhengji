@@ -1,0 +1,2 @@
+# Keep double-click Windows entry points in native CRLF form on checkout.
+*.cmd text eol=crlf

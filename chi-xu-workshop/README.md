@@ -10,14 +10,24 @@
 
 ## 启动
 
-Node.js 24 LTS 推荐（运行应用最低 22.12+）。将工程内容解压到 `D:\正畸_严肃游戏` 后，在该目录运行：
+Windows 推荐安装 Node.js 24 LTS。打开工程目录后：
 
-```powershell
+- 双击 `开始游戏.cmd`：首次自动安装依赖，启动后自动打开浏览器。保留终端窗口，关闭窗口即停止服务。
+- 双击 `创建桌面快捷方式.cmd`：在桌面创建游戏和更新入口。移动工程后重新创建快捷方式。
+- 双击 `更新游戏.cmd`：需要 Git for Windows 和 Git 克隆的仓库，只快进更新 `chi-xu-workshop-dev`。有本地修改或分支分叉时停止，不覆盖文件，不切换 main。更新前先关闭游戏窗口。
+
+启动固定使用 `http://127.0.0.1:5173`。进度保存在浏览器里：使用同一浏览器配置及同一地址；曾在 `localhost:5173` 游玩的玩家需继续使用该地址，两个主机名的存档互不共享。更新不会清理浏览器存档；换电脑、浏览器或端口前请先导出记录。端口占用时先关闭旧游戏进程，不自动换端口。ZIP 版可以启动，但自动更新需要 Git 克隆版。
+
+开发环境：
+
+```sh
 npm ci
-npm run dev
+npm run dev -- --host 127.0.0.1 --port 5173 --strictPort
 ```
 
-打开终端显示的本地地址。也可运行 `scripts/start-windows.ps1`。云端工作目录：`/workspace/zhengji/chi-xu-workshop`，依赖安装使用 `npm ci --cache /workspace/.npm-cache`。
+云端工作目录：`/workspace/zhengji/chi-xu-workshop`，依赖安装使用 `npm ci --cache /workspace/.npm-cache`。
+
+首页直接渲染内置真实病例，可拖动旋转和缩放；首页预览不写挑战存档。工作台与首页共用实际 Three.js 场景，不使用概念图作为运行画面。牙模、病例清单、三关参数和进度格式保持原样。
 
 **不需要每次重新导入牙模。** “开始新的挑战”“继续进度”“进入自由练习”会自动校验并加载随工程附带的真实病例。新挑战覆盖旧进度前会明确确认。模型和记录保留在本机，不建立远程遥测。
 
@@ -84,3 +94,5 @@ npm run build
 真实牙位、单位与来源审核，可靠穿透检测，完整 P0 美术细节、目标 GPU 帧率、10Mbps 冷启动和用户教学测试尚未完成。软件 WebGL 运行不等于 45fps 工程验收通过。可选道具/音效未制作，不新增经营、商城、排行榜或真实力学。
 
 [完整设计提取](docs/design-source.txt) · [实施步骤](docs/IMPLEMENTATION.md) · [57 项资源台账](docs/resource-inventory.json)
+
+本次真实模型首页、工作台布景和 Windows 入口的实现与验证详见 [本轮验收记录](docs/TITLE_STUDIO.md)。

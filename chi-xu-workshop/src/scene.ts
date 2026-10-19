@@ -13,11 +13,12 @@ export class WorkshopScene{
  taskIds:string[]=[];hoverId:string|undefined;guideGroup=new T.Group();guideArrow=new T.ArrowHelper(new T.Vector3(1,0,0),new T.Vector3(),1,'#54b99a',.2,.1);guideRing=new T.Mesh(new T.TorusGeometry(1,.035,6,64),new T.MeshBasicMaterial({color:'#54b99a',transparent:true,opacity:.85,depthTest:false}));
  teeth=new Map<string,T.Mesh>();ghosts=new Map<string,T.Mesh>();furniture=new T.Group();measurements=new T.Group();gizmo=new T.AxesHelper(1);selected:string|null=null;before:Pose|null=null;dragCancelled=false;size=100;center=new T.Vector3();frame=0;dirty=true;outlineKey="";outlineChanged=0;reduced=false;ro:ResizeObserver;low=false;disposed=false;last=performance.now();fps=0;frames=0;
  onSelect:(id:string)=>void=()=>{};onCommit:(id:string,before:Pose,after:Pose)=>void=()=>{};onPreview:(id:string,pose:Pose)=>void=()=>{};onFailure:(message:string)=>void=()=>{};
- constructor(public host:HTMLElement){
-  this.renderer=new T.WebGLRenderer({antialias:true,alpha:false});this.renderer.setPixelRatio(Math.min(devicePixelRatio,2));this.renderer.setClearColor('#F7F5EC');this.renderer.toneMapping=T.ACESFilmicToneMapping;this.renderer.toneMappingExposure=1;this.renderer.shadowMap.enabled=true;this.renderer.shadowMap.autoUpdate=false;this.renderer.shadowMap.needsUpdate=true;this.renderer.shadowMap.type=T.PCFSoftShadowMap;this.renderer.setSize(host.clientWidth,host.clientHeight);host.append(this.renderer.domElement);
-  this.scene.add(new T.HemisphereLight('#fff8e8','#b4c5b6',1.15));
-  const light=new T.DirectionalLight('#fff4df',2.1);light.position.set(-80,-90,150);light.castShadow=true;light.shadow.mapSize.set(1024,1024);light.shadow.camera.left=-120;light.shadow.camera.right=120;light.shadow.camera.top=120;light.shadow.camera.bottom=-120;light.shadow.camera.far=700;light.shadow.bias=-.0001;this.scene.add(light);
-  const fill=new T.DirectionalLight('#dcecf4',.65);fill.position.set(80,50,60);this.scene.add(fill);
+ constructor(public host:HTMLElement,private offsetForSidebar=true){
+  this.renderer=new T.WebGLRenderer({antialias:true,alpha:false});this.renderer.setPixelRatio(Math.min(devicePixelRatio,2));this.renderer.setClearColor('#F7F5EC');this.renderer.toneMapping=T.ACESFilmicToneMapping;this.renderer.toneMappingExposure=1.08;this.renderer.shadowMap.enabled=true;this.renderer.shadowMap.autoUpdate=false;this.renderer.shadowMap.needsUpdate=true;this.renderer.shadowMap.type=T.PCFSoftShadowMap;this.renderer.setSize(host.clientWidth,host.clientHeight);host.append(this.renderer.domElement);
+  this.scene.add(new T.HemisphereLight('#fff8e8','#91a9ab',1.35));
+  const light=new T.DirectionalLight('#fff4df',2.6);light.position.set(-80,-90,150);light.castShadow=true;light.shadow.mapSize.set(1024,1024);light.shadow.camera.left=-120;light.shadow.camera.right=120;light.shadow.camera.top=120;light.shadow.camera.bottom=-120;light.shadow.camera.far=700;light.shadow.bias=-.0001;this.scene.add(light);
+  const fill=new T.DirectionalLight('#dcecf4',1.1);fill.position.set(80,50,60);this.scene.add(fill);
+  const rim=new T.DirectionalLight('#c5e4ee',1.4);rim.position.set(20,100,90);this.scene.add(rim);
   this.camera.up.set(0,0,1);this.camera.position.set(100,-100,100);
   this.orbit=new OrbitControls(this.camera,this.renderer.domElement);this.orbit.enableDamping=true;this.orbit.addEventListener('change',()=>{this.dirty=true;});this.orbit.minDistance=1;this.orbit.maxDistance=500;
   this.renderer.domElement.addEventListener('pointerdown',e=>{if(e.pointerType==='touch'){this.transform.enabled=false;this.orbit.enabled=false;}},{capture:true});
@@ -37,7 +38,7 @@ export class WorkshopScene{
  }
  pick(e:PointerEvent){const r=this.renderer.domElement.getBoundingClientRect();const ray=new T.Raycaster();ray.setFromCamera(new T.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1),this.camera);const hit=ray.intersectObjects([...this.teeth.values()].filter(m=>m.visible),false)[0];return hit?.object.userData.id as string|undefined;}
  load(data:CaseAssets,poses:Poses){
-  for(const a of data.assets){const mesh=new T.Mesh(a.geometry,new T.MeshStandardMaterial({color:'#f2eee5',metalness:0,roughness:.32,side:T.DoubleSide}));mesh.userData={id:a.id,pivot:a.pivot,desktopGeometry:a.geometry,lowGeometry:a.lowGeometry,asset:a};mesh.castShadow=true;mesh.receiveShadow=true;this.teeth.set(a.id,mesh);this.scene.add(mesh);
+  for(const a of data.assets){const mesh=new T.Mesh(a.geometry,new T.MeshPhysicalMaterial({color:'#f3ead8',metalness:0,roughness:.28,clearcoat:.3,clearcoatRoughness:.24,side:T.DoubleSide}));mesh.userData={id:a.id,pivot:a.pivot,desktopGeometry:a.geometry,lowGeometry:a.lowGeometry,asset:a};mesh.castShadow=true;mesh.receiveShadow=true;this.teeth.set(a.id,mesh);this.scene.add(mesh);
    const ghost=new T.Mesh(a.geometry,new T.MeshBasicMaterial({color:'#ADC9DC',opacity:.18,transparent:true,depthWrite:false,wireframe:true}));ghost.visible=false;this.ghosts.set(a.id,ghost);this.scene.add(ghost);
   }
   this.apply(poses);const box=new T.Box3();this.teeth.forEach(m=>box.expandByObject(m));box.getCenter(this.center);this.size=box.getSize(new T.Vector3()).length();this.camera.near=this.size/2000;this.camera.far=this.size*100;this.camera.updateProjectionMatrix();this.orbit.minDistance=this.size*.25;this.orbit.maxDistance=this.size*5;
@@ -48,9 +49,10 @@ export class WorkshopScene{
   const rounded=(w:number,h:number,t:number,color:string,x:number,y:number,height:number)=>{const m=new T.Mesh(new RoundedBoxGeometry(w,h,t,3,Math.min(w,h,t)*.25),new T.MeshStandardMaterial({color,roughness:.65}));m.position.set(x,y,height);m.receiveShadow=true;m.castShadow=true;this.furniture.add(m);return m;};
   rounded(d*1.65,d*1.35,d*.065,'#90CBB5',c.x,c.y,z-d*.09);
   rounded(d*1.59,d*1.29,d*.05,'#F7F5EC',c.x,c.y,z-d*.045);
-  rounded(d*.82,d*.72,d*.035,'#ADC9DC',c.x,c.y,z);
+  rounded(d*.82,d*.72,d*.035,'#a4bdbb',c.x,c.y,z);
   for(let i=0;i<3;i++){rounded(d*.12,d*.055,d*.04,'#c6b594',c.x+d*(.46+i*.15),c.y+d*.38,z);rounded(d*.1,d*.025,d*.14,['#90CBB5','#ADC9DC','#EAC66B'][i],c.x+d*(.46+i*.15),c.y+d*.38,z+d*.08);}
-  const floor=new T.Mesh(new T.PlaneGeometry(d*20,d*20),new T.MeshStandardMaterial({color:'#ebe8da',roughness:1}));floor.position.set(c.x,c.y,z-d*.14);floor.receiveShadow=true;this.furniture.add(floor);
+  for(let i=0;i<5;i++)rounded(d*2.8,d*.006,d*.002,'#d6c4a8',c.x,c.y+d*(i*.32-.64),z-d*.135);
+  const floor=new T.Mesh(new T.PlaneGeometry(d*20,d*20),new T.MeshStandardMaterial({color:'#dfd1ba',roughness:1}));floor.position.set(c.x,c.y,z-d*.14);floor.receiveShadow=true;this.furniture.add(floor);
   this.gizmo.scale.setScalar(d*.1);this.gizmo.position.set(c.x-d*.6,c.y-d*.45,z);this.gizmo.visible=false;this.furniture.add(this.gizmo);
   const wood='#cfb58f',mint='#a9cbb5';
   // Decorative lamp and tray sit outside the dental work area; they have no click behavior.
@@ -86,7 +88,7 @@ export class WorkshopScene{
  projectPoint(point:Vec3){const p=new T.Vector3(...point).project(this.camera);return{x:(p.x+1)/2*this.host.clientWidth,y:(1-p.y)/2*this.host.clientHeight,visible:p.z>-1&&p.z<1};}
  directionSVG(){const inv=this.camera.quaternion.clone().invert();return `<svg class="direction-widget" viewBox="0 0 100 100" aria-label="模型世界坐标方向">${(['X','Y','Z'] as const).map((axis,i)=>{const v=new T.Vector3().setComponent(i,1).applyQuaternion(inv);const x=45+v.x*28,y=52-v.y*28;return `<line x1="45" y1="52" x2="${x}" y2="${y}" stroke="${['#aa6c5f','#568b72','#628da7'][i]}" stroke-width="2"/><text x="${x+4}" y="${y+3}" fill="#234B43" font-size="12">${axis}</text>`;}).join('')}</svg>`;}
  marker(id:string){const mesh=this.teeth.get(id);if(!mesh||!mesh.visible)return null;const p=mesh.position.clone().project(this.camera);return{x:(p.x+1)/2*this.host.clientWidth,y:(1-p.y)/2*this.host.clientHeight,visible:p.z>-1&&p.z<1};}
- resize(){this.dirty=true;if(this.disposed)return;const w=this.host.clientWidth,h=this.host.clientHeight;if(!w||!h)return;this.camera.aspect=w/h;this.camera.setViewOffset(w,h,w>=1100?130:w>=900?100:0,0,w,h);this.camera.updateProjectionMatrix();this.renderer.setSize(w,h);this.composer.setSize(w,h);}
+ resize(){this.dirty=true;if(this.disposed)return;const w=this.host.clientWidth,h=this.host.clientHeight;if(!w||!h)return;this.camera.aspect=w/h;if(this.offsetForSidebar)this.camera.setViewOffset(w,h,w>=1100?130:w>=900?100:0,0,w,h);else this.camera.clearViewOffset();this.camera.updateProjectionMatrix();this.renderer.setSize(w,h);this.composer.setSize(w,h);}
  animate=()=>{if(this.disposed)return;this.frame=requestAnimationFrame(this.animate);this.orbit.update();const now=performance.now();const key=this.outline.selectedObjects.map(o=>o.uuid).join();if(key!==this.outlineKey){this.dirty=true;this.outlineKey=key;this.outlineChanged=now;}const strength=2.5*(this.reduced?1:Math.min(1,(now-this.outlineChanged)/150));if(this.outline.edgeStrength!==strength)this.dirty=true;this.outline.edgeStrength=strength;const render=this.dirty||(!this.reduced&&now-this.outlineChanged<180);if(render){this.composer.render();this.frames++;this.dirty=false;}const t=performance.now();if(t-this.last>1000){this.fps=this.frames*1000/(t-this.last);this.frames=0;this.last=t;}};
  dispose(){this.disposed=true;cancelAnimationFrame(this.frame);this.ro.disconnect();this.orbit.dispose();this.transform.dispose();this.scene.traverse(o=>{if(o instanceof T.Mesh||o instanceof T.Line){if(![...this.teeth.values(),...this.ghosts.values()].includes(o as T.Mesh))o.geometry.dispose();const mats=Array.isArray(o.material)?o.material:[o.material];mats.forEach(m=>m.dispose());}});this.composer.dispose();this.renderer.dispose();this.renderer.domElement.remove();}
 }

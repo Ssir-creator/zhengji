@@ -3,12 +3,14 @@ import {chapters,circles,taskName,guidance} from './player';
 import { Quaternion,Vector3 } from 'three';
 import { loadCase,loadBundledCase,loadLowVariants,disposeCase,type CaseAssets } from './assets';
 import { WorkshopScene } from './scene';
+import { mountStudio } from './studio';
 import { copy,defaultLevels,initialPoses,newSession,stageStart,evaluate,canSave,commitStage,validateSession,validatePoses,History,interpolate,unitLabel,poseError,type Manifest,type Session,type Poses,type Pose,type Tool,type Axis,type Check,type Command,type Vec3 } from './core';
 const app=document.querySelector<HTMLDivElement>('#app')!;
 type Screen='home'|'levels'|'play'|'review'|'finish';
 const KEY='chi-xu-workshop:challenge:v1';
 let assets:CaseAssets|null=null,session:Session|null=null,poses:Poses={},start:Poses={},history=new History(),scene:WorkshopScene|null=null;
 let challengeActivated=false,loadingBuiltIn=false;
+let disposeStudio:(()=>void)|null=null;
 let screen:Screen='home',level=1,selected:string|null=null,tool:Tool='translate',axis:Axis='X',hint=0,outline=false,initialOutline=false,practice=false,checks:Check[]=[],intro=0,operationCount=0;
 let returnChallenge:{poses:Poses;start:Poses;level:number;history:History;hint:number;operations:number;checks:Check[]}|null=null;
 let practiceLog:Command[]=[];let fineStep=false;let low=false,reduced=matchMedia('(prefers-reduced-motion: reduce)').matches,showBase=true;
@@ -85,12 +87,14 @@ function measure(){if(!assets||measurePending||replaying)return;
  measureWorker.postMessage({request,poses:copy(poses),pairs:m().adjacency,samples:Object.fromEntries(assets.assets.map(a=>[a.id,a.samples]))});}
 function saveStage(){if(!session)return;scene?.cancelDrag();const goals=evaluate(poses,start,m(),level);if(!canSave(goals,checks,current()))return toast('还有牙齿没调整好，先跟着任务卡继续试试。');if(session.saved_snapshots.length>=level&&!confirm('保存此阶段将清除其后阶段记录。是否继续？'))return;try{const next=commitStage(session,m(),level,poses,checks,operationCount,hint);if(!persistCandidate(next))return;session=next;event('save_stage',String(level));screen='finish';render();}catch(e){toast(String(e));}}
 function render(){
+ disposeStudio?.();disposeStudio=null;
  scene?.dispose();scene=null;replaying=false;measureRequest++;measurePending=false;measureWorker?.terminate();measureWorker=null;
  const playing=['play','review','finish'].includes(screen);document.body.dataset.screen=screen;
  app.innerHTML=`<header class="${playing?'in-game':''}"><button class="brand" data-action="home"><span class="brand-mark">齿</span><span>齿序工坊<small>一个小小的牙齿工作室</small></span></button><nav>${btn(playing?'关卡地图':'三个小挑战','levels')}${!playing?btn('牙模资源','assets'):''}${btn('☷ 菜单','settings')}</nav></header><main id="main"></main><footer>一颗一颗，慢慢调整。<span>自主练习 · 随时可以重来</span></footer><div id="notice" role="status" aria-live="polite"></div><dialog id="modal"></dialog>`;
  const main=$('#main')!;
  if(screen==='home'){
- main.innerHTML=`<section class="home"><div class="home-copy"><div class="eyebrow">欢迎来到你的小工作台</div><h1>挪一挪，转一转。<br><span>让牙齿各就各位。</span></h1><p class="lead">没有倒计时，也不用怕做错。<br>跟着三个小挑战，一步一步试试看。</p><div class="home-card">${hasSave()?btn('继续上次的挑战　▷','continue',true):btn('开始三个小挑战　▷','new',true)}${hasSave()?btn('重新开始','new'):''}${btn('自由玩一会儿','practice')}<small>可以撤销、看提示，也可以重新尝试。</small></div><p class="asset-status">${assets?'牙模准备好了':'牙齿已准备好，点击开始就能玩'}</p></div><figure class="hero"><img src="/design/workbench.png" alt="PDF工作台视觉参考，不是运行中的病例"><figcaption>工作室氛围参考图</figcaption><div class="hero-note"><span>01 → 03</span><strong>同一副牙模<br>三个接着完成的小挑战</strong></div></figure></section>${warning?`<div class="warning">${esc(warning)}${btn('导出旧记录','export-raw')}</div>`:''}<section class="steps">${chapters.map((c,i)=>`<div><span>0${i+1}</span><strong>${c.title}</strong><small>${c.objective}</small></div>`).join('')}</section>`;
+ main.innerHTML=`<section class="home"><div class="home-copy"><div class="eyebrow">欢迎来到你的小工作台</div><h1>挪一挪，转一转。<br><span>让牙齿各就各位。</span></h1><p class="lead">没有倒计时，也不用怕做错。<br>跟着三个小挑战，一步一步试试看。</p><div class="home-card">${hasSave()?btn('继续上次的挑战　▷','continue',true):btn('开始三个小挑战　▷','new',true)}${hasSave()?btn('重新开始','new'):''}${btn('自由玩一会儿','practice')}<small>可以撤销、看提示，也可以重新尝试。</small></div><p class="asset-status">${assets?'牙模准备好了':'点击开始会自动加载内置真实牙模'}</p></div><figure class="hero title-studio"><div id="title-studio" aria-label="可旋转的真实3D牙模"></div><figcaption id="studio-status" role="status">正在准备真实牙模…</figcaption><div class="hero-note"><span>01 → 03</span><strong>同一副牙模<br>三个接着完成的小挑战</strong></div></figure></section>${warning?`<div class="warning">${esc(warning)}${btn('导出旧记录','export-raw')}</div>`:''}<section class="steps">${chapters.map((c,i)=>`<div><span>0${i+1}</span><strong>${c.title}</strong><small>${c.objective}</small></div>`).join('')}</section>`;
+ disposeStudio=mountStudio($('#title-studio')!,$('#studio-status')!,assets);
  }else if(screen==='levels'){
  const count=session?.saved_snapshots.length??0;
  main.innerHTML=`<section class="page-heading"><span class="eyebrow">你的挑战地图</span><h1>在这张桌上，完成三个小挑战。</h1><p>上一关调整好的牙，会原样带到下一关。</p></section><section class="level-grid">${chapters.map((c,i)=>{const locked=i>count;return `<article class="level-card ${locked?'locked':''}"><span class="level-number">0${i+1}</span><span class="pill">${locked?'🔒 还没解锁':i<count?'✓ 已完成':'轮到这里啦'}</span><div class="stage-symbol">${['↔','↻','◇'][i]}</div><h2>${c.title}</h2><p>${c.objective}</p>${btn(locked?'先完成前一个挑战':i<count?'再试一次':'开始这一关',`stage-${i+1}`,!locked,locked)}</article>`;}).join('')}</section><p class="muted">重玩时会保留原记录。只有你确认保存新的结果，才会清除后面的进度。</p>`;
