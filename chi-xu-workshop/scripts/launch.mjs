@@ -19,7 +19,7 @@ for(let i=0;i<120&&!exited;i++){
   const response=await fetch(url,{signal:AbortSignal.timeout(1000)});
   if(!exited&&response.ok&&(await response.text()).includes('齿序工坊')){
    console.log(`齿序工坊已启动：${url}。关闭此窗口可停止游戏。`);
-   if(process.platform==='win32'){
+   if(process.platform==='win32'&&process.env.CHIXU_NO_BROWSER!=='1'){
     const browser=spawn('explorer.exe',[url],{stdio:'ignore'});
     browser.on('error',()=>console.log(`请在浏览器打开 ${url}`));
    }

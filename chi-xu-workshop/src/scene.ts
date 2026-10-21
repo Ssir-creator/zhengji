@@ -100,6 +100,19 @@ export class WorkshopScene{
  clearLines(){this.dirty=true;this.measurements.traverse(o=>{if(o instanceof T.Mesh||o instanceof T.Line){o.geometry.dispose();(o.material as T.Material).dispose();}});this.measurements.clear();}
  projectPoint(point:Vec3){const p=new T.Vector3(...point).project(this.camera);return{x:(p.x+1)/2*this.host.clientWidth,y:(1-p.y)/2*this.host.clientHeight,visible:p.z>-1&&p.z<1};}
  directionSVG(){const inv=this.camera.quaternion.clone().invert();return `<svg class="direction-widget" viewBox="0 0 100 100" aria-label="模型世界坐标方向">${(['X','Y','Z'] as const).map((axis,i)=>{const v=new T.Vector3().setComponent(i,1).applyQuaternion(inv);const x=45+v.x*28,y=52-v.y*28;return `<line x1="45" y1="52" x2="${x}" y2="${y}" stroke="${['#aa6c5f','#568b72','#628da7'][i]}" stroke-width="2"/><text x="${x+4}" y="${y+3}" fill="#234B43" font-size="12">${axis}</text>`;}).join('')}</svg>`;}
+ projectedTeethBounds(){
+  const points:T.Vector3[]=[];
+  for(const mesh of this.teeth.values()){
+   if(!mesh.visible)continue;
+   const box=mesh.geometry.boundingBox;if(!box)continue;
+   for(const x of [box.min.x,box.max.x])for(const y of [box.min.y,box.max.y])for(const z of [box.min.z,box.max.z]){
+    const p=new T.Vector3(x,y,z).applyMatrix4(mesh.matrixWorld).project(this.camera);
+    if(p.z>-1&&p.z<1)points.push(p);
+   }
+  }
+  if(!points.length)return{left:0,right:this.host.clientWidth,top:0,bottom:this.host.clientHeight};
+  return{left:Math.min(...points.map(p=>(p.x+1)/2*this.host.clientWidth)),right:Math.max(...points.map(p=>(p.x+1)/2*this.host.clientWidth)),top:Math.min(...points.map(p=>(1-p.y)/2*this.host.clientHeight)),bottom:Math.max(...points.map(p=>(1-p.y)/2*this.host.clientHeight))};
+ }
  marker(id:string){const mesh=this.teeth.get(id);if(!mesh||!mesh.visible)return null;const p=mesh.position.clone().project(this.camera);return{x:(p.x+1)/2*this.host.clientWidth,y:(1-p.y)/2*this.host.clientHeight,visible:p.z>-1&&p.z<1};}
  resize(){this.dirty=true;if(this.disposed)return;const w=this.host.clientWidth,h=this.host.clientHeight;if(!w||!h)return;this.camera.aspect=w/h;if(this.offsetForSidebar)this.camera.setViewOffset(w,h,w>=1100?130:w>=900?100:0,0,w,h);else this.camera.clearViewOffset();this.camera.updateProjectionMatrix();this.renderer.setSize(w,h);this.composer.setSize(w,h);}
  animate=()=>{if(this.disposed)return;this.frame=requestAnimationFrame(this.animate);this.orbit.update();const now=performance.now();const key=this.outline.selectedObjects.map(o=>o.uuid).join();if(key!==this.outlineKey){this.dirty=true;this.outlineKey=key;this.outlineChanged=now;}const strength=2.5*(this.reduced?1:Math.min(1,(now-this.outlineChanged)/150));if(this.outline.edgeStrength!==strength)this.dirty=true;this.outline.edgeStrength=strength;const render=this.dirty||(!this.reduced&&now-this.outlineChanged<180);if(render){this.composer.render();this.frames++;this.dirty=false;}const t=performance.now();if(t-this.last>1000){this.fps=this.frames*1000/(t-this.last);this.frames=0;this.last=t;}};

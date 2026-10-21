@@ -1,4 +1,5 @@
-﻿$ErrorActionPreference = 'Stop'
+﻿param([switch]$NoPause)
+$ErrorActionPreference = 'Stop'
 try {
   $root = Split-Path $PSScriptRoot -Parent
   $desktop = [Environment]::GetFolderPath('Desktop')
@@ -10,5 +11,5 @@ try {
     $shortcut.Save()
   }
   Write-Host '桌面启动和更新入口已创建。移动工程后，请重新运行本脚本。'
-  Read-Host '按回车关闭'
-} catch { Write-Host $_ -ForegroundColor Red; Read-Host '按回车关闭'; exit 1 }
+  if (-not $NoPause) { Read-Host '按回车关闭' }
+} catch { Write-Host $_ -ForegroundColor Red; if (-not $NoPause) { Read-Host '按回车关闭' }; exit 1 }

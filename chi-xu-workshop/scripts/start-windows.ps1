@@ -10,4 +10,4 @@ try {
   }
   node scripts/launch.mjs
   if ($LASTEXITCODE -ne 0) { throw '启动失败。请查看上方日志；5173 端口可能已被占用。' }
-} catch { Write-Host $_ -ForegroundColor Red; Read-Host '按回车关闭'; exit 1 }
+} catch { Write-Host $_ -ForegroundColor Red; if ($env:CHIXU_CHECKING -ne '1') { Read-Host '按回车关闭' }; exit 1 }

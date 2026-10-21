@@ -49,6 +49,11 @@ async function latestVersion(){
  if(!etag)throw new Error('服务器未提供资源版本，已停止更新；旧版未替换。');
  return archiveVersion(etag);
 }
+export async function checkForUpdate(root){
+ const version=await latestVersion();let installed=null;
+ try{installed=JSON.parse(await readFile(join(root,versionFile),'utf8'));}catch{}
+ return{reachable:true,latest:version,installed:installed?.version??null,current:installed?.version===version,lastSuccess:installed?.updated_at??null};
+}
 async function downloadArchive(version,destination){
  const response=await fetch(archiveURL,{signal:AbortSignal.timeout(180000)});
  if(!response.ok)throw new Error(`下载新版失败（HTTP ${response.status}）；旧版未替换。`);

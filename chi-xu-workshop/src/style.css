@@ -296,3 +296,31 @@ details { margin-top: 16px; border-top: 1px solid var(--line); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
+/* Labels occupy screen-space gutters; leader lines carry the association. */
+.marker-leaders { position:absolute; inset:0; width:100%; height:100%; overflow:hidden; pointer-events:none; }
+.marker-leaders path { fill:none; stroke:#7c785f; stroke-width:1; opacity:.72; }
+.task-marker,.fixed-marker,.model-label { transform:none; justify-content:center; text-align:center; padding:6px; }
+.fixed-marker,.model-label { display:grid; place-items:center; }
+#comparison-banner { position:absolute; z-index:4; top:84px; left:32px; display:flex; gap:16px; align-items:center; padding:8px 12px; background:#fbf8f0f5; border-left:3px solid #a75629; font-size:12px; }
+#comparison-banner[hidden] { display:none; }
+#comparison-banner button { min-height:36px; padding:6px 10px; font-size:11px; }
+.comparison-controls { display:flex; flex-wrap:wrap; gap:8px; padding-top:12px; margin-top:12px; border-top:1px solid var(--line); }
+.comparison-controls button { flex:1; font-size:12px; padding:8px; }
+.learning-summary { margin-top:20px; }
+.learning-summary .eyebrow { margin-bottom:8px; }
+.learning-summary h3 { font-size:16px; line-height:1.6; margin:0 0 8px; }
+.learning-summary p { font-size:12px; line-height:1.8; }
+.learning-summary table { width:100%; border-collapse:collapse; font-size:12px; font-variant-numeric:tabular-nums; }
+.learning-summary caption { text-align:left; font-size:11px; color:var(--muted); margin-bottom:8px; }
+.learning-summary th,.learning-summary td { border-bottom:1px solid var(--line); padding:8px 4px; text-align:right; font-weight:400; }
+.learning-summary th:first-child { text-align:left; }
+.learning-summary .keep-note { margin-top:12px; }
+.reflection summary { font-size:12px; line-height:1.8; }
+.tutorial-toolbar { white-space:normal; justify-content:center; }
+.tutorial-toolbar>span { font-size:12px; }
+@media(max-width:760px){#comparison-banner{top:8px;left:8px;right:8px;gap:8px;font-size:11px}.task-marker{font-size:20px}}
+#self-check-panel { position:fixed; z-index:100; inset:8vh max(16px,calc((100vw - 760px)/2)) auto; max-height:84dvh; overflow:auto; background:var(--paper); border:2px solid var(--ink); padding:28px; box-shadow:0 0 0 100vmax #292d28d9; }
+#self-check-panel li { font-size:14px; line-height:1.9; margin:12px 0; }
+#self-check-panel p { font-size:13px; }
+
+[hidden]{display:none!important}
