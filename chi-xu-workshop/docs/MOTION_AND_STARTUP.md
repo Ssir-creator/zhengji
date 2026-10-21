@@ -28,3 +28,5 @@
 - Windows PowerShell 自动启动与桌面快捷方式仍需用户电脑确认；Linux 测试不代替 Windows 实机结果。
 
 本轮核心、资源和系统测试：58 项通过；16 项浏览器测试全部通过；TypeScript 与 Vite 生产构建通过。新增截图在 `docs/screenshots/motion-*.png`，均由真实运行画面生成。
+
+发布后在独立 `/tmp` 安装目录执行真实启动入口：通过 HTTPS 下载开发分支 ZIP，安装依赖、构建、备份、替换后启动，HTTP 页面和新增方向模块均可访问；第二次从同一入口启动显示“已经是最新版，无需下载”，游戏继续可访问。两次流程通过。云环境使用可写的 `/workspace/.npm-cache`，未修改项目依赖或用户电脑设置；本次验证为 Linux，未执行 Windows COM 桌面操作。
