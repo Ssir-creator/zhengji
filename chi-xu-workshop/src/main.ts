@@ -18,6 +18,7 @@ let returnChallenge:{poses:Poses;start:Poses;level:number;history:History;hint:n
 let practiceLog:Command[]=[];let fineStep=false;let low=false,reduced=matchMedia('(prefers-reduced-motion: reduce)').matches,showBase=true;
 let warning='',saveStatus='未保存',replaying=false,replayPlaying=false,replayTime=0,replayFrames:Poses[]=[],replayOriginal:Poses|null=null,replayPrevious=0,replayMode='stages';
 let comparison:'before'|'after'|null=null;
+let motionFeedback='';
 let measureWorker:Worker|null=null,measureRequest=0,measurePending=false;
 const esc=(v:unknown)=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]!));
 const $=<T extends HTMLElement=HTMLElement>(selector:string)=>document.querySelector<T>(selector);
@@ -45,10 +46,11 @@ function baseChecks():Check[]{const stamp={computed_at:new Date().toISOString(),
  ];}
 function invalidate(){measureRequest++;measurePending=false;checks=baseChecks();scene?.clearLines();}
 function allowedLabel(){return allowed().join(' / ')||'当前工具无可用方向';}
-function select(id:string){scene?.cancelDrag();selected=id;if(intro===1&&current().allowed_teeth.includes(id))intro=2;if(!allowed().includes(axis))axis=allowed()[0]??'X';event('select',id);if(!editable())toast('这颗暂时不用动。点任务卡上的标记牙，就能继续。');updateTool();updateHUD();}
+function select(id:string){scene?.cancelDrag();motionFeedback='';selected=id;if(intro===1&&current().allowed_teeth.includes(id))intro=2;if(!allowed().includes(axis))axis=allowed()[0]??'X';event('select',id);if(!editable())toast('这颗暂时不用动。点任务卡上的标记牙，就能继续。');updateTool();showGhosts();updateHUD();}
 function updateTool(){scene?.select(selected,editable(),tool,allowed());scene?.setTaskTeeth(practice||screen==='finish'?[]:current().allowed_teeth);scene?.setFixedTeeth(!practice&&level===3?['7']:[]);}
 function record(id:string,before:Pose,after:Pose){
  if(!editable()||id!==selected)return;
+ if(!practice){const target={...current().target_pose[id],pivot:before.pivot};const kind=tool==='translate'?'position':'rotation';const previous=poseError(before,target)[kind],next=poseError(after,target)[kind];motionFeedback=next<=current().tolerances[kind]?(tool==='translate'?'位置已对齐，可以换下一步':'方向已对齐，可以换下一步'):next<previous?'这一步更接近目标了':next>previous?'这一步离目标更远了，可以撤销':'已到调整边界';}
  const command:Command={command_id:crypto.randomUUID(),type:tool,mesh_id:id,before_pose:copy(before),after_pose:copy(after),time:new Date().toISOString(),stage:level,hint_level:hint};
  poses[id]=copy(after);if(history.commit(command)){operationCount++;if(practice)practiceLog.push(command);else session!.command_log.push(command);event('command',command.command_id);invalidate();preserve();}scene?.apply(poses);if(intro===2){intro=3;updateTool();}updateHUD();
 }
@@ -64,9 +66,9 @@ function nudge(sign:number){if(!editable()||!allowed().includes(axis))return;con
  if(tool==='translate')after.translation[idx]+=step*sign;else{const v=new Vector3();v.setComponent(idx,1);after.quaternion=new Quaternion().setFromAxisAngle(v,step*sign*Math.PI/180).multiply(new Quaternion(...after.quaternion)).normalize().toArray() as Pose['quaternion'];}
  record(selected!,before,constrain(selected!,after));
 }
-function showGhosts(){if(!scene||!assets)return;if(comparison){scene.ghostsAt(null);return;}if(initialOutline)scene.ghostsAt(start,true);else if(outline||hint===3){const targets:Poses={};if(!practice)for(const [id,p] of Object.entries(current().target_pose))targets[id]={...copy(p),pivot:poses[id].pivot};scene.ghostsAt(targets);}else scene.ghostsAt(null);}
-function enterStage(n:number){if(!session||!assets)return;try{scene?.cancelDrag();level=n;poses=stageStart(session,n);start=copy(poses);history=new History();hint=0;operationCount=0;intro=n===1&&!tutorialSeen()?1:0;selected=current().allowed_teeth[0];tool='translate';axis=current().allowed_axes[selected]?.translate[0]??'X';outline=initialOutline=false;checks=baseChecks();session.current_level=n;screen='play';event('enter_stage',String(n));preserve();render();}catch(e){toast(String(e));}}
-function startPractice(){if(!assets)return loadBuiltIn('practice');if(practice)return;returnChallenge={poses:copy(poses),start:copy(start),level,history,hint,operations:operationCount,checks:copy(checks)};practice=true;poses=copy(session!.initial);start=copy(poses);history=new History();practiceLog=[];operationCount=0;hint=0;intro=0;selected=m().teeth[0].mesh_id;tool='translate';axis='X';checks=baseChecks();outline=initialOutline=false;screen='play';render();}
+function showGhosts(){if(!scene||!assets)return;if(comparison||replaying){scene.ghostsAt(null);return;}if(initialOutline)scene.ghostsAt(start,true);else if(outline||hint===3){const targets:Poses={};if(!practice)for(const [id,p] of Object.entries(current().target_pose))targets[id]={...copy(p),pivot:poses[id].pivot};scene.ghostsAt(targets);}else if(!practice&&screen==='play'&&selected&&current().target_pose[selected])scene.ghostsAt({[selected]:{...copy(current().target_pose[selected]),pivot:poses[selected].pivot}});else scene.ghostsAt(null);}
+function enterStage(n:number){if(!session||!assets)return;try{scene?.cancelDrag();motionFeedback='';level=n;poses=stageStart(session,n);start=copy(poses);history=new History();hint=0;operationCount=0;intro=n===1&&!tutorialSeen()?1:0;selected=current().allowed_teeth[0];tool='translate';axis=current().allowed_axes[selected]?.translate[0]??'X';outline=initialOutline=false;checks=baseChecks();session.current_level=n;screen='play';event('enter_stage',String(n));preserve();render();}catch(e){toast(String(e));}}
+function startPractice(){motionFeedback='';if(!assets)return loadBuiltIn('practice');if(practice)return;returnChallenge={poses:copy(poses),start:copy(start),level,history,hint,operations:operationCount,checks:copy(checks)};practice=true;poses=copy(session!.initial);start=copy(poses);history=new History();practiceLog=[];operationCount=0;hint=0;intro=0;selected=m().teeth[0].mesh_id;tool='translate';axis='X';checks=baseChecks();outline=initialOutline=false;screen='play';render();}
 function exitPractice(){if(returnChallenge){poses=returnChallenge.poses;start=returnChallenge.start;level=returnChallenge.level;history=returnChallenge.history;hint=returnChallenge.hint;operationCount=returnChallenge.operations;checks=returnChallenge.checks;}practice=false;returnChallenge=null;screen='levels';render();}
 function newChallenge(){if(!assets)return loadBuiltIn('new');if(hasSave()&&!confirm('新挑战会覆盖现有挑战记录。是否继续？'))return;session=newSession(m(),initialPoses(m(),Object.fromEntries(assets.assets.map(a=>[a.id,a.pivot]))));challengeActivated=true;enterStage(1);}
 function resume(){if(!assets)return loadBuiltIn('continue');try{
@@ -74,7 +76,7 @@ function resume(){if(!assets)return loadBuiltIn('continue');try{
  const initial=initialPoses(m(),Object.fromEntries(assets.assets.map(a=>[a.id,a.pivot])));const valid=validateSession(record.session,m(),initial);
  let working=stageStart(valid,valid.current_level),workingLevel=valid.current_level;
  if(record.working){const w=record.working;if(!Number.isInteger(w.level)||w.level<1||w.level>Math.min(3,valid.saved_snapshots.length+1)||!Number.isInteger(w.operations)||w.operations<0||!Number.isInteger(w.hint)||w.hint<0||w.hint>3)throw Error('编辑进度损坏。');validatePoses(w.poses,m(),initial);const start=stageStart(valid,w.level);const locked=evaluate(w.poses,start,m(),w.level).filter(g=>g.fixed);if(locked.some(g=>!g.passed))throw Error('编辑进度中的固定牙不一致。');working=copy(w.poses);workingLevel=w.level;}
- intro=0;session=valid;level=workingLevel;poses=working;start=stageStart(valid,level);history=new History();if(record.working){for(const key of ['history','redo']){const commands=record.working[key]??[];validateSession({...valid,command_log:commands},m(),initial);if(key==='history')history.undoStack=copy(commands);else history.redoStack=copy(commands);}}operationCount=record.working?.operations??0;hint=record.working?.hint??0;selected=current().allowed_teeth[0];checks=baseChecks();screen='play';challengeActivated=true;event('continue');warning='';render();
+ intro=0;session=valid;level=workingLevel;poses=working;start=stageStart(valid,level);history=new History();if(record.working){for(const key of ['history','redo']){const commands=record.working[key]??[];validateSession({...valid,command_log:commands},m(),initial);if(key==='history')history.undoStack=copy(commands);else history.redoStack=copy(commands);}}operationCount=record.working?.operations??0;hint=record.working?.hint??0;selected=current().allowed_teeth[0];tool='translate';axis=allowed()[0]??'X';motionFeedback='';checks=baseChecks();screen='play';challengeActivated=true;event('continue');warning='';render();
  }catch(e){warning=String(e);render();toast(warning);}}
 function beginReplay(){if(!session?.saved_snapshots.length)return;scene?.cancelDrag();replaying=true;replayOriginal=copy(poses);replayTime=0;replayPlaying=true;replayPrevious=0;prepareReplay();event('replay');updateTool();updateHUD();requestAnimationFrame(replayTick);}
 function prepareReplay(){if(!session)return;if(replayMode==='operations'){let p=copy(session.initial);replayFrames=[copy(p)];for(const c of session.command_log){p[c.mesh_id]=copy(c.after_pose);replayFrames.push(copy(p));}}else replayFrames=[session.initial,...session.saved_snapshots.map(s=>s.all_poses)];}
@@ -104,7 +106,7 @@ function render(){
  main.innerHTML=`<section class="page-heading"><span class="eyebrow">练习目录 / 01—03</span><h1>同一副牙模，接着完成。</h1><p>上一关调整好的牙，会原样带到下一关。</p></section><section class="level-grid">${chapters.map((c,i)=>{const locked=i>count;return `<article class="level-card ${locked?'locked':''}"><span class="level-number">0${i+1}</span><span class="pill">${locked?'尚未解锁':i<count?'✓ 已完成':'轮到这里啦'}</span><div class="stage-symbol">${['↔','↻','◇'][i]}</div><h2>${c.title}</h2><p>${c.objective}</p>${btn(locked?'先完成前一个挑战':i<count?'再试一次':'开始这一关',`stage-${i+1}`,!locked,locked)}</article>`;}).join('')}</section><p class="muted">重玩时会保留原记录。只有你确认保存新的结果，才会清除后面的进度。</p>`;
  }else{
  main.innerHTML=`<div class="game-heading"><div><span class="eyebrow">${practice?'随便试试 · 不影响挑战':`第 ${level} 个小挑战`}</span><h2>${practice?'自由玩一会儿':chapters[level-1].title}</h2></div><div class="stage-track">${chapters.map((c,i)=>`<span class="${i+1===level&&!practice?'current':''} ${i<(session?.saved_snapshots.length??0)?'done':''}"><b>${i<(session?.saved_snapshots.length??0)?'✓':i+1}</b>${c.short}</span>`).join('')}</div><span id="save-label">${practice?'独立练习':saveStatus}</span></div>
- <section class="workspace"><div class="viewport-shell"><div id="viewport"><div id="marker-layer"></div><div id="comparison-banner" hidden></div><div id="geometry-error" class="geometry-error" hidden></div></div><div class="viewbar">${btn('回到桌面','view-overview')}${btn('从上面看','view-occlusal',false,!m().cameras?.occlusal)}${btn('换个角度','view-front',false,!m().cameras?.front)}${btn('另一侧','view-side',false,!m().cameras?.side)}${btn('−','zoom-out')}${btn('＋','zoom-in')}</div><div class="view-help">拖动空白处旋转 · 滚轮缩放</div><div class="tooth-legend" aria-label="牙齿交互配色"><span data-state="task">任务牙</span><span data-state="hover">悬停</span><span data-state="selected">正在调整</span><span data-state="complete">已到位</span></div></div><aside id="sidebar"></aside></section><div id="toolbar"></div>`;
+ <section class="workspace"><div class="viewport-shell"><div id="viewport"><div id="marker-layer"></div><svg id="motion-overlay" aria-hidden="true" hidden></svg><section id="motion-controls" aria-label="直接调整选中牙齿" hidden></section><div id="comparison-banner" hidden></div><div id="geometry-error" class="geometry-error" hidden></div></div><div class="viewbar">${btn('回到桌面','view-overview')}${btn('从上面看','view-occlusal',false,!m().cameras?.occlusal)}${btn('换个角度','view-front',false,!m().cameras?.front)}${btn('另一侧','view-side',false,!m().cameras?.side)}${btn('−','zoom-out')}${btn('＋','zoom-in')}</div><div class="view-help">拖动空白处旋转 · 滚轮缩放</div><div class="tooth-legend" aria-label="牙齿交互配色"><span data-state="task">任务牙</span><span data-state="hover">悬停</span><span data-state="selected">正在调整</span><span data-state="complete">已到位</span></div></div><aside id="sidebar"></aside></section><div id="toolbar"></div>`;
  try{
   scene=new WorkshopScene($('#viewport')!);scene.load(assets!,poses);scene.setLow(low);scene.reduced=reduced;scene.furniture.visible=showBase;
   scene.onSelect=select;scene.onFailure=message=>{const el=$('#geometry-error')!;el.hidden=false;el.innerHTML=`<h3>画面暂时打不开</h3><p>${esc(message)}</p>${btn('再试一次','retry')}${btn('保存一份记录','export')}`;};
@@ -144,12 +146,12 @@ function updateHUD(displayPoses:Poses=poses){
  $('#toolbar')!.innerHTML=`<div class="toolbar"><div class="tool-group">${btn('挪一挪','tool-translate',tool==='translate',!canTranslate||screen!=='play'||replaying||!!comparison)}${btn('转一转','tool-rotate',tool==='rotate',!canRotate||screen!=='play'||replaying||!!comparison,'title="'+(!canRotate?'这一关先挪动，之后再练习旋转':'调整方向')+'"')}</div><span class="dock-divider"></span><div class="tool-group nudge-group">${practice?`<select id="practice-axis" aria-label="调整方向">${(['X','Y','Z'] as Axis[]).map(a=>`<option ${axis===a?'selected':''}>${a}</option>`).join('')}</select>`:''}${btn(practice?'− '+moveName:'反向一点',practice?'minus':'guide-back',false,!canEdit||!allowed().includes(axis))}${btn(practice?'＋ '+moveName:'顺着箭头',practice?'plus':'guide-forward',true,!canEdit||!allowed().includes(axis))}</div><span class="dock-divider"></span><div class="tool-group">${btn('撤销','undo',false,!history.undoStack.length||screen!=='play'||replaying||!!comparison)}${btn('重做','redo',false,!history.redoStack.length||screen!=='play'||replaying||!!comparison)}${btn('检查一下','review',g.ready,screen!=='play'||replaying)}${btn('查看细节','details')}</div></div>`;
  if(intro&&screen==='play'&&!practice&&!comparison){$('#toolbar')!.innerHTML=`<div class="toolbar tutorial-toolbar"><span>操作练习 ${Math.min(intro,3)} / 3</span>${intro===1?'<span>先点击①号任务牙</span>':intro===2?btn('顺着箭头','guide-forward',true):intro===3?btn('撤销刚才一步','undo',true):btn('开始正式挑战','intro-next',true)}</div>`;}
  scene?.setGuide(!comparison&&!practice&&screen==='play'&&canEdit&&!g.active?.passed?{id:selected!,axis,sign:g.sign,tool}:null);
- updatePoseHUD();updateMarkerLayer();const save=$('#save-label');if(save)save.textContent=practice?'独立练习':saveStatus;
+ showGhosts();updatePoseHUD();updateMotionLayer(displayPoses);updateMarkerLayer();const save=$('#save-label');if(save)save.textContent=practice?'独立练习':saveStatus;
  if(warning.startsWith('本地进度保存失败'))toast(warning);
 }
 function goalHTML(g:ReturnType<typeof evaluate>[number],displayPoses:Poses=poses){
  const name=taskName(m(),level,g.id);const i=current().allowed_teeth.indexOf(g.id);const guide=guidance(m(),level,displayPoses,start,selected,tool,axis);
- return `<button aria-pressed="${selected===g.id}" class="goal ${g.passed?'passed':''} ${selected===g.id?'selected':''}" data-action="select-${esc(g.id)}"><span class="goal-icon">${g.passed?'✓':circles[i]}</span><span class="goal-copy"><strong>${name}</strong><small>${g.passed?'调整好了！':!g.position_ok?'还要挪一点':!g.rotation_ok?'再转一转':'调整好了！'}</small><span class="task-bar-labels"><span>位置${g.position_ok?' ✓':''}</span><span>方向${g.rotation_ok?' ✓':''}</span></span><span class="task-bars"><span title="位置进度"><i style="width:${guide.progress(g.id,'position')*100}%"></i></span><span title="方向进度"><i style="width:${guide.progress(g.id,'rotation')*100}%"></i></span></span></span><span class="task-status">${g.passed?'完成':selected===g.id?'正在调':'点我'}</span></button>`;
+ return `<button aria-pressed="${selected===g.id}" class="goal ${g.passed?'passed':''} ${selected===g.id?'selected':''}" data-action="select-${esc(g.id)}"><span class="goal-icon">${g.passed?'✓':circles[i]}</span><span class="goal-copy"><strong>${name}</strong><small>${g.passed?'调整好了！':!g.position_ok?'还要挪一点':!g.rotation_ok?'再转一转':'调整好了！'}</small><span class="task-bar-labels"><span>挪位置${g.position_ok?' ✓':''}</span><span>转方向${g.rotation_ok?' ✓':''}</span></span><span class="task-bars"><span title="位置进度"><i style="width:${guide.progress(g.id,'position')*100}%"></i></span><span title="方向进度"><i style="width:${guide.progress(g.id,'rotation')*100}%"></i></span></span></span><span class="task-status">${g.passed?'完成':selected===g.id?'正在调':'点我'}</span></button>`;
 }
 function openDetails(){
  const d=$<HTMLDialogElement>('#modal')!;
@@ -167,7 +169,9 @@ function updateMarkerLayer(){
  const host=scene.host.getBoundingClientRect(),sidebar=$('#sidebar')?.getBoundingClientRect();
  const rightLimit=host.width>=760&&sidebar?sidebar.left-host.left-16:host.width-12;
  const points=ids.map(id=>{const p=scene!.marker(id);return p?.visible?{id,x:p.x,y:p.y}:null;}).filter((p):p is {id:string;x:number;y:number}=>!!p);
- const placements=layoutMarkers(points,scene.projectedTeethBounds(),host.width,host.height,rightLimit);
+ const controls=$('#motion-controls'),r=controls&&!controls.hidden?controls.getBoundingClientRect():null;
+ const reserved=r?[{left:r.left-host.left,right:r.right-host.left,top:r.top-host.top,bottom:r.bottom-host.top}]:[];
+ const placements=layoutMarkers(points,scene.projectedTeethBounds(),host.width,host.height,rightLimit,reserved);
  for(const id of ids){
   const node=layer.querySelector<HTMLElement>(`[data-marker="${CSS.escape(id)}"]`),line=layer.querySelector<SVGPathElement>(`[data-leader="${CSS.escape(id)}"]`),p=placements.find(p=>p.id===id);
   if(!node)continue;node.hidden=!p;if(line)line.style.display=p?'':'none';if(!p)continue;
@@ -177,6 +181,26 @@ function updateMarkerLayer(){
   if(node instanceof HTMLButtonElement)node.setAttribute('aria-pressed',String(selected===id));
   line?.setAttribute('d',`M ${p.side==='left'?p.left+p.width:p.left} ${p.top+p.height/2} L ${p.x} ${p.y}`);
  }
+}
+function updateMotionLayer(displayPoses:Poses=poses){
+ const panel=$('#motion-controls'),overlay=$('#motion-overlay');if(!panel||!overlay||!scene||!assets)return;
+ const active=!!selected&&editable()&&allowed().includes(axis)&&!replaying;
+ panel.hidden=!active;overlay.toggleAttribute('hidden',!active);if(!active)return;
+ const g=practice?null:guidance(m(),level,displayPoses,start,selected,tool,axis);
+ const cue=scene.motion(selected!,axis,g?.sign??1,tool);if(!cue)return;
+ const name=practice?'选中的牙':taskName(m(),level,selected!);
+ const signature=`${selected}|${tool}|${intro}|${practice}`;
+ if(panel.dataset.signature!==signature){
+  panel.dataset.signature=signature;
+  panel.innerHTML=`<div class="motion-heading"><strong>${name} · ${tool==='translate'?'挪位置':'转方向'}</strong>${!intro&&allowed().length?btn(tool==='translate'?'改为转方向':'改为挪位置',tool==='translate'?'motion-tool-rotate':'motion-tool-translate',false,!practice&&!(current().allowed_axes[selected!]?.[tool==='translate'?'rotate':'translate']?.length)):''}</div><p class="motion-explanation">${practice?'箭头随视角变化，表示当前操作方向。':'蓝色轮廓是目标，绿色箭头是这次的移动方向。'}</p><div class="motion-buttons">${btn('','motion-back')}${btn('','motion-forward',true)}</div><p class="motion-feedback" role="status"></p>`;
+ }
+ const forward=panel.querySelector<HTMLElement>('[data-action="motion-forward"]')!,back=panel.querySelector<HTMLElement>('[data-action="motion-back"]')!;
+ forward.textContent=`${cue.symbol} ${cue.forward}一点`;back.textContent=`${cue.back}一点`;
+ const feedback=panel.querySelector('.motion-feedback')!;if(feedback.textContent!==motionFeedback)feedback.textContent=motionFeedback;
+ for(const [action,label] of [['guide-forward',`${cue.symbol} ${cue.forward}一点`],['guide-back',`${cue.back}一点`]]){const b=$(`#toolbar [data-action="${action}"]`);if(b)b.textContent=label;}
+ const w=scene.host.clientWidth,h=scene.host.clientHeight;overlay.setAttribute('viewBox',`0 0 ${w} ${h}`);
+ overlay.innerHTML=`<defs><marker id="motion-arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 9 4.5 L 0 9 Z" fill="#216b59"/></marker></defs>${cue.depth?`<text x="${cue.center.x}" y="${cue.center.y-32}" text-anchor="middle" class="motion-depth">${cue.symbol}</text>`:`<path class="motion-halo" d="${cue.path}"/><path class="motion-path" d="${cue.path}" marker-end="url(#motion-arrow)"/>`}`;
+ overlay.dataset.forward=cue.forward;overlay.dataset.tool=tool;overlay.dataset.axis=axis;
 }
 function tutorialSeen(){try{return localStorage.getItem('chi-xu-workshop:tutorial:v1')==='done';}catch{return false;}}
 function finishTutorial(){intro=0;try{localStorage.setItem('chi-xu-workshop:tutorial:v1','done');}catch{}updateTool();updateHUD();}
@@ -213,11 +237,12 @@ function template(){exportData({case_id:'请填写匿名病例ID',asset_version:
 function openSettings(){const d=$<HTMLDialogElement>('#modal')!;d.innerHTML=`<div class="dialog-heading"><h2>歇一下，再继续</h2>${btn('回到游戏','close-modal',true)}</div><div class="menu-options">${btn('关卡地图','levels')}${btn('回到首页','home')}${assets?btn('保存一份记录','export'):''}</div><label class="setting"><input id="low-mode" type="checkbox" ${low?'checked':''}>画面更流畅（减少显示细节）</label><label class="setting"><input id="reduce-motion" type="checkbox" ${reduced?'checked':''}>减少动画</label><label class="setting"><input id="show-base" type="checkbox" ${showBase?'checked':''}>显示小工作台</label><details><summary>资源与练习说明</summary><p>这是一段牙齿摆放练习，不是诊疗建议。真实牙位、单位与教学角色仍待核对。触屏先使用点选和按钮；暂无音效。</p>${btn('牙模资源与导入','assets')}${assets?btn('查看练习细节','details'):''}</details>`;d.showModal();}
 app.addEventListener('click',e=>{const b=(e.target as HTMLElement).closest<HTMLButtonElement>('[data-action]');if(!b||b.disabled)return;const a=b.dataset.action!;
  if(comparison&&['home','levels','new','continue','practice','next','review','adjust','save-stage','replay'].includes(a))setComparison(null);
- if(comparison&&['undo','redo','guide-forward','guide-back','plus','minus','reset-practice'].includes(a))return;
+ if(comparison&&['undo','redo','guide-forward','guide-back','motion-forward','motion-back','plus','minus','reset-practice'].includes(a))return;
  if(a.startsWith('stage-'))return assets?(challengeActivated?enterStage(Number(a.slice(6))):newChallenge()):loadBuiltIn('new');
  if(a.startsWith('select-'))return select(a.slice(7));
  if(a.startsWith('view-')){scene?.view(a.slice(5),m());return;}
- if(a.startsWith('tool-')){tool=a.slice(5) as Tool;axis=allowed()[0]??'X';event('tool',tool);updateTool();updateHUD();return;}
+ if(a.startsWith('motion-tool-')){tool=a.slice(12) as Tool;motionFeedback='';axis=allowed()[0]??'X';event('tool',tool);updateTool();updateHUD();return;}
+ if(a.startsWith('tool-')){motionFeedback='';tool=a.slice(5) as Tool;axis=allowed()[0]??'X';event('tool',tool);updateTool();updateHUD();return;}
  if(a.startsWith('axis-')){axis=a.slice(5) as Axis;updateHUD();return;}
  switch(a){
  case 'home':if(practice)exitPractice();if(replaying)exitReplay();preserve();screen='home';render();break;
@@ -225,9 +250,9 @@ app.addEventListener('click',e=>{const b=(e.target as HTMLElement).closest<HTMLB
  case 'assets':openAssets();break;case 'load-built-in':loadBuiltIn(requestedAfterLoad);break;case 'settings':openSettings();break;case 'close-modal':$<HTMLDialogElement>('#modal')!.close();break;
  case 'new':newChallenge();break;case 'continue':resume();break;case 'practice':startPractice();break;case 'exit-practice':exitPractice();break;
  case 'details':openDetails();break;
- case 'guide-forward':case 'guide-back':{const sign=practice?1:guidance(m(),level,poses,start,selected,tool,axis).sign;nudge((a==='guide-forward'?1:-1)*sign);break;}
+ case 'motion-forward':case 'motion-back':case 'guide-forward':case 'guide-back':{const sign=practice?1:guidance(m(),level,poses,start,selected,tool,axis).sign;nudge((a==='guide-forward'||a==='motion-forward'?1:-1)*sign);break;}
  case 'plus':nudge(1);break;case 'minus':nudge(-1);break;
- case 'undo':case 'redo':{scene?.cancelDrag();const c=a==='undo'?history.undo(poses):history.redo(poses);if(c){event(a,c.command_id);const log={...copy(c),command_id:crypto.randomUUID(),before_pose:a==='undo'?copy(c.after_pose):copy(c.before_pose),after_pose:a==='undo'?copy(c.before_pose):copy(c.after_pose),time:new Date().toISOString()};if(practice)practiceLog.push(log);else session!.command_log.push(log);scene?.apply(poses);if(intro===3&&a==='undo'){intro=4;updateTool();}invalidate();preserve();updateHUD();}break;}
+ case 'undo':case 'redo':{scene?.cancelDrag();const c=a==='undo'?history.undo(poses):history.redo(poses);if(c){motionFeedback=a==='undo'?'已撤销刚才一步':'已重做刚才一步';event(a,c.command_id);const log={...copy(c),command_id:crypto.randomUUID(),before_pose:a==='undo'?copy(c.after_pose):copy(c.before_pose),after_pose:a==='undo'?copy(c.before_pose):copy(c.after_pose),time:new Date().toISOString()};if(practice)practiceLog.push(log);else session!.command_log.push(log);scene?.apply(poses);if(intro===3&&a==='undo'){intro=4;updateTool();}invalidate();preserve();updateHUD();}break;}
  case 'hint':hint=Math.min(3,hint+1);event('hint',String(hint));showGhosts();preserve();updateHUD();break;case 'hint-off':hint=0;showGhosts();updateHUD();break;
  case 'intro-next':if(intro===4)finishTutorial();break;case 'intro-skip':finishTutorial();break;
  case 'compare-before':setComparison('before');break;case 'compare-after':setComparison('after');break;case 'compare-exit':setComparison(null);break;
@@ -261,7 +286,7 @@ app.addEventListener('change',async e=>{const input=e.target as HTMLInputElement
 app.addEventListener('input',e=>{const input=e.target as HTMLInputElement;if(input.id==='timeline'){replayTime=Number(input.value);replayPlaying=false;applyReplay();const b=$('[data-action="pause"]');if(b)b.textContent='播放';}});
 window.addEventListener('keydown',e=>{if((e.target as HTMLElement).closest('input,textarea,select,[contenteditable="true"]')||$<HTMLDialogElement>('#modal')?.open||e.ctrlKey||e.metaKey||e.altKey||screen!=='play'||replaying||!!comparison)return;if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();nudge(e.key==='ArrowRight'?1:-1);}if(e.key==='Escape')scene?.cancelDrag();});
 window.addEventListener('blur',()=>scene?.cancelDrag());
-setInterval(()=>{if(!scene||!assets)return;const stats=$('#stats');if(stats)stats.textContent=`${scene.visibleTriangles().toLocaleString()} 三角形 · 按需绘制 · 原始模型单位 ${unit()}`;updateMarkerLayer();},150);
+setInterval(()=>{if(!scene||!assets)return;const stats=$('#stats');if(stats)stats.textContent=`${scene.visibleTriangles().toLocaleString()} 三角形 · 按需绘制 · 原始模型单位 ${unit()}`;updateMarkerLayer();updateMotionLayer();},150);
 render();
 
 if(new URLSearchParams(location.search).has('check-port'))void import('./selfcheck').then(module=>module.runBrowserCheck());

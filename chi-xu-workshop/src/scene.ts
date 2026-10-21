@@ -9,6 +9,7 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { copy,type Tool as GuideTool,type Axis as GuideAxis,type Pose,type Poses,type Tool,type Axis,type Vec3,type Manifest } from './core';
 import type { CaseAssets } from './assets';
 import {toothColors,toothState} from './appearance';
+import {motionCue} from './motion';
 export class WorkshopScene{
  renderer:T.WebGLRenderer;scene=new T.Scene();camera=new T.PerspectiveCamera(35,1,.01,1e6);orbit:OrbitControls;transform:TransformControls;composer:EffectComposer;outline:OutlinePass;
  taskIds:string[]=[];completedIds:string[]=[];fixedIds:string[]=[];hoverId:string|undefined;guideGroup=new T.Group();guideArrow=new T.ArrowHelper(new T.Vector3(1,0,0),new T.Vector3(),1,'#326857',.2,.1);guideRing=new T.Mesh(new T.TorusGeometry(1,.035,6,64),new T.MeshBasicMaterial({color:'#326857',transparent:true,opacity:.85,depthTest:false}));
@@ -87,6 +88,12 @@ export class WorkshopScene{
   this.guideGroup.position.copy(tooth.position);const direction=new T.Vector3().setComponent(['X','Y','Z'].indexOf(guide.axis),guide.sign);
   if(guide.tool==='translate'){this.guideRing.visible=false;this.guideArrow.position.copy(direction).multiplyScalar(this.size*.018);this.guideArrow.setDirection(direction);this.guideArrow.setLength(this.size*.1,this.size*.018,this.size*.01);}
   else{this.guideRing.visible=true;const normal=new T.Vector3().setComponent(['X','Y','Z'].indexOf(guide.axis),1);const radial=guide.axis==='X'?new T.Vector3(0,1,0):new T.Vector3(1,0,0);this.guideRing.quaternion.setFromUnitVectors(new T.Vector3(0,0,1),normal);this.guideRing.scale.setScalar(this.size*.052);this.guideArrow.position.copy(radial).multiplyScalar(this.size*.052);this.guideArrow.setDirection(normal.clone().cross(radial).multiplyScalar(guide.sign));this.guideArrow.setLength(this.size*.035,this.size*.015,this.size*.008);}
+ }
+
+ motion(id:string,axis:GuideAxis,sign:number,tool:GuideTool){
+  const tooth=this.teeth.get(id);if(!tooth)return null;
+  if(!tooth.geometry.boundingSphere)tooth.geometry.computeBoundingSphere();
+  return motionCue(this.camera,tooth.position,Math.max(this.size*.045,(tooth.geometry.boundingSphere?.radius??0)*1.4),axis,sign,tool,this.host.clientWidth,this.host.clientHeight);
  }
 
  cancelDrag(){if(this.before&&this.selected){this.dragCancelled=true;const id=this.selected,p=copy(this.before);this.transform.reset();this.apply({[id]:p});this.onPreview(id,p);this.before=null;}this.orbit.enabled=true;}

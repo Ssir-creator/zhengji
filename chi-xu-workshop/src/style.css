@@ -324,3 +324,19 @@ details { margin-top: 16px; border-top: 1px solid var(--line); }
 #self-check-panel p { font-size:13px; }
 
 [hidden]{display:none!important}
+/* Controls stay with the model, including on narrow screens. */
+#motion-overlay { position:absolute; inset:0; width:100%; height:100%; z-index:2; pointer-events:none; overflow:hidden; }
+.motion-halo { fill:none; stroke:#fffcf2; stroke-width:9; stroke-linecap:round; stroke-linejoin:round; opacity:.92; }
+.motion-path { fill:none; stroke:#216b59; stroke-width:3.5; stroke-linecap:round; stroke-linejoin:round; }
+.motion-depth { fill:#216b59; stroke:#fffcf2; stroke-width:4px; paint-order:stroke; font-size:38px; font-weight:bold; }
+#motion-controls { position:absolute; z-index:4; left:32px; top:100px; width:282px; padding:12px; background:#fbf8f0f5; border-left:3px solid #216b59; }
+.motion-heading { display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:13px; }
+.motion-heading button { font-size:10px; padding:5px; min-height:32px; background:transparent; border:0; text-decoration:underline; }
+.motion-explanation { font-size:11px; line-height:1.6; margin:6px 0 10px; color:var(--muted); }
+.motion-buttons { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.motion-buttons button { min-height:44px; padding:8px 4px; font-size:12px; }
+.motion-buttons .primary { background:#216b59; border-color:#216b59; color:#fff; }
+.motion-feedback { min-height:17px; font-size:11px; margin:7px 0 0; color:#216b59; }
+@media(max-width:1100px){#motion-controls{left:20px;width:256px}}
+@media(max-width:760px){#motion-controls{top:8px;left:12px;width:calc(100% - 24px);padding:8px 10px}.motion-explanation{margin:3px 0 6px}.motion-feedback{margin-top:4px}.motion-buttons button{min-height:44px}.motion-heading{font-size:12px}}
+@media(max-width:760px){.viewbar{right:12px;max-width:none;flex-wrap:nowrap;gap:4px}.viewbar button{flex:1;min-width:0;padding:8px 4px;font-size:10px;white-space:nowrap}.viewbar .button-icon{display:none}}
