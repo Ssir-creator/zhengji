@@ -1,7 +1,8 @@
 import {it,expect,vi,afterEach} from 'vitest';
 import {mkdtemp,mkdir,writeFile,readFile,readdir,rm,symlink,readlink} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
-import {join} from 'node:path';
+import {dirname,join,sep} from 'node:path';
+import {fileURLToPath,pathToFileURL} from 'node:url';
 const updaterPath='../scripts/update.mjs';
 const {updateZip,extractArchive,run}=await import(updaterPath);
 const sandboxes:string[]=[];
@@ -39,6 +40,18 @@ it('ZIP更新先构建再替换，完整备份旧文件并保留本机导入与�
  expect(await readFile(join(root,'settings.local.json'),'utf8')).toBe('private local settings');
  expect(await readFile(join(root,'local-assets/import.stl'),'utf8')).toBe('original import');
  expect(JSON.parse(await readFile(join(root,'.chi-xu-version.json'),'utf8')).version).toBe(version);
+});
+it('命令行入口的目录URL带末尾分隔符时，备份和锁仍位于游戏目录外',async()=>{
+ const{root,dir}=await installation();
+ const cliRoot=fileURLToPath(new URL('./',pathToFileURL(join(root,'entry.mjs'))));
+ expect(cliRoot.endsWith(sep)).toBe(true);
+ const result=await updateZip(cliRoot,options());
+ expect(result.updated).toBe(true);
+ expect(dirname(result.backup)).toBe(dir);
+ expect(await readFile(join(result.backup,'old-custom.txt'),'utf8')).toBe('my original file');
+ expect(await readFile(join(root,'src/main.ts'),'utf8')).toBe('new version');
+ expect((await readdir(root)).some(name=>name.startsWith('.backup-'))).toBe(false);
+ expect((await readdir(dir)).some(name=>name.endsWith('.update-lock'))).toBe(false);
 });
 it('版本相同不下载、不构建、不替换',async()=>{
  const{root}=await installation();await writeFile(join(root,'.chi-xu-version.json'),JSON.stringify({version}));

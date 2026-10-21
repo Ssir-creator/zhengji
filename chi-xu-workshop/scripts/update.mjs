@@ -124,6 +124,9 @@ export async function deployTree(source,destination,boundary=source){
 }
 /** Prepare in a sibling directory; keep the installation directory stable for Windows launchers. */
 export async function updateZip(root,options={}){
+ // fileURLToPath(new URL('../', import.meta.url)) retains a trailing separator.
+ // Normalize before appending sibling names, or they become children of root.
+ root=resolve(root);
  const {latest=latestVersion,download=downloadArchive,extract=extractArchive,build=prepare,deploy=deployTree,log=console.log}=options;
  if(await gitRoot(root))throw new Error('检测到 Git 工作区，请使用开发分支的 Git 更新流程。');
  const pkg=JSON.parse(await readFile(join(root,'package.json'),'utf8'));
