@@ -13,13 +13,25 @@
 在包含 `package.json`、`src` 和 `scripts` 的游戏文件夹中，点击资源管理器地址栏，输入 `powershell` 并回车。关闭旧游戏启动窗口后粘贴：
 
 ```powershell
-$ErrorActionPreference = 'Stop'
-if (!(Test-Path '.\scripts\start-windows.ps1')) { throw '请先进入 chi-xu-workshop 游戏文件夹。' }
-Invoke-WebRequest -UseBasicParsing -Uri 'https://raw.githubusercontent.com/Ssir-creator/zhengji/chi-xu-workshop-dev/chi-xu-workshop/scripts/update.mjs' -OutFile '.\scripts\update.mjs'
-node .\scripts\update.mjs
+& {
+    $ErrorActionPreference = 'Stop'
+    if (!(Test-Path '.\package.json') -or !(Test-Path '.\scripts')) { throw '请先进入 chi-xu-workshop 游戏文件夹。' }
+    Invoke-WebRequest -UseBasicParsing -Uri 'https://raw.githubusercontent.com/Ssir-creator/zhengji/chi-xu-workshop-dev/chi-xu-workshop/scripts/update.mjs' -OutFile '.\scripts\update.mjs'
+    node .\scripts\update.mjs
+    if ($LASTEXITCODE -ne 0) { throw '更新未完成，请保留错误信息。' }
+    & '.\开始游戏.cmd'
+}
 ```
 
 本次会把旧游戏更新到含新更新入口的版本。之后只需双击“更新游戏.cmd”。需要既有的 Node.js，推荐 24 LTS；不需要管理员权限。网页仍运行在原主机名和端口，更新器不操作浏览器数据库，不清除进度。
+
+## Windows 解压时提示文件被另一进程占用
+
+已收到实机记录：旧更新器的 `Expand-Archive` 在图片文件被占用后输出大量清理错误，却以成功状态退出，随后显示“下载包目录结构异常”。此时旧游戏没有被替换，旧版缺少的启动入口也不会出现。
+
+使用上面的完整代码块重新安装修复版更新器。新版直接调用 .NET ZIP 解压接口并明确返回失败状态；失败后分别等待 0.5、1、2 秒，在全新暂存目录中重试，最多 4 次尝试。持续失败会停止，保留旧游戏，不发布部分解压结果；临时目录清理失败也会尝试释放自己的更新锁。无需删除游戏或关闭安全软件。
+
+该修复有 11 项更新器测试，包含暂时占用后成功、持续失败时保留旧版和释放锁。测试在 Linux 运行，Windows 命令由测试执行器替代，成功路径使用真实 ZIP 解压；不等同于 Windows 实机验证。下一次用户电脑上的更新结果仍需确认。
 
 ## 保留与失败处理
 

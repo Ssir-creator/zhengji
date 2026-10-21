@@ -3,7 +3,7 @@ import {mkdtemp,mkdir,writeFile,readFile,readdir,rm,symlink,readlink} from 'node
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 const updaterPath='../scripts/update.mjs';
-const {updateZip}=await import(updaterPath);
+const {updateZip,extractArchive,run}=await import(updaterPath);
 const sandboxes:string[]=[];
 const version='a'.repeat(64);
 afterEach(async()=>{for(const dir of sandboxes.splice(0))await rm(dir,{recursive:true,force:true});});
@@ -46,11 +46,45 @@ it('版本相同不下载、不构建、不替换',async()=>{
  expect(opts.download).not.toHaveBeenCalled();expect(opts.build).not.toHaveBeenCalled();
  expect(await readFile(join(root,'old-custom.txt'),'utf8')).toBe('my original file');
 });
-it.each(['download','build'])('%s失败保留原目录，清理临时目录和更新锁',async(step)=>{
+it.each(['download','extract','build'])('%s失败保留原目录，清理临时目录和更新锁',async(step)=>{
  const{root,dir}=await installation();const opts=options({[step]:async()=>{throw new Error('test failure');}});
  await expect(updateZip(root,opts)).rejects.toThrow('test failure');
  expect(await readFile(join(root,'old-custom.txt'),'utf8')).toBe('my original file');
  expect(await readdir(dir)).toEqual(['chi-xu-workshop']);
+});
+
+it('Windows解压遇到暂时占用后使用全新目录重试，只发布完整解压结果',async()=>{
+ const{root,dir}=await installation();
+ const source=join(dir,'source');await mkdir(join(source,'repository','chi-xu-workshop'),{recursive:true});
+ await writeFile(join(source,'repository','chi-xu-workshop','开始游戏.cmd'),'complete game');
+ const archive=join(dir,'game.zip');await run('zip',['-qr',archive,'.'],source);
+ const destination=join(dir,'extracted');const waits:number[]=[];const attempts:string[]=[];
+ await extractArchive(archive,destination,{platform:'win32',wait:async(ms:number)=>{waits.push(ms);},execute:async(command:string,args:string[],cwd:string,options:{env:NodeJS.ProcessEnv})=>{
+  expect(command).toBe('powershell.exe');
+  expect(args.at(-1)).toContain("$ErrorActionPreference = 'Stop'");
+  expect(args.at(-1)).toContain('exit 1');
+  expect(args.at(-1)).not.toContain(archive);
+  const stage=options.env.CHIXU_UPDATE_EXTRACT!;attempts.push(stage);
+  if(attempts.length===1){await writeFile(join(stage,'partial.txt'),'locked partial output');throw new Error('file is in use');}
+  await run('unzip',['-q',options.env.CHIXU_UPDATE_ARCHIVE!,'-d',stage],cwd);
+ }});
+ expect(waits).toEqual([500]);expect(new Set(attempts).size).toBe(2);
+ expect(await readdir(destination)).toEqual(['repository']);
+ expect(await readFile(join(destination,'repository/chi-xu-workshop/开始游戏.cmd'),'utf8')).toBe('complete game');
+ expect(await readFile(join(root,'old-custom.txt'),'utf8')).toBe('my original file');
+});
+
+it('Windows解压持续失败会停止更新、保留旧文件并释放锁，不把部分结果当成功',async()=>{
+ const{root,dir}=await installation();const waits:number[]=[];let attempts=0;
+ await expect(updateZip(root,options({extract:(archive:string,destination:string)=>extractArchive(archive,destination,{
+  platform:'win32',wait:async(ms:number)=>{waits.push(ms);},execute:async(_command:string,_args:string[],_cwd:string,options:{env:NodeJS.ProcessEnv})=>{
+   attempts++;await writeFile(join(options.env.CHIXU_UPDATE_EXTRACT!,'partial.txt'),'partial');throw new Error('locked');
+  }
+ })}))).rejects.toThrow('Windows 解压失败，已自动重试 3 次');
+ expect(attempts).toBe(4);expect(waits).toEqual([500,1000,2000]);
+ expect(await readdir(dir)).toEqual(['chi-xu-workshop']);
+ expect(await readFile(join(root,'old-custom.txt'),'utf8')).toBe('my original file');
+ expect(await readdir(root)).not.toContain('.chi-xu-version.json');
 });
 it('替换部分文件后失败时恢复旧文件，保留备份',async()=>{
  const{root,dir}=await installation();

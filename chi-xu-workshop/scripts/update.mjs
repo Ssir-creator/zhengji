@@ -61,13 +61,26 @@ async function downloadArchive(version,destination){
  if(!etag||archiveVersion(etag)!==version)throw new Error('下载期间新版发生变化，请重新更新；旧版未替换。');
  await writeFile(destination,new Uint8Array(await response.arrayBuffer()));
 }
-async function extractArchive(archive,destination){
- if(process.platform==='win32'){
-  // Paths are passed as environment data rather than interpolated into PowerShell code.
-  await run('powershell.exe',['-NoProfile','-NonInteractive','-Command',"Expand-Archive -LiteralPath $env:CHIXU_UPDATE_ARCHIVE -DestinationPath $env:CHIXU_UPDATE_EXTRACT"],dirname(archive),{env:{...process.env,CHIXU_UPDATE_ARCHIVE:archive,CHIXU_UPDATE_EXTRACT:destination}});
- }else{
-  await mkdir(destination);await run('unzip',['-q',archive,'-d',destination],dirname(archive));
+export async function extractArchive(archive,destination,{platform=process.platform,execute=run,wait=ms=>new Promise(accept=>setTimeout(accept,ms))}={}){
+ if(platform!=='win32'){
+  await mkdir(destination);await execute('unzip',['-q',archive,'-d',destination],dirname(archive));return;
  }
+ // Expand-Archive can emit nonterminating errors, erase partial output and still
+ // exit zero. Use .NET directly and propagate every extraction failure instead.
+ // Fresh directories also let a transient scanner lock settle without reusing
+ // partially extracted files. All attempts stay inside the updater's work dir.
+ const command="$ErrorActionPreference = 'Stop'; try { Add-Type -AssemblyName System.IO.Compression.FileSystem; [System.IO.Compression.ZipFile]::ExtractToDirectory($env:CHIXU_UPDATE_ARCHIVE, $env:CHIXU_UPDATE_EXTRACT) } catch { [Console]::Error.WriteLine($_.Exception.Message); exit 1 }";
+ let failure;
+ for(let attempt=0;attempt<4;attempt++){
+  if(attempt)await wait(500*2**(attempt-1));
+  const staging=await mkdtemp(join(dirname(destination),'.extract-'));
+  try{
+   // Paths are environment data, never interpolated into PowerShell code.
+   await execute('powershell.exe',['-NoProfile','-NonInteractive','-Command',command],dirname(archive),{env:{...process.env,CHIXU_UPDATE_ARCHIVE:archive,CHIXU_UPDATE_EXTRACT:staging}});
+   await rename(staging,destination);return;
+  }catch(error){failure=error;}
+ }
+ throw new Error(`Windows 解压失败，已自动重试 3 次；旧版未替换。可能有文件被占用，请稍后重试。${failure.message}`);
 }
 async function validateProject(root){
  const pkg=JSON.parse(await readFile(join(root,'package.json'),'utf8'));
@@ -160,8 +173,10 @@ export async function updateZip(root,options={}){
   log('请双击“开始游戏”。继续使用原浏览器和原地址，浏览器进度不会被清理。');
   return{updated:true,version,backup};
  }finally{
-  if(work)await rm(work,{recursive:true,force:true});
-  await rm(lock,{recursive:true,force:true});
+  // A scanner may still hold a staging file. Always release our own update lock,
+  // even if Windows cannot remove a temporary directory immediately.
+  try{if(work)await rm(work,{recursive:true,force:true,maxRetries:5,retryDelay:200});}
+  finally{await rm(lock,{recursive:true,force:true,maxRetries:5,retryDelay:200});}
  }
 }
 async function updateGit(root){
