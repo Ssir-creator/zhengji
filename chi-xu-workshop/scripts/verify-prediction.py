@@ -38,4 +38,3 @@ summary['clinical_alignment_validated']=False
 summary['limits']='Rigid transforms, original geometry and topology verified. No clinical alignment, contact, penetration or occlusion validation.'
 (root/args.report).write_text(json.dumps(summary,indent=2)+'\n')
 print(json.dumps({k:v for k,v in summary.items() if k!='meshes'},indent=2))
-
