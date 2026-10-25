@@ -13,6 +13,7 @@ const KEY='chi-xu-workshop:challenge:v1';
 let assets:CaseAssets|null=null,session:Session|null=null,poses:Poses={},start:Poses={},history=new History(),scene:WorkshopScene|null=null;
 let challengeActivated=false,loadingBuiltIn=false;
 let disposeStudio:(()=>void)|null=null;
+let disposePrediction:(()=>void)|null=null,renderVersion=0;
 let screen:Screen='home',level=1,selected:string|null=null,tool:Tool='translate',axis:Axis='X',hint=0,outline=false,initialOutline=false,practice=false,checks:Check[]=[],intro=0,operationCount=0;
 let returnChallenge:{poses:Poses;start:Poses;level:number;history:History;hint:number;operations:number;checks:Check[]}|null=null;
 let practiceLog:Command[]=[];let fineStep=false;let low=false,reduced=matchMedia('(prefers-reduced-motion: reduce)').matches,showBase=true;
@@ -92,6 +93,7 @@ function measure(){if(!assets||measurePending||replaying)return;
  measureWorker.postMessage({request,poses:copy(poses),pairs:m().adjacency,samples:Object.fromEntries(assets.assets.map(a=>[a.id,a.samples]))});}
 function saveStage(){if(!session)return;scene?.cancelDrag();const goals=evaluate(poses,start,m(),level);if(!canSave(goals,checks,current()))return toast('还有牙齿没调整好，先跟着任务卡继续试试。');if(session.saved_snapshots.length>=level&&!confirm('保存此阶段将清除其后阶段记录。是否继续？'))return;try{const next=commitStage(session,m(),level,poses,checks,operationCount,hint);if(!persistCandidate(next))return;session=next;event('save_stage',String(level));screen='finish';render();}catch(e){toast(String(e));}}
 function render(){
+ renderVersion++;disposePrediction?.();disposePrediction=null;
  comparison=null;
  disposeStudio?.();disposeStudio=null;
  scene?.dispose();scene=null;replaying=false;measureRequest++;measurePending=false;measureWorker?.terminate();measureWorker=null;
@@ -99,7 +101,7 @@ function render(){
  app.innerHTML=`<header class="${playing?'in-game':''}"><button class="brand" data-action="home"><span class="brand-mark">齿</span><span>齿序工坊<small>牙齿排列练习 / WORKSHOP</small></span></button><nav>${btn(playing?'关卡地图':'三个小挑战','levels')}${!playing?btn('牙模资源','assets'):''}${btn('菜单','settings')}</nav></header><main id="main"></main><footer><span>CHI XU WORKSHOP <span class="footer-separator">/</span> 牙齿排列练习</span><span>本机保存 · 无计时</span></footer><div id="notice" role="status" aria-live="polite"></div><dialog id="modal"></dialog>`;
  const main=$('#main')!;
  if(screen==='home'){
- main.innerHTML=`<section class="home"><div class="home-copy"><div class="eyebrow"><span class="index-rule"></span>牙齿排列练习 · 001</div><h1>齿序<br>工坊<span class="title-dot">。</span></h1><p class="lead">一副牙模，三次调整。</p><p class="home-description">从留出空间到调整方向，<br>亲手完成这副牙模的排列练习。</p><div class="home-card">${hasSave()?btn('继续上次的挑战','continue',true):btn('开始排列','new',true)}${btn('自由练习','practice')}${hasSave()?btn('重新开始','new'):''}<small>操作可以撤销，进度保存在此浏览器。</small></div><p class="asset-status">${assets?'牙模准备好了':'点击开始会自动加载内置真实牙模'}</p></div><figure class="hero title-studio"><div id="title-studio" aria-label="可旋转的真实3D牙模"></div><div class="specimen-label"><span>病例标本 / 01</span><small>28 冠 · 真实病例</small></div><figcaption id="studio-status" role="status">正在准备真实牙模…</figcaption><span class="specimen-axis" aria-hidden="true">＋</span></figure></section>${warning?`<div class="warning">${esc(warning)}${btn('导出旧记录','export-raw')}</div>`:''}<section class="steps" aria-label="三个连续阶段">${chapters.map((c,i)=>`<div><span>0${i+1}</span><strong>${c.title}</strong><small>${c.objective}</small></div>`).join('')}</section>`;
+ main.innerHTML=`<section class="home"><div class="home-copy"><div class="eyebrow"><span class="index-rule"></span>牙齿排列练习 · 001</div><h1>齿序<br>工坊<span class="title-dot">。</span></h1><p class="lead">一副牙模，逐颗对照。</p><p class="home-description">沿模型预测参考，分三批调整 28 颗牙。<br>每批连续保留，最终核对全部牙齿。</p><div class="home-card">${btn('参考排齐 · 28 颗','prediction',true)}${hasSave()?btn('继续旧版操作练习','continue'):btn('旧版操作练习','new')}${btn('自由练习','practice')}${hasSave()?btn('重开旧版练习','new'):''}<small>参考来自模型预测，非临床审核结果。旧版进度单独保留。</small></div><p class="asset-status">${assets?'牙模准备好了':'点击开始会自动加载内置真实牙模'}</p></div><figure class="hero title-studio"><div id="title-studio" aria-label="可旋转的真实3D牙模"></div><div class="specimen-label"><span>病例标本 / 01</span><small>28 冠 · 真实病例</small></div><figcaption id="studio-status" role="status">正在准备真实牙模…</figcaption><span class="specimen-axis" aria-hidden="true">＋</span></figure></section>${warning?`<div class="warning">${esc(warning)}${btn('导出旧记录','export-raw')}</div>`:''}<section class="steps" aria-label="参考排齐的三个连续批次">${[9,9,10].map((count,i)=>`<div><span>0${i+1}</span><strong>第 ${i+1} 批 · ${count} 颗</strong><small>${i===2?'核对全部 28 颗到达参考':'本批完成后，接着调整其余牙齿'}</small></div>`).join('')}</section>`;
  disposeStudio=mountStudio($('#title-studio')!,$('#studio-status')!,assets);
  }else if(screen==='levels'){
  const count=session?.saved_snapshots.length??0;
@@ -213,6 +215,17 @@ function setComparison(mode:'before'|'after'|null){
  scene?.cancelDrag();comparison=mode;scene?.apply(mode==='before'?start:poses);updateTool();showGhosts();updateHUD();
 }
 
+async function openPrediction(){
+ if(!assets)return loadBuiltIn('prediction');
+ const version=++renderVersion;
+ try{
+  const [module,response]=await Promise.all([import('./prediction-workshop'),fetch('/cases/initial/prediction/reference.json')]);
+  if(!response.ok)throw Error('预测参考暂时不可用，请更新游戏后重试。');
+  const reference=await response.json();if(version!==renderVersion)return;
+  disposeStudio?.();disposeStudio=null;scene?.dispose();scene=null;screen='home';
+  disposePrediction=module.mountPrediction(app,assets,reference,()=>{screen='home';render();});
+ }catch(error){screen='home';render();toast(String(error));}
+}
 function installCase(next:CaseAssets){
  scene?.cancelDrag();scene?.dispose();scene=null;if(assets)disposeCase(assets);assets=next;
  const initial=initialPoses(m(),Object.fromEntries(next.assets.map(a=>[a.id,a.pivot])));
@@ -226,7 +239,7 @@ async function loadBuiltIn(after=''){
  try{
   const next=await loadBundledCase(text=>{const label=$('#load-state');if(label){const match=text.match(/(\d+)\/28/);label.textContent=match?`正在摆好牙齿 ${match[1]} / 28`:text;}});
   installCase(next);$<HTMLDialogElement>('#modal')?.close();screen='home';render();
-  if(after==='new')newChallenge();else if(after==='continue')resume();else if(after==='practice')startPractice();
+  if(after==='new')newChallenge();else if(after==='continue')resume();else if(after==='practice')startPractice();else if(after==='prediction')void openPrediction();
  }catch(err){openAssets(after);const label=$('#load-state');if(label){label.textContent=String(err);label.classList.add('error');}else toast(String(err));}
  finally{loadingBuiltIn=false;const f=$<HTMLInputElement>('#case-files');if(f)f.disabled=false;const b=$<HTMLButtonElement>('[data-action="load-built-in"]');if(b){b.disabled=false;b.textContent='重试加载内置病例';}}
 }
@@ -245,6 +258,7 @@ app.addEventListener('click',e=>{const b=(e.target as HTMLElement).closest<HTMLB
  if(a.startsWith('tool-')){motionFeedback='';tool=a.slice(5) as Tool;axis=allowed()[0]??'X';event('tool',tool);updateTool();updateHUD();return;}
  if(a.startsWith('axis-')){axis=a.slice(5) as Axis;updateHUD();return;}
  switch(a){
+ case 'prediction':void openPrediction();break;
  case 'home':if(practice)exitPractice();if(replaying)exitReplay();preserve();screen='home';render();break;
  case 'levels':if(practice)exitPractice();else{scene?.cancelDrag();if(replaying)exitReplay();preserve();screen='levels';render();}break;
  case 'assets':openAssets();break;case 'load-built-in':loadBuiltIn(requestedAfterLoad);break;case 'settings':openSettings();break;case 'close-modal':$<HTMLDialogElement>('#modal')!.close();break;

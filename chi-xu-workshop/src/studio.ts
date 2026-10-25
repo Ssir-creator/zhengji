@@ -1,5 +1,5 @@
 import { loadBundledCase,disposeCase,type CaseAssets } from './assets';
-import { initialPoses } from './core';
+import { identity } from './core';
 import { WorkshopScene } from './scene';
 
 // A separate display instance never writes challenge state or changes tooth geometry.
@@ -11,7 +11,7 @@ export function mountStudio(host:HTMLElement,status:HTMLElement,existing:CaseAss
    if(!existing)owned=data;
    if(cancelled){if(owned)disposeCase(owned);return;}
    scene=new WorkshopScene(host,false);
-   scene.load(data,initialPoses(data.manifest,Object.fromEntries(data.assets.map(a=>[a.id,a.pivot]))));
+   scene.load(data,Object.fromEntries(data.assets.map(a=>[a.id,identity(a.pivot)])));
    scene.onFailure=message=>{status.textContent=message;};
    host.dataset.ready='true';host.dataset.teeth=String(data.assets.length);
    status.textContent='真实病例 · 28 颗牙冠 · 拖动旋转，滚轮缩放';
