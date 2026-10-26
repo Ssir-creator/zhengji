@@ -7,7 +7,7 @@ test('首页直接显示真实3D病例，进入与返回均不覆盖已有存档
  await expect(page.locator('#title-studio')).toHaveAttribute('data-teeth','28');
  await expect(page.locator('#title-studio canvas')).toBeVisible();
  await expect(page.locator('.hero img')).toHaveCount(0);
- await expect(page.locator('#studio-status')).toContainText('真实病例');
+ await expect(page.locator('#studio-status')).toContainText('拖动旋转');
  expect((await page.locator('#studio-status').boundingBox())!.height).toBeLessThan(70);
  await page.screenshot({path:'docs/screenshots/title-studio-1440.png',fullPage:true});
  await page.locator('[data-action="new"]').click();
