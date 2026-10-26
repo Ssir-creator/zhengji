@@ -1,0 +1,377 @@
+/* A quiet three-part player surface. Secondary features open only on request. */
+.interaction-mode .compact-workshop {
+  inset: 0;
+  color: #f1f3ef;
+  --compact-panel: #24362fee;
+  --compact-accent: #bdd6c7;
+}
+.interaction-mode .compact-workshop button,
+.interaction-mode .compact-workshop summary,
+.interaction-mode .compact-workshop select {
+  font-family: inherit;
+  font-size: 14px;
+  color: #f1f3ef;
+}
+.interaction-mode .compact-workshop button {
+  background: #344a40;
+  border: 1px solid #82998a55;
+  border-radius: 8px;
+  box-shadow: none;
+  text-shadow: none;
+  min-height: 44px;
+  padding: 10px 14px;
+  clip-path: none;
+}
+.interaction-mode .compact-workshop button::before,
+.interaction-mode .compact-workshop button::after {
+  display: none;
+}
+.interaction-mode .compact-workshop button:hover {
+  background: #476452;
+}
+.interaction-mode .compact-workshop button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.interaction-mode .compact-workshop button[aria-pressed="true"] {
+  background: #536f5d;
+  color: white;
+  border-color: #b4d0bd;
+}
+.interaction-mode .compact-workshop :focus-visible {
+  outline: 2px solid #def6e5;
+  outline-offset: 3px;
+}
+.interaction-mode .compact-workshop [hidden] {
+  display: none !important;
+}
+.interaction-mode .compact-workshop select {
+  background: #263b30;
+  padding: 8px;
+  max-width: 100%;
+  border: 1px solid #82998a;
+  border-radius: 6px;
+}
+.interaction-mode .compact-workshop .compact-progress {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  top: 12px;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 10px 6px;
+  background: var(--compact-panel);
+  border: 0;
+  border-radius: 10px;
+  z-index: 30;
+  box-sizing: border-box;
+}
+.interaction-mode .compact-workshop #int-task-line {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: none;
+  border: 0;
+  font-weight: 500;
+}
+.interaction-mode .compact-workshop #int-total {
+  font-size: 12px;
+  white-space: nowrap;
+}
+.interaction-mode .compact-workshop #int-case-progress {
+  position: absolute;
+  bottom: 0;
+  left: 12px;
+  width: calc(100% - 24px);
+  height: 3px;
+  border: 0;
+  border-radius: 4px;
+  overflow: hidden;
+  appearance: none;
+  background: #ffffff25;
+}
+#int-case-progress::-webkit-progress-bar {
+  background: #ffffff25;
+}
+#int-case-progress::-webkit-progress-value {
+  background: #bdd6c7;
+}
+#int-case-progress::-moz-progress-bar {
+  background: #bdd6c7;
+}
+.interaction-mode .compact-workshop summary {
+  cursor: pointer;
+  list-style: none;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  box-sizing: border-box;
+}
+.compact-workshop summary::-webkit-details-marker {
+  display: none;
+}
+.interaction-mode .compact-workshop #int-tools {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+}
+.interaction-mode .compact-workshop .compact-tools-content {
+  position: absolute;
+  top: 50px;
+  right: 0;
+  width: min(300px, calc(100vw - 44px));
+  padding: 12px;
+  background: #24362ff7;
+  border-radius: 12px;
+  box-shadow: 0 12px 32px #0003;
+  max-height: calc(100dvh - 100px);
+  overflow: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.compact-tools-content > details {
+  grid-column: 1/-1;
+}
+.interaction-mode .compact-workshop #int-match {
+  position: static;
+  width: auto;
+  margin: 0;
+  padding: 12px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.interaction-mode .compact-workshop .compact-dock {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: stretch;
+  width: min(380px, calc(100% - 32px));
+  padding: 6px;
+  gap: 6px;
+  background: var(--compact-panel);
+  border-radius: 16px;
+  z-index: 25;
+  box-sizing: border-box;
+}
+.interaction-mode .compact-workshop .compact-dock > button,
+.interaction-mode .compact-workshop .compact-dock > details {
+  flex: 1;
+  min-width: 0;
+}
+.interaction-mode .compact-workshop .compact-dock > button,
+.interaction-mode .compact-workshop .compact-dock > details > summary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 60px;
+  background: none;
+  border: 0;
+  border-radius: 10px;
+  padding: 6px;
+}
+.interaction-mode .compact-workshop .compact-dock > button:hover,
+.interaction-mode .compact-workshop .compact-dock summary:hover {
+  background: #ffffff15;
+}
+.interaction-mode .compact-workshop .compact-dock > button:last-child {
+  background: #bdd6c7;
+  color: #183125;
+}
+.compact-workshop .ui-icon {
+  width: 20px;
+  height: 20px;
+  flex: none;
+}
+.interaction-mode .compact-workshop #int-view-menu {
+  position: relative;
+  background: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.interaction-mode .compact-workshop .int-viewbar {
+  position: absolute;
+  display: grid;
+  bottom: 78px;
+  left: 50%;
+  top: auto;
+  transform: translateX(-50%);
+  width: 180px;
+  padding: 8px;
+  gap: 4px;
+  background: #24362ff7;
+  border: 0;
+  border-radius: 12px;
+  box-shadow: 0 10px 24px #0002;
+}
+.interaction-mode .compact-workshop #int-view-menu:not([open]) .int-viewbar {
+  display: none;
+}
+.interaction-mode .compact-workshop .compact-adjust {
+  position: absolute;
+  top: auto;
+  bottom: 100px;
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+  width: min(500px, calc(100% - 32px));
+  max-height: calc(100dvh - 200px);
+  overflow: auto;
+  padding: 16px;
+  background: #24362ff5;
+  border: 0;
+  border-radius: 12px;
+  box-shadow: 0 12px 32px #0002;
+  box-sizing: border-box;
+  z-index: 26;
+}
+.interaction-mode .compact-workshop .compact-adjust::before,
+.interaction-mode .compact-workshop .compact-adjust::after {
+  display: none;
+}
+.interaction-mode .compact-workshop .compact-adjust .int-toolbar {
+  flex-wrap: wrap;
+  border: 0;
+  padding: 0;
+}
+.interaction-mode .compact-workshop .compact-adjust p {
+  color: #d2ded5;
+  font-size: 12px;
+  margin: 8px 0;
+}
+.interaction-mode .compact-workshop .compact-adjust kbd {
+  display: none;
+}
+.interaction-mode .compact-workshop .int-floating-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  transform: translate(-50%, -50%);
+  width: min(540px, calc(100% - 32px));
+  max-height: calc(100dvh - 180px);
+  background: #24362ff7;
+  border: 0;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 20px 70px #0005;
+  overflow: auto;
+  z-index: 45;
+  box-sizing: border-box;
+}
+.interaction-mode .compact-workshop .int-floating-panel::before,
+.interaction-mode .compact-workshop .int-floating-panel::after {
+  display: none;
+}
+.interaction-mode .compact-workshop .int-floating-panel h2 {
+  font-family: inherit;
+  font-size: 18px;
+}
+.interaction-mode .compact-workshop .int-floating-panel p {
+  font-size: 13px;
+  line-height: 1.65;
+}
+.interaction-mode .compact-workshop .int-floating-panel .int-panel-heading {
+  background: none;
+  border: 0;
+  padding: 0 0 8px;
+}
+.interaction-mode .compact-workshop #int-feedback {
+  position: absolute;
+  bottom: 92px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 24;
+  margin: 0;
+  width: max-content;
+  max-width: min(640px, calc(100% - 36px));
+  background: #24362fd9;
+  color: #f2f5ef;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  line-height: 1.5;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+.interaction-mode .compact-workshop #int-feedback:empty {
+  display: none;
+}
+.interaction-mode .compact-workshop .compact-return {
+  position: absolute;
+  left: 50%;
+  top: 76px;
+  transform: translateX(-50%);
+  z-index: 26;
+}
+.interaction-mode .compact-workshop #int-mode-banner {
+  top: 76px;
+  left: 16px;
+  max-width: calc(100% - 32px);
+  border: 0;
+  box-shadow: none;
+  border-radius: 6px;
+  background: #24362fd9;
+  font-size: 12px;
+}
+.interaction-mode .compact-workshop #int-mode-banner:empty {
+  display: none;
+}
+.interaction-mode .compact-workshop #int-motion-cue {
+  background: #24362fd9;
+  border: 0;
+  border-radius: 6px;
+}
+.interaction-mode .compact-workshop #int-curtain {
+  position: absolute;
+  bottom: 110px;
+  top: auto;
+  left: 16px;
+  right: 16px;
+  width: auto;
+  max-width: none;
+  border: 0;
+  box-shadow: none;
+  background: #24362fd9;
+  border-radius: 8px;
+}
+@media (max-width: 600px) {
+  .interaction-mode .compact-workshop .compact-progress {
+    left: 8px;
+    right: 8px;
+    top: 8px;
+    gap: 4px;
+  }
+  .interaction-mode .compact-workshop #int-task-line {
+    font-size: 12px;
+    padding-left: 2px;
+  }
+  .interaction-mode .compact-workshop .compact-dock {
+    bottom: max(12px, env(safe-area-inset-bottom));
+  }
+  .interaction-mode .compact-workshop .int-floating-panel {
+    max-height: calc(100dvh - 170px);
+  }
+  .interaction-mode .compact-workshop #int-mode-banner {
+    max-width: calc(100% - 140px);
+  }
+}
+.interaction-mode .compact-workshop .game-icon { width:20px; height:20px; }
+.interaction-mode .compact-workshop #int-match::after,
+.interaction-mode .compact-workshop .int-panel-heading strong::before { display:none; }

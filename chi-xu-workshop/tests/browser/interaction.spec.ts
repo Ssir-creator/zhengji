@@ -1,3 +1,4 @@
+import { compactAction, openFineControls } from "./compact-actions";
 import { test, expect } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { referenceCase } from "../../src/prediction";
@@ -25,11 +26,12 @@ const data = referenceCase(
   ),
 );
 const action = (page: import("@playwright/test").Page, a: string) =>
-  page.locator(`[data-int-action="${a}"]`);
+  compactAction(page, a);
 async function enter(page: import("@playwright/test").Page) {
   await page.goto("/");
   await actionHome(page);
-  await expect(page.locator("#int-heading")).toBeVisible({ timeout: 60000 });
+  await expect(page.locator("#int-task-line")).toBeVisible({ timeout: 60000 });
+  await compactAction(page, "panel-task").click();
 }
 async function actionHome(page: import("@playwright/test").Page) {
   await page.locator('[data-action="interaction"]').click();
@@ -302,6 +304,9 @@ test("实际3D手柄拖动预览与Esc还原，旋转环松手提交", async ({ 
   await actionHome(page);
   await expect(action(page, "plus")).toBeEnabled({ timeout: 60000 });
   await action(page, "focus").click();
+  await openFineControls(page);
+  await page.locator("#int-handles").check();
+  await compactAction(page, "adjust").click();
   await page.waitForTimeout(400);
   async function handle(tool: string) {
     const candidates = await page.evaluate((tool) => {
@@ -369,6 +374,7 @@ test("实际3D手柄拖动预览与Esc还原，旋转环松手提交", async ({ 
     ),
   ).toBe(1);
   await action(page, "rotate").click();
+  await compactAction(page, "adjust").click();
   const r = await handle("rotate");
   await page.mouse.down();
   await page.mouse.move(r.x + 28, r.y + 25, { steps: 10 });
@@ -384,6 +390,7 @@ test("实际3D手柄拖动预览与Esc还原，旋转环松手提交", async ({ 
     fullPage: true,
   });
   await action(page, "translate").click();
+  await compactAction(page, "adjust").click();
   const touch = await handle("translate"),
     cdp = await page.context().newCDPSession(page);
   await cdp.send("Input.dispatchTouchEvent", {

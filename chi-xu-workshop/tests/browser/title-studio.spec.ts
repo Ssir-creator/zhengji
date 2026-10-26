@@ -41,6 +41,6 @@ test('标题主菜单支持方向键选择与Enter进入，旧记录保留',asyn
  await page.keyboard.press('ArrowDown');await expect(page.locator('[data-action="interaction"]')).toBeFocused();
  await page.keyboard.press('ArrowDown');await expect(page.locator('[data-action="prediction"]')).toBeFocused();
  await page.keyboard.press('ArrowUp');await expect(page.locator('[data-action="interaction"]')).toBeFocused();
- await page.keyboard.press('Enter');await expect(page.locator('#int-heading')).toBeVisible({timeout:60000});await expect(page.locator('#int-total')).toContainText('0 / 28');
+ await page.keyboard.press('Enter');await expect(page.locator('#int-task-line')).toBeVisible({timeout:60000});await expect(page.locator('#int-total')).toContainText('0/28');
  expect(await page.evaluate(()=>localStorage.getItem('chi-xu-workshop:challenge:v1'))).toBe(old);
 });

@@ -1,3 +1,4 @@
+import { compactAction, openFineControls } from "./compact-actions";
 import { test, expect } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { referenceCase } from "../../src/prediction";
@@ -19,7 +20,7 @@ const data = referenceCase(
   ),
 );
 const a = (page: import("@playwright/test").Page, s: string) =>
-  page.locator(`[data-int-action="${s}"]`);
+  compactAction(page, s);
 async function enter(page: import("@playwright/test").Page, badBook = false) {
   await page.goto("/");
   const s = freshChallenge(data);
@@ -34,7 +35,7 @@ async function enter(page: import("@playwright/test").Page, badBook = false) {
   );
   await page.reload();
   await page.locator('[data-action="interaction"]').click();
-  await expect(page.locator("#int-heading")).toBeVisible({ timeout: 60000 });
+  await expect(page.locator("#int-task-line")).toBeVisible({ timeout: 60000 });
 }
 test("工坊游戏工作台：完整画布、实时匹配、方案试验/恢复/撤销和刷新", async ({
   page,
@@ -62,11 +63,12 @@ test("工坊游戏工作台：完整画布、实时匹配、方案试验/恢复/
     axis = ["X", "Y", "Z"][i],
     forward = data.target["2"].translation[i] > 0 ? "plus" : "minus",
     back = forward === "plus" ? "minus" : "plus";
+  await openFineControls(page);
   await page.selectOption("#int-axis", axis);
   await a(page, forward).click();
-  expect(Number(await page.locator("#int-score").innerText())).toBeGreaterThan(
-    0,
-  );
+  expect(
+    Number(await page.locator("#int-score").textContent()),
+  ).toBeGreaterThan(0);
   await a(page, "panel-plans").click();
   await a(page, "save-attempt").click();
   let book = await page.evaluate(
@@ -105,6 +107,8 @@ test("工坊游戏工作台：完整画布、实时匹配、方案试验/恢复/
     path: "docs/screenshots/game-shell-plans.png",
     fullPage: true,
   });
+  if (await page.locator("#int-plans-panel").isHidden())
+    await a(page, "panel-plans").click();
   await page
     .locator('#int-plans-panel [data-int-action="close-panel"]')
     .click();
@@ -123,10 +127,10 @@ test("工坊游戏工作台：完整画布、实时匹配、方案试验/恢复/
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.reload();
   await page.locator('[data-action="interaction"]').click();
-  await expect(page.locator("#int-score")).toBeVisible({ timeout: 60000 });
+  await expect(page.locator("#int-task-line")).toBeVisible({ timeout: 60000 });
   await a(page, "panel-plans").click();
   await expect(page.locator("#int-plans")).toContainText("尝试 1");
-  await page.locator("#int-score").click();
+  await page.locator("#int-task-line").focus();
   await page.keyboard.press("r");
   await expect(a(page, "rotate")).toHaveAttribute("aria-pressed", "true");
   await page.keyboard.press("g");
@@ -168,6 +172,8 @@ test("坏方案记录保留，不影响病例操作；手机面板和工具不�
       CHALLENGE_KEY,
     ),
   ).toBe('{"schema":0}');
+  if (await page.locator("#int-plans-panel").isHidden())
+    await a(page, "panel-plans").click();
   await page
     .locator('#int-plans-panel [data-int-action="close-panel"]')
     .click();

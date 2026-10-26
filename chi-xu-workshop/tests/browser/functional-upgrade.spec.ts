@@ -1,3 +1,4 @@
+import { compactAction, openFineControls } from "./compact-actions";
 import { test, expect, type Page } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { referenceCase } from "../../src/prediction";
@@ -24,7 +25,7 @@ const data = referenceCase(
     ]),
   ),
 );
-const a = (p: Page, s: string) => p.locator(`[data-int-action="${s}"]`);
+const a = (p: Page, s: string) => compactAction(p, s);
 async function enter(p: Page, card: number, observed = false, near = false) {
   const s = freshChallenge(data);
   s.card = card;
@@ -52,7 +53,8 @@ async function enter(p: Page, card: number, observed = false, near = false) {
     { s, key: CHALLENGE_KEY },
   );
   await p.locator('[data-action="interaction"]').click();
-  await expect(p.locator("#int-heading")).toBeVisible({ timeout: 60000 });
+  await expect(p.locator("#int-task-line")).toBeVisible({ timeout: 60000 });
+  if (!observed) await compactAction(p, "panel-task").click();
 }
 const raw = (p: Page) =>
   p.evaluate((k) => localStorage.getItem(k), CHALLENGE_KEY);

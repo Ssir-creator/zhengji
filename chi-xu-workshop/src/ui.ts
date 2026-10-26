@@ -27,6 +27,7 @@ const paths: Record<string, string> = {
     '<path d="m10 2 1 3h2l1-3 4 2-1 3 2 2 3-1v6l-3-1-2 2 1 3-4 2-1-3h-2l-1 3-4-2 1-3-2-2-3 1V8l3 1 2-2-1-3Z"/><circle cx="12" cy="11" r="4"/>',
 };
 const aliases: Record<string, string> = {
+  adjust: "move",
   interaction: "play",
   prediction: "tooth",
   practice: "move",
