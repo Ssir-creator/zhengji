@@ -1,3 +1,15 @@
+# 观察挑战验证 · 2026-10-26
+
+- `npm test`：65 / 65 通过。`npm run build`：TypeScript 与 Vite 构建通过，保留已有 Three.js 大包提示。
+- 完整 Playwright：25 / 25 通过（约 6.2 分钟），包含原有三关、参考排齐、自由练习、进度恢复、真实资产及首页。
+- 对比线与方向反馈收尾后，重新验证长按/滑帘/回放、实际手柄/旋转环及触摸输入、双方案判断：3 / 3 通过。窄屏对比线拖到边界不产生横向溢出，存储失败保护与坏记录保留亦再次通过（1 / 1）。
+- 新模式九张短任务卡连续覆盖 28 颗。浏览器全病例检查用参考附近的测试初态，通过实际逐牙核对、自评和保存按钮验证全部终点精确一致；独立测试实际鼠标与 Chromium 模拟触摸拖动，不宣称手工从头拖完全部 28 颗。
+- 原始 STL、GLB、预测参考、病例清单、`src/core.ts` 及旧关卡参数均未修改；存档键隔离，坏存档及保存额度失败均有检查。
+- 实际渲染证据：`screenshots/interaction-observation.png`、`interaction-comparison.png`、`interaction-rotation.png`、`interaction-dragged.png`、`interaction-completed.png`、`interaction-mobile.png`。
+- 运行环境为 Linux Chromium / 软件 WebGL；Windows 原生运行、手机实机手感及教学有效性不在本次自动检查结论内。操作方法见 [观察挑战说明](OBSERVATION_CHALLENGE.md)。
+
+以下为此前轮次的历史记录。
+
 > 玩家界面改版：原始目标、病例清单与 `src/core.ts` 无改动。核心/资产/引导逻辑共29项已通过；本轮9项浏览器回归已全部通过（约4分钟），包括玩家引导、旧进度兼容和真实三关。新交互与旧存档兼容的范围见 [玩家界面改版说明](PLAYER_REDESIGN.md)。下文保留此前真实牙冠接入轮次的记录。
 
 # 验收记录：真实牙冠接入后

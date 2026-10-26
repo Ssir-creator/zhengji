@@ -14,6 +14,7 @@ export class WorkshopScene{
  renderer:T.WebGLRenderer;scene=new T.Scene();camera=new T.PerspectiveCamera(35,1,.01,1e6);orbit:OrbitControls;transform:TransformControls;composer:EffectComposer;outline:OutlinePass;
  taskIds:string[]=[];completedIds:string[]=[];fixedIds:string[]=[];hoverId:string|undefined;guideGroup=new T.Group();guideArrow=new T.ArrowHelper(new T.Vector3(1,0,0),new T.Vector3(),1,'#326857',.2,.1);guideRing=new T.Mesh(new T.TorusGeometry(1,.035,6,64),new T.MeshBasicMaterial({color:'#326857',transparent:true,opacity:.85,depthTest:false}));
  teeth=new Map<string,T.Mesh>();ghosts=new Map<string,T.Mesh>();furniture=new T.Group();measurements=new T.Group();gizmo=new T.AxesHelper(1);selected:string|null=null;selectionEditable=false;before:Pose|null=null;dragCancelled=false;size=100;center=new T.Vector3();frame=0;dirty=true;outlineKey="";outlineChanged=0;reduced=false;ro:ResizeObserver;low=false;disposed=false;last=performance.now();fps=0;frames=0;
+ touchEditing=false;
  onSelect:(id:string)=>void=()=>{};onCommit:(id:string,before:Pose,after:Pose)=>void=()=>{};onPreview:(id:string,pose:Pose)=>void=()=>{};onFailure:(message:string)=>void=()=>{};
  constructor(public host:HTMLElement,private offsetForSidebar=true){
   this.renderer=new T.WebGLRenderer({antialias:true,alpha:false});this.renderer.setPixelRatio(Math.min(devicePixelRatio,2));this.renderer.setClearColor('#e3dfd4');this.renderer.toneMapping=T.ACESFilmicToneMapping;this.renderer.toneMappingExposure=1.08;this.renderer.shadowMap.enabled=true;this.renderer.shadowMap.autoUpdate=false;this.renderer.shadowMap.needsUpdate=true;this.renderer.shadowMap.type=T.PCFSoftShadowMap;this.renderer.setSize(host.clientWidth,host.clientHeight);host.append(this.renderer.domElement);
@@ -23,7 +24,7 @@ export class WorkshopScene{
   const rim=new T.DirectionalLight('#c5e4ee',1.4);rim.position.set(20,100,90);this.scene.add(rim);
   this.camera.up.set(0,0,1);this.camera.position.set(100,-100,100);
   this.orbit=new OrbitControls(this.camera,this.renderer.domElement);this.orbit.enableDamping=true;this.orbit.addEventListener('change',()=>{this.dirty=true;});this.orbit.minDistance=1;this.orbit.maxDistance=500;
-  this.renderer.domElement.addEventListener('pointerdown',e=>{if(e.pointerType==='touch'){this.transform.enabled=false;this.orbit.enabled=false;}},{capture:true});
+  this.renderer.domElement.addEventListener('pointerdown',e=>{if(e.pointerType==='touch'&&!this.touchEditing){this.transform.enabled=false;this.orbit.enabled=false;}},{capture:true});
   this.renderer.domElement.addEventListener('pointerup',e=>{if(e.pointerType==='touch')setTimeout(()=>{this.transform.enabled=true;this.orbit.enabled=true;},0);});
   this.transform=new TransformControls(this.camera,this.renderer.domElement);this.transform.addEventListener('change',()=>{this.dirty=true;});this.transform.setSpace('world');this.transform.setSize(.8);this.scene.add(this.transform.getHelper());
   this.transform.addEventListener('mouseDown',()=>{const id=this.selected;if(id){this.before=this.readPose(id);this.dragCancelled=false;}this.orbit.enabled=false;});
