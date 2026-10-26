@@ -1,3 +1,4 @@
+import {existingGame,openGame} from './game-instance.mjs';
 import {spawn} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import {resolve} from 'node:path';
@@ -6,7 +7,7 @@ import {createServer} from 'node:net';
 const root=fileURLToPath(new URL('../',import.meta.url));
 const url='http://127.0.0.1:5173'; // Keep the origin stable so existing browser saves remain available.
 const free=await new Promise(resolve=>{const probe=createServer();probe.once('error',()=>resolve(false));probe.listen(5173,'127.0.0.1',()=>probe.close(()=>resolve(true)));});
-if(!free){console.error('5173 端口已被占用。请先关闭旧游戏窗口，再重新启动。');process.exit(1);}
+if(!free){if(await existingGame(root)){console.log('游戏已经在运行，打开现有页面。');openGame();process.exit(0);}console.error('5173 端口由其他程序或旧版游戏占用。可先打开 http://127.0.0.1:5173 查看；未关闭任何进程。');process.exit(1);}
 const vite=resolve(root,'node_modules/vite/bin/vite.js');
 const server=spawn(process.execPath,[vite,'--host','127.0.0.1','--port','5173','--strictPort'],{cwd:root,stdio:'inherit'});
 let exited=false;

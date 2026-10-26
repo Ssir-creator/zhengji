@@ -22,7 +22,7 @@ function options(overrides:Record<string,unknown>={}){
   latest:async()=>version,log:()=>{},download:vi.fn(async(_sha:string,destination:string)=>{await writeFile(destination,'download fixture');}),
   extract:async(_archive:string,destination:string)=>{
    const root=join(destination,'repository-version','chi-xu-workshop');
-   for(const file of ['package.json','package-lock.json','src/main.ts','public/cases/initial/manifest.json','scripts/start-windows.ps1','scripts/update-windows.ps1','scripts/update.mjs']){
+   for(const file of ['package.json','package-lock.json','src/main.ts','public/cases/initial/manifest.json','scripts/start-windows.ps1','scripts/update-windows.ps1','scripts/update.mjs','scripts/update-lock.mjs','scripts/game-instance.mjs','scripts/start.mjs','scripts/launch.mjs','vite.config.ts']){
     const parts=file.split('/');parts.pop();await mkdir(join(root,...parts),{recursive:true});
     await writeFile(join(root,file),file==='package.json'?JSON.stringify({name:'chi-xu-workshop'}):'new version');
    }

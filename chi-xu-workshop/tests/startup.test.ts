@@ -1,7 +1,7 @@
 import {it,expect,vi} from 'vitest';
 const modulePath='../scripts/start.mjs';
 const {startGame}=await import(modulePath);
-function options(){return{update:vi.fn(async()=>{}),launch:vi.fn(async()=>{}),shortcuts:vi.fn(async()=>{}),isGit:async():Promise<string|null>=>null,env:{} as NodeJS.ProcessEnv,platform:'win32',log:vi.fn(),warn:vi.fn()};}
+function options(){return{update:vi.fn(async()=>{}),launch:vi.fn(async()=>{}),shortcuts:vi.fn(async()=>{}),isRunning:async()=>false,open:vi.fn(),isGit:async():Promise<string|null>=>null,env:{} as NodeJS.ProcessEnv,platform:'win32',log:vi.fn(),warn:vi.fn()};}
 it('双击启动先自动更新，再刷新桌面入口，最后加载已安装版本',async()=>{
  const o=options(),steps:string[]=[];
  o.update=vi.fn(async()=>{steps.push('update');});o.shortcuts=vi.fn(async()=>{steps.push('shortcut');});o.launch=vi.fn(async()=>{steps.push('launch');});
@@ -24,4 +24,9 @@ it('另一个窗口正在更新时不启动游戏，更新期间出现锁也不�
  let busy=false;o.update=vi.fn(async()=>{busy=true;throw Error('another updater acquired lock');});
  await expect(startGame(process.cwd(),{...o,isUpdating:async()=>busy})).rejects.toThrow('另一个更新窗口');
  expect(o.launch).not.toHaveBeenCalled();
+});
+
+it('重复启动只打开同一安装的现有游戏，跳过更新和第二个服务',async()=>{
+ const o=options();await startGame(process.cwd(),{...o,isRunning:async()=>true});
+ expect(o.open).toHaveBeenCalledOnce();expect(o.launch).not.toHaveBeenCalled();expect(o.update).not.toHaveBeenCalled();
 });

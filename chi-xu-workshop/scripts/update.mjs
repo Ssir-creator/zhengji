@@ -1,3 +1,4 @@
+import {acquireUpdateLock} from './update-lock.mjs';
 import * as http from 'node:http';
 import {createHash,randomUUID} from 'node:crypto';
 import {spawn} from 'node:child_process';
@@ -85,7 +86,7 @@ export async function extractArchive(archive,destination,{platform=process.platf
 async function validateProject(root){
  const pkg=JSON.parse(await readFile(join(root,'package.json'),'utf8'));
  if(pkg.name!=='chi-xu-workshop')throw new Error('没有找到齿序工坊工程，已停止更新。');
- for(const path of ['package-lock.json','src/main.ts','public/cases/initial/manifest.json','scripts/start-windows.ps1','scripts/update-windows.ps1','scripts/update.mjs']){
+ for(const path of ['package-lock.json','src/main.ts','public/cases/initial/manifest.json','scripts/start-windows.ps1','scripts/update-windows.ps1','scripts/update.mjs','scripts/update-lock.mjs','scripts/game-instance.mjs','scripts/start.mjs','scripts/launch.mjs','vite.config.ts']){
   if(!await exists(join(root,path)))throw new Error(`新版缺少 ${path}，旧版未替换。`);
  }
 }
@@ -131,8 +132,7 @@ export async function updateZip(root,options={}){
  if(await gitRoot(root))throw new Error('检测到 Git 工作区，请使用开发分支的 Git 更新流程。');
  const pkg=JSON.parse(await readFile(join(root,'package.json'),'utf8'));
  if(pkg.name!=='chi-xu-workshop')throw new Error('请从齿序工坊工程目录运行更新。');
- const lock=root+'.update-lock';
- try{await mkdir(lock);}catch{throw new Error(`已有更新任务或上次更新未正常结束。请确认其他更新窗口已关闭。锁目录：${lock}`);}
+ const releaseLock=await acquireUpdateLock(root);
  let work;
  try{
   const version=await latest();
@@ -179,7 +179,7 @@ export async function updateZip(root,options={}){
   // A scanner may still hold a staging file. Always release our own update lock,
   // even if Windows cannot remove a temporary directory immediately.
   try{if(work)await rm(work,{recursive:true,force:true,maxRetries:5,retryDelay:200});}
-  finally{await rm(lock,{recursive:true,force:true,maxRetries:5,retryDelay:200});}
+  finally{await releaseLock();}
  }
 }
 async function updateGit(root){

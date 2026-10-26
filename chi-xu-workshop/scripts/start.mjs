@@ -1,6 +1,7 @@
+import {inspectUpdateLock} from './update-lock.mjs';
+import {existingGame,openGame} from './game-instance.mjs';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import {resolve,join} from 'node:path';
-import {access} from 'node:fs/promises';
 import {run,gitRoot} from './update.mjs';
 
 /** Windows entry point: check before serving files, then load the installed launcher. */
@@ -8,12 +9,16 @@ export async function startGame(root,{
  update=()=>run(process.execPath,['scripts/update.mjs'],root),
  launch=()=>run(process.execPath,['scripts/launch.mjs'],root),
  shortcuts=()=>run('powershell.exe',['-NoProfile','-ExecutionPolicy','Bypass','-File',join(root,'scripts/desktop-shortcut.ps1'),'-NoPause'],root),
- isGit=gitRoot,isUpdating=async()=>{try{await access(root+'.update-lock');return true;}catch{return false;}},
+ isGit=gitRoot,isUpdating=async()=>await inspectUpdateLock(root)==='active',isRunning=existingGame,open=openGame,
  env=process.env,platform=process.platform,log=console.log,warn=console.warn
 }={}){
  root=resolve(root);
  const guard=async()=>{if(await isUpdating())throw new Error('另一个更新窗口正在工作。请等更新结束后再启动游戏。');};
  await guard();
+ if(await isRunning(root)){
+  log('游戏已经在运行，为你打开现有游戏；无需再启动一次。若要安装新版，请先关闭原启动窗口。');
+  open({platform,env});return;
+ }
  if(env.CHIXU_CHECKING!=='1'&&!await isGit(root)){
   log('正在检查新版，有更新会自动安装；无需手动下载。');
   try{await update();}

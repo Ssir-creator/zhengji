@@ -1296,3 +1296,11 @@ body.interaction-mode #int-events button {
     display: none;
   }
 }
+
+/* Functional on-model instruction; retains the selected existing theme. */
+#int-motion-cue { position:absolute; z-index:6; max-width:240px; padding:8px 12px; background:var(--game-panel, #263c30); color:#fff; border:1px solid currentColor; border-radius:4px; pointer-events:none; font-size:14px; }
+#int-motion-cue[hidden] { display:none; }
+.int-open-lab { padding:12px; }
+.int-open-lab p { margin:8px 0; }
+.int-open-lab label { display:block; margin:10px 0; }
+.int-open-lab select { max-width:100%; padding:10px; background:#263c30; color:#fff; border:1px solid #8f9b83; }

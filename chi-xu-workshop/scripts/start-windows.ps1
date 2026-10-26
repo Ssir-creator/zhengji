@@ -9,5 +9,5 @@ try {
     if ($LASTEXITCODE -ne 0) { throw '依赖安装失败，请检查网络后重试。' }
   }
   node scripts/start.mjs
-  if ($LASTEXITCODE -ne 0) { throw '启动失败。请查看上方日志；5173 端口可能已被占用。' }
+  if ($LASTEXITCODE -ne 0) { throw '启动未完成，请按上方具体提示处理。' }
 } catch { Write-Host $_ -ForegroundColor Red; if ($env:CHIXU_CHECKING -ne '1') { Read-Host '按回车关闭' }; exit 1 }

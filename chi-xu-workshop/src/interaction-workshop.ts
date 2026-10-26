@@ -1,5 +1,11 @@
 import { Quaternion, Vector3 } from "three";
 import "./game-shell.css";
+import {
+  experimentResult,
+  experimentLabels,
+  type ExperimentGoal,
+} from "./open-experiment";
+import { taskPuzzle, sequenceFrames } from "./puzzles";
 import { uiIcon } from "./ui";
 import type { CaseAssets } from "./assets";
 import { WorkshopScene } from "./scene";
@@ -10,7 +16,6 @@ import {
   taskCards,
   freshChallenge,
   validateChallenge,
-  observation,
   referenceOption,
   expectedJudgement,
   moveChallenge,
@@ -65,13 +70,22 @@ export function mountPrediction(
         : state.observed.includes(state.card)
           ? "继续上次的尝试；可保存方案，再探索其他调整。"
           : "先转动牙模，从两个角度观察。",
-    mode: "current" | "A" | "B" | "replay" | "attempt" = "current",
+    mode: "current" | "A" | "B" | "replay" | "attempt" | "sample" = "current",
     replayIndex = 0,
     compare: WorkshopScene | null = null,
     split = 50,
     comparisonFrame = 0,
     dragging = false,
     curtainDragging = false;
+  let lab: {
+    id: string;
+    card: number;
+    goal: ExperimentGoal;
+    baseline: Pose;
+  } | null = null;
+  let trial: { id: string; pose: Pose; sign: number } | null = null,
+    sampleSeen = false,
+    sequenceIndex = -1;
   let panel: "task" | "plans" | "replay" | null = state.observed.includes(
       state.card,
     )
@@ -124,7 +138,7 @@ export function mountPrediction(
     const label = labels[action] ?? text;
     return `<button data-int-action="${action}" title="${tips[action] ?? text}" aria-label="${tips[action] ?? text}"${["undo", "redo"].includes(action) ? ' data-icon-only="true"' : ""}>${uiIcon(action)}<span class="button-copy">${keycaps[action] ? label.replace(/ · (G|R|Esc)$/, "") : label}</span>${keycaps[action] ? `<kbd>${keycaps[action]}</kbd>` : ""}</button>`;
   };
-  app.innerHTML = `<header class="in-game"><button class="brand" data-int-action="exit"><span class="brand-mark">齿</span><span>齿序工坊<small>观察挑战 / 短任务</small></span></button><nav>${b("全屏", "fullscreen")}${b("导出记录", "export")}${b("回到首页", "exit")}</nav></header><main class="interaction-workshop"><div class="game-heading"><div><span class="eyebrow" id="int-batch"></span><h2 id="int-heading"></h2></div><span id="int-total"></span></div><section id="int-match" aria-label="当前参考匹配"><div><span id="int-score-label">当前任务 · 参考匹配</span><strong id="int-score">0.00</strong><small>/ 100</small></div><div id="int-score-meter" role="progressbar" aria-label="参考匹配指数" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div><p id="int-score-detail"></p><p id="int-best"></p></section><nav class="int-panel-tabs" aria-label="游戏面板">${b("任务", "panel-task")}${b("方案", "panel-plans")}${b("回放", "replay")}${b("返回操作", "current")}</nav><section class="int-layout"><div class="int-stage"><div id="int-viewport"><div class="game-stage-frame" aria-hidden="true"><i></i><i></i><i></i><i></i><span>CHI XU / CASE WORKBENCH</span></div><div id="int-compare-canvas"></div><div id="int-tooth-label"></div><div id="int-mode-banner" role="status"></div><div id="int-divider" hidden role="slider" aria-label="拖动对比线" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" tabindex="0"></div><div id="int-curtain" hidden><span>原始</span><span>当前</span><input aria-label="前后对比滑帘" type="range" min="0" max="100" value="50"></div></div><div class="int-viewbar">${b("整体看", "view-overview")}${b("从上面看", "view-occlusal")}${b("换个角度", "view-front")}${b("另一侧", "view-side")}${b("放大观察", "focus")}${b("退远一点", "zoom")}</div><section class="int-controls" aria-label="牙齿操作"><div class="int-toolbar">${b("挪位置", "translate")}${b("转方向", "rotate")}<label>世界轴 <select id="int-axis" aria-label="调整轴"><option>X</option><option>Y</option><option>Z</option></select></label><label><input id="int-fine" type="checkbox">细调</label></div><p id="int-instruction"></p><div class="int-toolbar">${b("− 反向（可长按）", "minus")}${b("＋ 正向（可长按）", "plus")}${b("取消拖动 · Esc", "cancel")}${b("撤销", "undo")}${b("重做", "redo")}${b("核对这颗", "check")}</div><div class="int-toolbar int-observe-tools">${b("按住查看参考", "hold")}${b("参考轮廓", "hint")}${b("前后滑帘", "compare")}${b("双牙对照", "pair")}${b("声音：关", "sound")}</div><p id="int-readout"></p><p id="int-feedback" role="status"></p></section></div><section id="int-task-panel" class="int-floating-panel" aria-label="任务面板"><div class="int-panel-heading"><strong>任务档案</strong>${b("收起", "close-panel")}</div><aside id="int-sidebar"></aside></section><section id="int-plans-panel" class="int-floating-panel" aria-label="方案试验台" hidden><div class="int-panel-heading"><strong>方案试验台</strong>${b("收起", "close-panel")}</div><div class="int-plan-actions">${b("保存当前尝试", "save-attempt")}${b("恢复个人最佳", "restore-best")}</div><p id="int-book-warning" role="status"></p><div id="int-plans"></div><details><summary>匹配指数如何计算</summary><p>分别计算本任务牙齿与预测参考的位置、角度均方根误差；按初始差距归一化（下限为软件容差），比较合计差距得到 0—100 指数。指数只表示参考差距，逐牙核对仍须同时满足位置和方向条件。自动保留本任务指数最高的尝试，手动保留最近 12 份方案。</p></details></section></section><section class="int-replay int-floating-panel" id="int-replay-panel" aria-label="回放面板" hidden><div class="int-panel-heading"><strong>操作时间轴与自评</strong>${b("收起", "close-panel")}</div><div class="int-toolbar">${b("从起点回看", "replay-start")}${b("回到实际进度", "return-live")}${b("另开一次练习", "retry")}</div><label>拖动回看 <input id="int-timeline" aria-label="操作时间轴" type="range" min="0" value="0" max="0"></label><p id="int-replay-label"></p><ol id="int-events"></ol><p id="int-stats"></p><p class="reference-note">回放只读；新练习使用独立存档。时间轴保留最近 400 个操作，之前的操作合入起点。全部目标来自模型预测，非临床审核结果；颜色和提示不表示实际治疗效果。</p></section></main>`;
+  app.innerHTML = `<header class="in-game"><button class="brand" data-int-action="exit"><span class="brand-mark">齿</span><span>齿序工坊<small>观察挑战 / 短任务</small></span></button><nav>${b("全屏", "fullscreen")}${b("导出记录", "export")}${b("回到首页", "exit")}</nav></header><main class="interaction-workshop"><div class="game-heading"><div><span class="eyebrow" id="int-batch"></span><h2 id="int-heading"></h2></div><span id="int-total"></span></div><section id="int-match" aria-label="当前参考匹配"><div><span id="int-score-label">当前任务 · 参考匹配</span><strong id="int-score">0.00</strong><small>/ 100</small></div><div id="int-score-meter" role="progressbar" aria-label="参考匹配指数" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div><p id="int-score-detail"></p><p id="int-best"></p></section><nav class="int-panel-tabs" aria-label="游戏面板">${b("任务", "panel-task")}${b("方案", "panel-plans")}${b("回放", "replay")}${b("返回操作", "current")}</nav><section class="int-layout"><div class="int-stage"><div id="int-viewport"><div class="game-stage-frame" aria-hidden="true"><i></i><i></i><i></i><i></i><span>CHI XU / CASE WORKBENCH</span></div><div id="int-compare-canvas"></div><div id="int-tooth-label"></div><div id="int-mode-banner" role="status"></div><div id="int-motion-cue" role="status" hidden></div><div id="int-divider" hidden role="slider" aria-label="拖动对比线" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" tabindex="0"></div><div id="int-curtain" hidden><span>原始</span><span>当前</span><input aria-label="前后对比滑帘" type="range" min="0" max="100" value="50"></div></div><div class="int-viewbar">${b("整体看", "view-overview")}${b("从上面看", "view-occlusal")}${b("换个角度", "view-front")}${b("另一侧", "view-side")}${b("放大观察", "focus")}${b("退远一点", "zoom")}</div><section class="int-controls" aria-label="牙齿操作"><div class="int-toolbar">${b("挪位置", "translate")}${b("转方向", "rotate")}<label>世界轴 <select id="int-axis" aria-label="调整轴"><option>X</option><option>Y</option><option>Z</option></select></label><label><input id="int-fine" type="checkbox">细调</label></div><p id="int-instruction"></p><div class="int-toolbar">${b("− 反向（可长按）", "minus")}${b("＋ 正向（可长按）", "plus")}${b("取消拖动 · Esc", "cancel")}${b("撤销", "undo")}${b("重做", "redo")}${b("核对这颗", "check")}</div><div class="int-toolbar int-observe-tools">${b("按住查看参考", "hold")}${b("参考轮廓", "hint")}${b("前后滑帘", "compare")}${b("双牙对照", "pair")}${b("声音：关", "sound")}</div><div class="int-toolbar">${b("先预览反向一步", "preview-minus")}${b("先预览正向一步", "preview-plus")}${b("应用试步", "apply-trial")}</div><p id="int-readout"></p><p id="int-feedback" role="status"></p></section></div><section id="int-task-panel" class="int-floating-panel" aria-label="任务面板"><div class="int-panel-heading"><strong>任务档案</strong>${b("收起", "close-panel")}</div><aside id="int-sidebar"></aside></section><section id="int-plans-panel" class="int-floating-panel" aria-label="方案试验台" hidden><div class="int-panel-heading"><strong>方案试验台</strong>${b("收起", "close-panel")}</div><div class="int-plan-actions">${b("保存当前尝试", "save-attempt")}${b("恢复个人最佳", "restore-best")}</div><section class="int-open-lab" aria-label="开放试验"><strong>开放试验 · 不要求唯一终点</strong><p>选择过程目标：将所选差距缩小至少 40%，另一项不变差。达成后可保存当前尝试；最终核对仍使用原参考。</p><label>试验目标<select id="int-lab-goal" aria-label="试验目标"><option value="position">先改善位置，保持方向</option><option value="rotation">先改善方向，保持位置</option><option value="balanced">位置与方向一起改善</option></select></label>${b("开始开放试验", "start-lab")}<p id="int-lab-status" role="status"></p></section><p id="int-book-warning" role="status"></p><div id="int-plans"></div><details><summary>匹配指数如何计算</summary><p>分别计算本任务牙齿与预测参考的位置、角度均方根误差；按初始差距归一化（下限为软件容差），比较合计差距得到 0—100 指数。指数只表示参考差距，逐牙核对仍须同时满足位置和方向条件。自动保留本任务指数最高的尝试，手动保留最近 12 份方案。</p></details></section></section><section class="int-replay int-floating-panel" id="int-replay-panel" aria-label="回放面板" hidden><div class="int-panel-heading"><strong>操作时间轴与自评</strong>${b("收起", "close-panel")}</div><div class="int-toolbar">${b("从起点回看", "replay-start")}${b("回到实际进度", "return-live")}${b("另开一次练习", "retry")}</div><label>拖动回看 <input id="int-timeline" aria-label="操作时间轴" type="range" min="0" value="0" max="0"></label><p id="int-replay-label"></p><ol id="int-events"></ol><p id="int-stats"></p><p class="reference-note">回放只读；新练习使用独立存档。时间轴保留最近 400 个操作，之前的操作合入起点。全部目标来自模型预测，非临床审核结果；颜色和提示不表示实际治疗效果。</p></section></main>`;
   document.body.dataset.screen = "play";
   document.body.classList.add("interaction-mode");
   const get = <T extends HTMLElement = HTMLElement>(s: string) =>
@@ -215,6 +229,7 @@ export function mountPrediction(
     stopRepeat();
     curtainDragging = false;
     scene.cancelDrag();
+    trial = null;
     dragging = false;
     holdReference = false;
     apply();
@@ -246,6 +261,18 @@ export function mountPrediction(
     return true;
   }
   function displayPoses(): Poses {
+    if (mode === "sample") {
+      const sample =
+        state.card === 7
+          ? sequenceFrames(data, state.card)[Math.max(0, sequenceIndex)]
+          : taskPuzzle(data, state.card).sample;
+      return {
+        ...structuredClone(state.poses),
+        ...Object.fromEntries(
+          group().map((id) => [id, sample?.[id] ?? data.original[id]]),
+        ),
+      };
+    }
     if (mode === "attempt" && planCompare)
       return {
         ...structuredClone(state.poses),
@@ -264,6 +291,7 @@ export function mountPrediction(
     return state.poses;
   }
   function apply() {
+    trial = null;
     scene.apply(displayPoses());
     scene.setTaskTeeth(mode === "current" && !done() ? group() : []);
     scene.setCompletedTeeth(mode === "current" && !done() ? state.checked : []);
@@ -306,6 +334,7 @@ export function mountPrediction(
   };
   function move(pose: Pose, label: string) {
     if (!editable()) return;
+    trial = null;
     const before = poseError(state.poses[selected], data.target[selected]),
       after = poseError(pose, data.target[selected]);
     const metric = tool === "translate" ? "position" : "rotation",
@@ -325,6 +354,7 @@ export function mountPrediction(
     }
   }
   scene.onPreview = (_id, pose) => {
+    trial = null;
     dragging = true;
     updateMatch({ ...state.poses, [selected]: pose }, true);
     button("save-attempt").disabled = true;
@@ -440,6 +470,19 @@ export function mountPrediction(
       dragging;
     button("restore-best").disabled =
       bookInvalid || !book.best[String(state.card)] || done();
+    button("start-lab").disabled = !editable() || dragging;
+    if (lab && lab.card === state.card) {
+      const result = experimentResult(
+        lab.baseline,
+        state.poses[lab.id],
+        data.target[lab.id],
+        lab.goal,
+      );
+      get("#int-lab-status").textContent =
+        `文件 ${lab.id} · ${experimentLabels[lab.goal]}：${mode !== "current" || compare ? "只读画面，结果仍按实际进度计算。" : ""}${result.achieved ? "试验目标达成！可以保存当前尝试。" : "尚未达成，可以试步、撤销或改用细调。"} 位置需 ≤ ${result.positionLimit.toFixed(3)} u；方向需 ≤ ${result.rotationLimit.toFixed(2)}°。`;
+    } else
+      get("#int-lab-status").textContent =
+        "从当前选中牙的实际状态开始；这项过程试验不锁定唯一位姿。";
     get("#int-book-warning").textContent = bookWarning;
     const items = [
       ...(book.best[String(state.card)] ? [book.best[String(state.card)]] : []),
@@ -456,6 +499,7 @@ export function mountPrediction(
   }
   function hud() {
     if (disposed) return;
+    const puzzle = taskPuzzle(data, Math.min(state.card, 8));
     const observed = state.observed.includes(state.card),
       e = poseError(state.poses[selected], data.target[selected]);
     get("#int-batch").textContent =
@@ -472,19 +516,27 @@ export function mountPrediction(
     get("#int-feedback").textContent = feedback;
     get("#int-mode-banner").textContent = holdReference
       ? "按住查看参考 · 实际牙齿与进度不变"
-      : mode === "attempt" && planCompare
-        ? `只读查看${planCompare.name} · 任务 ${planCompare.card + 1} · 实际进度未改变`
-        : mode === "replay"
-          ? `只读回放 · 第 ${replayIndex} 步`
-          : mode === "A" || mode === "B"
-            ? `只读方案 ${mode} · 同一视角比较，不修改进度`
-            : compare
-              ? "前后滑帘 · 只读"
-              : done()
-                ? "全部 28 颗达到模型预测参考"
-                : !observed
-                  ? "观察阶段 · 先从两个角度看，再提交判断"
-                  : "";
+      : mode === "sample"
+        ? state.card === 7
+          ? `只读顺序试验 ${sequenceIndex + 1}/6 · ${["起点", "先平移", "再旋转：终点 A", "回到起点", "先旋转", "再平移：终点 B"][sequenceIndex]} · 进度不变`
+          : puzzle.sampleLabel + " · 进度不变"
+        : mode === "attempt" && planCompare
+          ? `只读查看${planCompare.name} · 任务 ${planCompare.card + 1} · 实际进度未改变`
+          : mode === "replay"
+            ? `只读回放 · 第 ${replayIndex} 步`
+            : mode === "A" || mode === "B"
+              ? `只读方案 ${mode} · 同一视角比较，不修改进度`
+              : compare
+                ? "前后滑帘 · 只读"
+                : done()
+                  ? "全部 28 颗达到模型预测参考"
+                  : !observed
+                    ? "观察阶段 · 先从两个角度看，再提交判断"
+                    : "";
+    for (const a of ["preview-minus", "preview-plus"])
+      button(a).disabled = !editable();
+    button("apply-trial").hidden = !trial;
+    button("apply-trial").disabled = !trial || !editable();
     for (const a of ["minus", "plus", "translate", "rotate", "check"])
       button(a).disabled = !editable();
     button("undo").disabled = mode !== "current" || !!compare || !undo.length;
@@ -501,15 +553,11 @@ export function mountPrediction(
     button("compare").textContent = compare ? "退出滑帘" : "前后滑帘";
     get("#int-sidebar").innerHTML = done()
       ? `<span class="eyebrow">完成记录</span><h2>全病例连续保存</h2><p>全部 28 颗已逐一核对到预测参考。可以回放自己的操作，或另开独立练习。</p>`
-      : `<span class="eyebrow">${observed ? "动手调整" : "观察判断"}</span><h2>${observed ? `目标：核对 ${group().length} 颗牙` : state.card % 2 === 0 ? "视角侦探：谁的位置变化最大？" : "双方案找不同：哪份是参考？"}</h2><p>${observed ? "分别调整位置和方向，逐颗核对后写下本次自评。其余牙保持原样。" : "先用下方视角按钮至少查看两个角度。A / B 与蓝色参考轮廓在同一镜头下比较；答案依据原始与预测变换，不代表临床严重程度。"}</p><div class="int-toolbar">${b("看方案 A", "A")}${b("看方案 B", "B")}${b("返回实际进度", "return-live")}</div><p>${observed ? "观察判断已完成" : `已观察视角：${visited.size} / 2`}</p>${
+      : `<span class="eyebrow">${observed ? "动手调整" : "观察判断"}</span><h2>${observed ? `目标：核对 ${group().length} 颗牙` : puzzle.title}</h2><p>${observed ? "分别调整位置和方向，逐颗核对后写下本次自评。其余牙保持原样。" : puzzle.prompt + " 至少使用两个视角观察。"}</p><div class="int-toolbar">${b("看方案 A", "A")}${b("看方案 B", "B")}${puzzle.sample ? b(state.card === 7 ? "播放顺序试验" : "查看只读样例", "sample") : ""}${mode === "sample" && state.card === 7 ? b("下一步试验", "sequence-next") : ""}${b("返回实际进度", "return-live")}</div><p>${observed ? "观察判断已完成" : `已观察视角：${visited.size} / 2`}</p>${
           !observed
-            ? `<label>你的判断 <select id="int-answer" aria-label="观察判断">${
-                state.card % 2 === 0
-                  ? group()
-                      .map((id) => `<option value="${id}">文件 ${id}</option>`)
-                      .join("")
-                  : "<option>A</option><option>B</option>"
-              }</select></label>${b("提交观察判断", "answer")}`
+            ? `<label>你的判断 <select id="int-answer" aria-label="观察判断">${puzzle.options
+                .map((o) => `<option value="${o.value}">${o.label}</option>`)
+                .join("")}</select></label>${b("提交观察判断", "answer")}`
             : ""
         }<div class="int-task-list">${group()
           .map(
@@ -622,6 +670,28 @@ export function mountPrediction(
     if (a === "close-panel") {
       panel = null;
       drawPanels();
+      return;
+    }
+    if (a === "start-lab") {
+      if (!editable() || dragging) return;
+      const goal = get<HTMLSelectElement>("#int-lab-goal")
+        .value as ExperimentGoal;
+      const baseline = structuredClone(state.poses[selected]);
+      const result = experimentResult(
+        baseline,
+        baseline,
+        data.target[selected],
+        goal,
+      );
+      if (!result.eligible) {
+        feedback = "所选差距已在容差内，请选其他目标或另一颗任务牙。";
+        hud();
+        return;
+      }
+      lab = { id: selected, card: state.card, goal, baseline };
+      feedback =
+        "开放试验已开始：可以用不同方向和步长探索，不要求唯一终点；达成后可保存尝试。";
+      hud();
       return;
     }
     if (a === "save-attempt") {
@@ -805,18 +875,36 @@ export function mountPrediction(
         return;
       }
       loadBook();
+      lab = null;
       panel = "task";
       planCompare = null;
       selected = group()[0];
       mode = "current";
       visited.clear();
+      sampleSeen = false;
+      sequenceIndex = -1;
       undo.length = redo.length = 0;
       feedback = "已另开独立重试，正式进度保留。回首页重新进入可恢复正式挑战。";
       apply();
       hud();
       return;
     }
-    if (a === "answer" && (mode === "A" || mode === "B")) {
+    if ((a === "sample" || a === "sequence-next") && !done()) {
+      cancel();
+      stopCompare();
+      mode = "sample";
+      if (state.card === 7)
+        sequenceIndex = a === "sample" ? 0 : Math.min(5, sequenceIndex + 1);
+      sampleSeen = state.card !== 7 || sequenceIndex === 5;
+      selected = group()[0];
+      apply();
+      scene.ghostsAt(
+        Object.fromEntries(group().map((id) => [id, data.target[id]])),
+      );
+      hud();
+      return;
+    }
+    if (a === "answer" && (mode === "A" || mode === "B" || mode === "sample")) {
       mode = "current";
       apply();
     }
@@ -860,23 +948,26 @@ export function mountPrediction(
         hud();
         return;
       }
+      const puzzle = taskPuzzle(data, state.card);
+      if (puzzle.sample && !sampleSeen) {
+        feedback =
+          state.card === 7
+            ? "先完成六步只读顺序试验，再提交判断。"
+            : "先查看只读错例，再提交判断。";
+        hud();
+        return;
+      }
       const answer = get<HTMLSelectElement>("#int-answer").value,
-        correct =
-          answer ===
-          (state.card % 2 === 0
-            ? observation(data, state.card)
-            : referenceOption(state.card)),
+        correct = answer === puzzle.answer,
         next = structuredClone(state);
       if (correct) {
         next.observed.push(state.card);
-        feedback = "观察通过。先留下每颗牙的操作判断，再分别调整位置和方向。";
+        feedback =
+          "观察通过。" + puzzle.explanation + " 先留下操作判断，再分别调整。";
         mode = "current";
       } else {
         next.stats.wrong++;
-        feedback =
-          state.card % 2 === 0
-            ? "再比较位置变化的距离；转动很大不一定移动最远。"
-            : "再比较蓝色参考轮廓与方案的重合程度。";
+        feedback = "再观察一次：" + puzzle.prompt;
       }
       commit(next, false);
       return;
@@ -898,6 +989,8 @@ export function mountPrediction(
         if (commit(advanced, false)) {
           undo.length = redo.length = 0;
           visited.clear();
+          sampleSeen = false;
+          sequenceIndex = -1;
           selected = group()[0];
           panel = "task";
           peer = null;
@@ -952,6 +1045,27 @@ export function mountPrediction(
       tool = a;
       apply();
       hud();
+      return;
+    }
+    if (a === "preview-minus" || a === "preview-plus") {
+      if (!editable()) return;
+      const sign = a === "preview-plus" ? 1 : -1;
+      trial = {
+        id: selected,
+        pose: nudgePose(state.poses[selected], tool, axis, sign, fine),
+        sign,
+      };
+      scene.ghostsAt({ [selected]: trial.pose });
+      scene.setGuide({ id: selected, axis, sign, tool });
+      const before = poseError(state.poses[selected], data.target[selected]),
+        after = poseError(trial.pose, data.target[selected]);
+      feedback = `仅试步，未保存：位置 ${before.position.toFixed(3)} → ${after.position.toFixed(3)} u；方向 ${before.rotation.toFixed(2)} → ${after.rotation.toFixed(2)}°。应用或 Esc 取消。`;
+      hud();
+      return;
+    }
+    if (a === "apply-trial") {
+      if (trial && trial.id === selected && editable())
+        move(trial.pose, "应用试步");
       return;
     }
     if (a === "minus" || a === "plus") {
@@ -1062,6 +1176,7 @@ export function mountPrediction(
         return;
       }
       if (["1", "2", "3"].includes(e.key)) {
+        cancel();
         axis = (["X", "Y", "Z"] as Axis[])[Number(e.key) - 1];
         get<HTMLSelectElement>("#int-axis").value = axis;
         apply();
@@ -1109,10 +1224,16 @@ export function mountPrediction(
       split = Number(el.value);
     }
     if (el.id === "int-axis") {
+      cancel();
       axis = el.value as Axis;
       apply();
+      hud();
     }
-    if (el.id === "int-fine") fine = el.checked;
+    if (el.id === "int-fine") {
+      cancel();
+      fine = el.checked;
+      hud();
+    }
   }
   function onVisibility() {
     if (document.hidden) cancel();
@@ -1145,6 +1266,24 @@ export function mountPrediction(
       .forEach((el) =>
         el.classList.toggle("is-hover", el.dataset.tooth === scene.hoverId),
       );
+    const cue = scene.motion(selected, axis, trial?.sign ?? 1, tool),
+      marker = get("#int-motion-cue");
+    marker.hidden = !editable() || dragging || !cue;
+    if (cue && editable() && !dragging) {
+      marker.textContent = `${cue.symbol} ${cue.forward}${trial ? " · 轮廓是试步结果，未保存" : " · 先预览一步再决定"}`;
+      marker.style.left = `${Math.max(8, Math.min(scene.host.clientWidth - 240, cue.center.x + 24))}px`;
+      marker.style.top = `${Math.max(65, Math.min(scene.host.clientHeight - 100, cue.center.y - 65))}px`;
+      for (const [action, text] of [
+        ["plus", cue.forward],
+        ["minus", cue.back],
+      ]) {
+        const el = button(action);
+        el.setAttribute("aria-label", text + "，可长按");
+        el.title = text + "，可长按";
+        const copy = el.querySelector(".button-copy");
+        if (copy) copy.textContent = text;
+      }
+    }
     const p = scene.marker(selected),
       label = get("#int-tooth-label");
     label.hidden = !p?.visible;

@@ -445,7 +445,7 @@ test("双方案观察可从只读方案直接提交，答错重试，不改牙�
   ).toBe(before);
   await page.selectOption("#int-answer", "B");
   await action(page, "answer").click();
-  await expect(page.locator("#int-feedback")).toContainText("重合程度");
+  await expect(page.locator("#int-feedback")).toContainText("参考轮廓重合");
   await action(page, "A").click();
   await page.selectOption("#int-answer", "A");
   await page.screenshot({
