@@ -136,6 +136,8 @@ test("观察、独立操作、长按、只读参考/回放/滑帘、取消与独
     fullPage: true,
   });
   await a("pair").click();
+  if (await page.locator("#int-task-panel").isHidden())
+    await a("panel-task").click();
   await a("select-3").click();
   await expect(page.locator("#int-feedback")).toContainText("双牙对照");
   await a("view-front").click();
@@ -143,6 +145,7 @@ test("观察、独立操作、长按、只读参考/回放/滑帘、取消与独
     "aria-pressed",
     "true",
   );
+  await a("replay").click();
   await a("retry").click();
   expect(
     await page.evaluate((k) => localStorage.getItem(k), CHALLENGE_KEY),
@@ -194,6 +197,8 @@ test("九个短任务连续核对28颗，判断与自评保存，刷新恢复", 
       `短任务 ${i + 1}`,
       { timeout: 60000 },
     );
+    if (await page.locator("#int-task-panel").isHidden())
+      await action(page, "panel-task").click();
     for (const id of cards[i]) {
       await action(page, "select-" + id).click();
       await action(page, "check").click();

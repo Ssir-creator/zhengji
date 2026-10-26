@@ -1,0 +1,645 @@
+/* A single model stage with compact game HUD and optional drawers. */
+.interaction-mode {
+  overflow: hidden;
+  background: #d8d4c8;
+}
+.interaction-mode #app > header {
+  position: fixed;
+  inset: 0 0 auto;
+  height: 64px;
+  z-index: 30;
+  padding: 8px 20px;
+  background: #f7f3e7f2;
+  border-bottom: 1px solid #a8ad99;
+  box-sizing: border-box;
+}
+.interaction-mode .interaction-workshop {
+  position: fixed;
+  inset: 64px 0 0;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+.interaction-mode .int-layout,
+.interaction-mode .int-stage {
+  position: absolute;
+  inset: 0;
+  display: block;
+  min-width: 0;
+}
+.interaction-mode #int-viewport {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: #e3dfd4;
+}
+.interaction-mode .game-heading {
+  position: absolute;
+  z-index: 8;
+  top: 16px;
+  left: 24px;
+  display: block;
+  min-height: 0;
+  padding: 12px 16px;
+  max-width: 360px;
+  background: #f9f6e9df;
+  border-left: 3px solid #9b6b37;
+  backdrop-filter: blur(12px);
+  pointer-events: none;
+}
+.interaction-mode .game-heading h2 {
+  font-size: 21px;
+  margin: 5px 0;
+}
+.interaction-mode .game-heading .eyebrow {
+  font-size: 10px;
+}
+.interaction-mode #int-total {
+  font-size: 11px;
+}
+.interaction-mode #int-match {
+  position: absolute;
+  z-index: 8;
+  top: 16px;
+  right: 24px;
+  width: 286px;
+  padding: 12px 16px;
+  background: #f9f6e9ed;
+  border-top: 3px solid #426553;
+  box-shadow: 0 4px 16px #373c2920;
+  backdrop-filter: blur(12px);
+}
+#int-match > div:first-child {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+#int-score-label {
+  font-size: 10px;
+  flex: 1;
+  color: #5e6656;
+}
+#int-score {
+  font-size: 26px;
+  line-height: 1;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: #315b48;
+}
+#int-match small {
+  font-size: 10px;
+}
+#int-score-meter {
+  height: 5px;
+  background: #d8decc;
+  margin: 10px 0 7px;
+}
+#int-score-meter span {
+  display: block;
+  height: 100%;
+  background: #426e56;
+  transition: width 0.12s;
+}
+#int-match p {
+  font-size: 10px;
+  line-height: 1.5;
+  margin: 3px 0;
+  color: #58624f;
+}
+#int-best {
+  border-top: 1px solid #cbd0bf;
+  padding-top: 5px;
+}
+.interaction-mode .int-panel-tabs {
+  position: absolute;
+  z-index: 12;
+  right: 24px;
+  top: 146px;
+  display: flex;
+  gap: 5px;
+}
+.interaction-mode .int-panel-tabs button {
+  min-height: 36px;
+  padding: 6px 14px;
+  background: #f8f4e7e8;
+  border-color: #aeb5a0;
+  font-size: 11px;
+}
+.interaction-mode .int-panel-tabs [aria-pressed="true"] {
+  background: #426553;
+  color: #fff;
+  border-color: #426553;
+}
+.interaction-mode .int-floating-panel {
+  position: absolute;
+  z-index: 11;
+  top: 190px;
+  bottom: 224px;
+  right: 24px;
+  width: 320px;
+  background: #faf7eaed;
+  border: 1px solid #a9b29d;
+  box-shadow: 0 8px 28px #273c2933;
+  backdrop-filter: blur(16px);
+  overflow: auto;
+  padding: 0;
+  margin: 0;
+  overscroll-behavior: contain;
+  box-sizing: border-box;
+}
+.int-panel-heading {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #e5e8d8f7;
+  border-bottom: 1px solid #b7c1a7;
+}
+.int-panel-heading strong {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+}
+.interaction-mode .int-panel-heading button {
+  padding: 4px 8px;
+  min-height: 30px;
+  font-size: 10px;
+  background: transparent;
+}
+.interaction-mode #int-sidebar {
+  position: static;
+  max-height: none;
+  overflow: visible;
+  margin: 0;
+  padding: 14px;
+  width: auto;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+}
+.interaction-mode #int-sidebar h2 {
+  font-size: 17px;
+  line-height: 1.55;
+  margin: 6px 0 10px;
+}
+.interaction-mode #int-sidebar p {
+  font-size: 11px;
+  line-height: 1.7;
+}
+.interaction-mode #int-sidebar .eyebrow {
+  font-size: 10px;
+}
+.interaction-mode #int-sidebar select {
+  font-size: 11px;
+  padding: 5px;
+}
+.interaction-mode #int-sidebar .int-task-list {
+  margin: 12px 0;
+  gap: 5px;
+}
+.interaction-mode #int-sidebar .int-task-list button {
+  padding: 7px 10px;
+  min-height: 43px;
+}
+.interaction-mode #int-sidebar .int-judgement {
+  margin: 12px 0;
+}
+.interaction-mode #int-sidebar .reference-note {
+  font-size: 9px;
+}
+.interaction-mode .int-viewbar {
+  position: absolute;
+  z-index: 9;
+  top: 156px;
+  left: 24px;
+  width: 92px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 5px;
+  padding: 0;
+}
+.interaction-mode .int-viewbar button {
+  font-size: 10px;
+  min-height: 37px;
+  background: #f8f4e7df;
+  padding: 7px 9px;
+  border-color: #aab29d;
+}
+.interaction-mode .int-controls {
+  position: absolute;
+  z-index: 12;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  width: min(820px, calc(100% - 32px));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 5px 7px;
+  padding: 10px 14px;
+  background: #f9f6e9ed;
+  border: 1px solid #aab49d;
+  border-top: 3px solid #5b7350;
+  box-shadow: 0 6px 30px #273c2933;
+  backdrop-filter: blur(16px);
+  box-sizing: border-box;
+}
+.interaction-mode .int-controls > .int-toolbar:not(.int-observe-tools) {
+  display: contents;
+}
+.interaction-mode .int-controls button {
+  font-size: 11px;
+  min-height: 36px;
+  padding: 6px 10px;
+  white-space: nowrap;
+}
+.interaction-mode .int-controls button[data-int-action="minus"],
+.interaction-mode .int-controls button[data-int-action="plus"] {
+  font-size: 20px;
+  line-height: 1;
+  min-width: 36px;
+}
+.interaction-mode .int-controls label {
+  font-size: 10px;
+  gap: 4px;
+}
+.interaction-mode .int-controls select {
+  font-size: 11px;
+  padding: 5px;
+  min-height: 32px;
+}
+.interaction-mode .int-controls p {
+  flex-basis: 100%;
+  min-width: 0;
+  font-size: 10px;
+  line-height: 1.5;
+  margin: 0;
+  text-align: center;
+}
+.interaction-mode #int-instruction {
+  color: #6b705f;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.interaction-mode #int-readout {
+  color: #65725d;
+}
+.interaction-mode #int-feedback {
+  font-size: 11px;
+  min-height: 17px;
+  color: #315a47;
+}
+.interaction-mode .int-observe-tools {
+  justify-content: center;
+  width: 100%;
+  gap: 5px;
+  border-top: 1px solid #cdd2bf;
+  padding-top: 5px;
+}
+.interaction-mode .int-controls [aria-pressed="true"] {
+  background: #dac597;
+  border-color: #aa8545;
+}
+.interaction-mode .int-controls button[data-int-action="check"] {
+  margin-left: 4px;
+  background: #426553;
+  border-color: #426553;
+  color: white;
+}
+.interaction-mode #int-mode-banner {
+  top: 118px;
+  left: 150px;
+  right: 380px;
+  min-height: 0;
+  width: max-content;
+  max-width: calc(100% - 540px);
+  font-size: 11px;
+  padding: 7px 10px;
+  border-left: 2px solid #9a743e;
+}
+.interaction-mode #int-tooth-label {
+  font-size: 10px;
+  max-width: 170px;
+}
+.interaction-mode #int-curtain {
+  top: 158px;
+  left: 140px;
+  right: 380px;
+  inset-block-end: auto;
+  font-size: 10px;
+}
+.interaction-mode #int-divider {
+  top: 196px;
+  bottom: 212px;
+}
+.interaction-mode .int-plan-actions {
+  display: flex;
+  gap: 6px;
+  padding: 14px 12px 5px;
+  flex-wrap: wrap;
+}
+.interaction-mode #int-plans-panel > p {
+  padding: 0 12px;
+  font-size: 11px;
+  line-height: 1.8;
+}
+.interaction-mode #int-plans {
+  padding: 0 12px;
+}
+.int-plan {
+  padding: 12px 0;
+  border-bottom: 1px solid #bcc6ad;
+}
+.int-plan > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: baseline;
+}
+.int-plan strong {
+  font-size: 12px;
+}
+.int-plan small,
+.int-plan p {
+  font-size: 10px;
+  color: #65725d;
+}
+.int-plan p {
+  margin: 6px 0 10px;
+}
+.interaction-mode .int-plan button {
+  font-size: 10px;
+  min-height: 34px;
+  padding: 6px 10px;
+}
+.interaction-mode #int-plans-panel details {
+  margin: 12px;
+  padding: 8px 0;
+  font-size: 11px;
+}
+.interaction-mode #int-plans-panel details p {
+  font-size: 10px;
+  line-height: 1.8;
+}
+.interaction-mode .int-replay > .int-toolbar,
+.interaction-mode .int-replay > label,
+.interaction-mode .int-replay > p,
+.interaction-mode .int-replay > ol {
+  margin: 12px;
+  font-size: 11px;
+}
+.interaction-mode .int-replay button {
+  font-size: 10px;
+  min-height: 34px;
+  padding: 6px;
+}
+.interaction-mode #int-events {
+  display: block;
+  max-height: none;
+}
+.interaction-mode #int-events li {
+  margin-bottom: 5px;
+}
+.interaction-mode #int-events button {
+  text-align: left;
+  width: 100%;
+}
+.interaction-mode #int-timeline {
+  width: 100%;
+  height: 30px;
+}
+.interaction-mode .int-replay .reference-note {
+  font-size: 9px;
+}
+@media (max-width: 1100px) {
+  .interaction-mode #int-match {
+    right: 14px;
+    width: 250px;
+  }
+  .interaction-mode .int-panel-tabs {
+    right: 14px;
+  }
+  .interaction-mode .int-floating-panel {
+    right: 14px;
+    width: 290px;
+  }
+  .interaction-mode .game-heading {
+    left: 14px;
+    max-width: 290px;
+  }
+  .interaction-mode .game-heading h2 {
+    font-size: 18px;
+  }
+  .interaction-mode .int-viewbar {
+    left: 14px;
+    top: 156px;
+    width: 78px;
+  }
+  .interaction-mode #int-mode-banner {
+    left: 110px;
+    right: 320px;
+    max-width: calc(100% - 440px);
+  }
+  .interaction-mode #int-curtain {
+    left: 110px;
+    right: 320px;
+  }
+}
+@media (max-width: 700px) {
+  .interaction-mode #app > header {
+    height: 56px;
+    padding: 6px 10px;
+  }
+  .interaction-mode .interaction-workshop {
+    top: 56px;
+  }
+  .interaction-mode #app > header .brand small {
+    font-size: 8px;
+  }
+  .interaction-mode #app > header nav {
+    gap: 3px;
+  }
+  .interaction-mode #app > header nav button {
+    font-size: 9px;
+    min-height: 32px;
+    padding: 5px;
+  }
+  .interaction-mode .game-heading {
+    top: 10px;
+    left: 8px;
+    max-width: calc(50% - 16px);
+    padding: 8px;
+    box-sizing: border-box;
+  }
+  .interaction-mode .game-heading h2 {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .interaction-mode .game-heading .eyebrow {
+    font-size: 8px;
+  }
+  .interaction-mode #int-total {
+    font-size: 9px;
+  }
+  .interaction-mode #int-match {
+    top: 10px;
+    right: 8px;
+    width: calc(50% - 12px);
+    padding: 8px;
+    box-sizing: border-box;
+  }
+  #int-score {
+    font-size: 20px;
+  }
+  #int-score-label {
+    font-size: 8px;
+  }
+  #int-match p {
+    font-size: 8px;
+  }
+  #int-match small {
+    font-size: 8px;
+  }
+  #int-score-meter {
+    margin: 7px 0 5px;
+  }
+  .interaction-mode .int-panel-tabs {
+    top: 144px;
+    right: 8px;
+    left: 8px;
+    justify-content: flex-end;
+    gap: 4px;
+  }
+  .interaction-mode .int-panel-tabs button {
+    font-size: 10px;
+    padding: 6px 12px;
+    min-height: 34px;
+  }
+  .interaction-mode .int-floating-panel {
+    top: 185px;
+    bottom: 252px;
+    right: 8px;
+    left: 8px;
+    width: auto;
+  }
+  .interaction-mode .int-viewbar {
+    top: 186px;
+    left: 8px;
+    right: auto;
+    width: 67px;
+    gap: 4px;
+  }
+  .interaction-mode .int-viewbar button {
+    font-size: 9px;
+    padding: 6px 4px;
+    min-height: 34px;
+  }
+  .interaction-mode .int-controls {
+    bottom: 8px;
+    width: calc(100% - 16px);
+    padding: 8px 6px;
+    gap: 4px;
+    min-height: 0;
+  }
+  .interaction-mode .int-controls button {
+    font-size: 10px;
+    min-height: 34px;
+    padding: 5px 7px;
+  }
+  .interaction-mode .int-controls label {
+    font-size: 9px;
+  }
+  .interaction-mode .int-controls select {
+    font-size: 10px;
+    padding: 4px;
+    min-height: 30px;
+  }
+  .interaction-mode .int-controls p {
+    font-size: 9px;
+    line-height: 1.5;
+  }
+  .interaction-mode #int-feedback {
+    font-size: 10px;
+  }
+  .interaction-mode .int-controls .int-observe-tools button {
+    font-size: 9px;
+    padding: 4px 6px;
+    min-height: 32px;
+  }
+  .interaction-mode #int-mode-banner {
+    top: 112px;
+    left: 8px;
+    right: 8px;
+    width: auto;
+    max-width: none;
+    font-size: 9px;
+    padding: 4px 6px;
+  }
+  .interaction-mode #int-curtain {
+    top: 184px;
+    left: 80px;
+    right: 8px;
+    padding: 4px;
+    font-size: 9px;
+  }
+  .interaction-mode #int-divider {
+    top: 220px;
+    bottom: 250px;
+  }
+  .interaction-mode #int-sidebar {
+    padding: 12px;
+  }
+  .interaction-mode #int-sidebar h2 {
+    font-size: 15px;
+  }
+  .interaction-mode #int-sidebar p {
+    font-size: 10px;
+  }
+  .interaction-mode .int-panel-heading {
+    padding: 5px 10px;
+  }
+}
+@media (max-height: 650px) and (min-width: 701px) {
+  .interaction-mode .int-floating-panel {
+    top: 90px;
+    bottom: 185px;
+  }
+  .interaction-mode #int-match {
+    top: 8px;
+  }
+  .interaction-mode #int-best {
+    display: none;
+  }
+  .interaction-mode .int-panel-tabs {
+    top: 110px;
+    right: 350px;
+  }
+  .interaction-mode .game-heading {
+    top: 8px;
+  }
+  .interaction-mode #int-mode-banner {
+    top: 106px;
+  }
+  .interaction-mode .int-controls {
+    bottom: 6px;
+    padding: 5px;
+  }
+  .interaction-mode #int-instruction {
+    display: none;
+  }
+  .interaction-mode .int-viewbar {
+    top: 125px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #int-score-meter span {
+    transition: none;
+  }
+}
