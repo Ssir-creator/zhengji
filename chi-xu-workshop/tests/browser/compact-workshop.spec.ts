@@ -1,5 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import { readFileSync } from "node:fs";
+import { poseError } from "../../src/core";
 import { referenceCase } from "../../src/prediction";
 import {
   CHALLENGE_KEY,
@@ -77,6 +78,9 @@ test("三段式主界面、视角下拉、观察作答与工具内功能保持�
   await camera(page, "view-occlusal");
   await camera(page, "view-side");
   await a(page, "panel-task").click();
+  await a(page, "original").click();
+  await a(page, "inspect-reference").click();
+  await a(page, "answer-open").click();
   await page.selectOption("#int-answer", observation(data, 0));
   await a(page, "answer").click();
   await expect(page.locator("#int-feedback")).toContainText("观察通过");
@@ -247,4 +251,83 @@ test("手机直接拖牙提交真实平移；触摸取消不写入进度", async
   });
   expect(JSON.parse((await raw(page))!).stats.moves).toBe(1);
   await cdp.detach();
+});
+
+test("第一关提供明确原始与参考，切换不挡牙模、不动镜头、不写存档，未看两态不能作答", async ({
+  page,
+}) => {
+  test.setTimeout(120000);
+  await enter(page);
+  await camera(page, "view-occlusal");
+  await camera(page, "view-side");
+  await a(page, "panel-task").click();
+  await expect(
+    page.locator(
+      '#int-sidebar [data-int-action="A"],#int-sidebar [data-int-action="B"]',
+    ),
+  ).toHaveCount(0);
+  const saved = await raw(page);
+  await page.selectOption("#int-answer", observation(data, 0));
+  await a(page, "answer").click();
+  await expect(page.locator("#int-feedback")).toContainText(
+    "先分别查看原始和参考",
+  );
+  expect(await raw(page)).toBe(saved);
+  await a(page, "original").click();
+  await expect(page.locator("#int-task-panel")).toBeHidden();
+  await expect(a(page, "inspect-original")).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  const snap = () =>
+    page.evaluate(() => {
+      const s = (window as any).__compactScene;
+      return {
+        camera: s.camera.position.toArray(),
+        q: s.camera.quaternion.toArray(),
+        target: s.orbit.target.toArray(),
+        poses: Object.fromEntries(
+          [...s.teeth.keys()].map((id) => [id, s.readPose(id)]),
+        ),
+      };
+    });
+  const original = await snap();
+  await a(page, "inspect-reference").click();
+  await expect(a(page, "inspect-reference")).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  const reference = await snap();
+  for (const key of ["camera", "q", "target"] as const)
+    reference[key].forEach((v: number, i: number) =>
+      expect(v).toBeCloseTo(original[key][i], 10),
+    );
+  for (const id of taskCards(data)[0]) {
+    const e = poseError(reference.poses[id], data.target[id]);
+    expect(e.position).toBeCloseTo(0, 8);
+    expect(e.rotation).toBeCloseTo(0, 4);
+  }
+  expect(reference.poses["2"]).not.toEqual(original.poses["2"]);
+  expect(await raw(page)).toBe(saved);
+  await expect(page.locator("#int-inspection-state")).toHaveText("当前：参考");
+  await page.screenshot({ path: "docs/screenshots/observation-reference.png" });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.locator("#int-inspection")).toBeInViewport();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await page.screenshot({
+    path: "docs/screenshots/observation-reference-mobile.png",
+  });
+  await a(page, "inspect-original").click();
+  expect((await snap()).poses).toEqual(original.poses);
+  await a(page, "answer-open").click();
+  await page.selectOption("#int-answer", observation(data, 0));
+  await a(page, "answer").click();
+  await expect(page.locator("#int-feedback")).toContainText("观察通过");
+  expect(JSON.parse((await raw(page))!).poses).toEqual(
+    JSON.parse(saved!).poses,
+  );
 });

@@ -39,10 +39,10 @@ export function taskPuzzle(data: ReferenceCase, card: number): Puzzle {
     return {
       ...base,
       title: "视角侦探：谁的位置变化最大？",
-      prompt: "比较原始与参考，找出枢轴平移距离最大的牙；转得多不一定挪得远。",
+      prompt: "依次查看“原始”和“参考”，找出移动最远的牙。转得多不一定挪得远。",
       options: toothOptions,
       answer: observation(data, card),
-      explanation: "比较的是原始到参考的枢轴距离，不是屏幕上的投影长度。",
+      explanation: "要比较牙齿整体移动的距离，不能只看朝向变化。",
     };
   if (card === 1)
     return {
@@ -63,7 +63,7 @@ export function taskPuzzle(data: ReferenceCase, card: number): Puzzle {
       prompt: "比较牙冠朝向，找出原始到参考旋转角度最大的牙。",
       options: toothOptions,
       answer: rank("rotation"),
-      explanation: "这次比较四元数的最短旋转角，而不是平移距离。",
+      explanation: "这次比较的是转动幅度，而不是挪动距离。",
     };
   if (card === 6)
     return {

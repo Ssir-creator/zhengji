@@ -35,6 +35,28 @@ export function compactAction(page: Page, action: string): Locator {
     "zoom",
   ].includes(action);
   async function prepare() {
+    if (action === "answer") {
+      const compare = page.locator('#int-sidebar [data-int-action="original"]');
+      if (await compare.count()) {
+        if (await compare.isHidden())
+          await page.locator("#int-task-line").click();
+        const answer = await page.locator("#int-answer").inputValue();
+        await compare.click();
+        await page.locator('[data-int-action="inspect-reference"]').click();
+        await page.locator('[data-int-action="answer-open"]').click();
+        await page.selectOption("#int-answer", answer);
+      } else if (
+        await page.locator('#int-sidebar [data-int-action="A"]').count()
+      ) {
+        if (await page.locator("#int-task-panel").isHidden())
+          await page.locator("#int-task-line").click();
+        const answer = await page.locator("#int-answer").inputValue();
+        await page.locator('[data-int-action="A"]').click();
+        await page.locator('[data-int-action="inspect-reference"]').click();
+        await page.locator('[data-int-action="answer-open"]').click();
+        await page.selectOption("#int-answer", answer);
+      }
+    }
     if (
       ["save-attempt", "restore-best", "start-lab"].includes(action) ||
       action.startsWith("view-attempt-") ||
@@ -97,6 +119,11 @@ export function compactAction(page: Page, action: string): Locator {
             (await page.locator("#int-task-panel").isHidden())
           )
             await page.locator("#int-task-line").click();
+          if (
+            (action === "A" || action === "B") &&
+            (await page.locator("#int-task-panel").isHidden())
+          )
+            await page.locator('[data-int-action="answer-open"]').click();
           return result;
         };
       const value = Reflect.get(target, prop);
