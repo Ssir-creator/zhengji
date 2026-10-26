@@ -1,3 +1,13 @@
+# 游戏视觉统一验证 · 2026-10-26
+
+- 标题页由左右分栏改为真实 3D 场景上的游戏主菜单；主工作台、参考引导、旧三关、自由练习及工具窗口统一为深绿／黄铜材质。图标、键帽、按钮状态、任务槽、仪表与装饰边框均来自实际 DOM/SVG/CSS，不使用概念图替换运行画面。
+- `npm test`：71 / 71 通过；`npm run build`：通过。完整浏览器回归覆盖 28 项并最终通过；首页两项资源失败检查已适配新文案，再次通过。原生复选框外观与键盘焦点收尾后，工作台／手机／资源失败／设置 4 项复查通过。
+- 覆盖真实模型拾取、手柄拖动、Esc、旋转环、模拟触摸、九任务 28 颗连续进度、旧三关、自由隔离、只读对比、方案恢复、坏记录保留、保存额度失败和原始资源校验。
+- 新增标题菜单 ↑／↓ 选择与 Enter 进入检查，进入后旧记录原文保持。手机、桌面构图与菜单都保留内置真实病例；装饰不拦截指针，减少动画偏好停用标题按钮亮度动画。
+- 当前截图：`title-studio-1440.png`、`title-studio-mobile.png`、`game-shell-desktop.png`、`game-shell-plans.png`、`game-shell-mobile.png`、`studio-practice-1440.png`、`reference-original.png`、`reference-mobile.png`（均在 screenshots/）。故障提示画面单独保留为 `game-shell-mobile-storage-warning.png`。
+- 原始 STL/GLB、病例清单、预测目标、关卡参数、存档结构及原科研网站均未改。Windows／手机实机帧率不在 Linux 软件 WebGL 回归的结论内。
+- 视觉与实现说明见 [青铜工坊 UI](GAME_UI_VISUAL.md)。以下保留此前验证记录。
+
 # 工坊工作台与方案试验验证 · 2026-10-26
 
 - `npm test`：71 / 71 通过；`npm run build`：通过，工坊布局 CSS 独立按需加载，无新增依赖。
