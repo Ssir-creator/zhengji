@@ -1,0 +1,15 @@
+{
+  "version": "fef8a62",
+  "file": "chi-xu-workshop-current-20261026.mp4",
+  "sha256": "d6b878cc562625b6af18a0cfcfe65c4fa19ef4f637c1fb70d1fcb468e0e90e52",
+  "bytes": 4728789,
+  "duration": 112.0,
+  "ui_checks": {
+    "observationPassed": true,
+    "cancelPreservedState": true,
+    "experimentAchieved": true,
+    "oneToothChecked": true,
+    "replayPreservedState": true
+  },
+  "page_errors": []
+}
