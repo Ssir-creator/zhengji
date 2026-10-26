@@ -1,5 +1,6 @@
 import {acquireUpdateLock} from './update-lock.mjs';
 import * as http from 'node:http';
+import {tmpdir} from 'node:os';
 import {createHash,randomUUID} from 'node:crypto';
 import {spawn} from 'node:child_process';
 import {createConnection} from 'node:net';
@@ -43,10 +44,30 @@ async function assertStopped(){
  });
  if(busy)throw new Error('请先关闭游戏的黑色启动窗口，再双击“更新游戏”。5173 端口仍在使用。');
 }
+/** Fall back to Windows' native HTTPS client, including its system proxy.
+ * Preserve the same HTTPS origin and ETag validation; never use public mirrors. */
+export async function archiveRequest(method,destination,{platform=process.platform,request=fetch,execute=run}={}){
+ let failure;
+ try{
+  const response=await request(archiveURL,{method,signal:AbortSignal.timeout(method==='HEAD'?30000:180000)});
+  if(!response.ok)throw Error(`HTTP ${response.status}`);
+  const etag=response.headers.get('etag');
+  if(method==='GET')await writeFile(destination,new Uint8Array(await response.arrayBuffer()));
+  return etag;
+ }catch(error){failure=error;}
+ if(platform!=='win32')throw Error(`无法连接 GitHub 更新服务：${failure.cause?.code??failure.message}；旧版未替换。`);
+ console.log('直连更新服务失败，正在尝试 Windows 系统网络通道……');
+ const temp=await mkdtemp(join(tmpdir(),'chi-xu-network-')),metadata=join(temp,'response.json');
+ const command="$ErrorActionPreference='Stop'; try { [Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12; $p=@{Uri=$env:CHIXU_NETWORK_URL; Method=$env:CHIXU_NETWORK_METHOD; UseBasicParsing=$true; TimeoutSec=180; UserAgent='ChiXuWorkshop-Updater'}; if($env:CHIXU_NETWORK_METHOD -eq 'GET'){$p.OutFile=$env:CHIXU_NETWORK_FILE; $p.PassThru=$true}; $r=Invoke-WebRequest @p; $v=@{etag=[string]$r.Headers['ETag']} | ConvertTo-Json -Compress; [IO.File]::WriteAllText($env:CHIXU_NETWORK_META,$v,(New-Object Text.UTF8Encoding($false))) } catch { [Console]::Error.WriteLine($_.Exception.Message); exit 1 }";
+ try{
+  await execute('powershell.exe',['-NoProfile','-NonInteractive','-Command',command],temp,{env:{...process.env,CHIXU_NETWORK_URL:archiveURL,CHIXU_NETWORK_METHOD:method,CHIXU_NETWORK_FILE:destination??'',CHIXU_NETWORK_META:metadata}});
+  const result=JSON.parse((await readFile(metadata,'utf8')).replace(/^\uFEFF/,''));
+  return typeof result.etag==='string'?result.etag:null;
+ }catch(error){throw Error(`Node 网络通道和 Windows 系统网络通道都未能取得新版。请确认电脑可以访问 codeload.github.com，或连接可访问 GitHub 的网络。旧版未替换。直连原因：${failure.cause?.code??failure.message}；系统通道：${error.message}`);}
+ finally{await rm(temp,{recursive:true,force:true});}
+}
 async function latestVersion(){
- const response=await fetch(archiveURL,{method:'HEAD',signal:AbortSignal.timeout(30000)});
- if(!response.ok)throw new Error(`检查新版失败（HTTP ${response.status}）。请检查网络或仓库访问；旧版未替换。`);
- const etag=response.headers.get('etag');
+ const etag=await archiveRequest('HEAD');
  if(!etag)throw new Error('服务器未提供资源版本，已停止更新；旧版未替换。');
  return archiveVersion(etag);
 }
@@ -56,11 +77,8 @@ export async function checkForUpdate(root){
  return{reachable:true,latest:version,installed:installed?.version??null,current:installed?.version===version,lastSuccess:installed?.updated_at??null};
 }
 async function downloadArchive(version,destination){
- const response=await fetch(archiveURL,{signal:AbortSignal.timeout(180000)});
- if(!response.ok)throw new Error(`下载新版失败（HTTP ${response.status}）；旧版未替换。`);
- const etag=response.headers.get('etag');
+ const etag=await archiveRequest('GET',destination);
  if(!etag||archiveVersion(etag)!==version)throw new Error('下载期间新版发生变化，请重新更新；旧版未替换。');
- await writeFile(destination,new Uint8Array(await response.arrayBuffer()));
 }
 export async function extractArchive(archive,destination,{platform=process.platform,execute=run,wait=ms=>new Promise(accept=>setTimeout(accept,ms))}={}){
  if(platform!=='win32'){
