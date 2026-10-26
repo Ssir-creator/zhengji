@@ -43,6 +43,9 @@ test("观察、独立操作、长按、只读参考/回放/滑帘、取消与独
   await enter(page);
   const a = (s: string) => action(page, s);
   await expect(a("plus")).toBeDisabled();
+  await expect(page.locator('.int-controls input[type="range"]')).toHaveCount(
+    0,
+  );
   await a("view-occlusal").click();
   await a("view-side").click();
   await page.selectOption("#int-answer", observation(data, 0));
@@ -118,6 +121,10 @@ test("观察、独立操作、长按、只读参考/回放/滑帘、取消与独
   await expect(a("plus")).toBeDisabled();
   await page.locator("#int-timeline").fill("0");
   await expect(page.locator("#int-replay-label")).toHaveText("回放起点");
+  await page.locator("#int-timeline").press("End");
+  expect(
+    await page.evaluate((k) => localStorage.getItem(k), CHALLENGE_KEY),
+  ).toBe(saved);
   await a("current").first().click();
   expect(
     await page.evaluate((k) => localStorage.getItem(k), CHALLENGE_KEY),

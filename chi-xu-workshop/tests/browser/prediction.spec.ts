@@ -11,6 +11,10 @@ test('真实28冠预测：原始对比、三批继承、恢复、逐牙完成与
  await page.locator('[data-action="prediction"]').click();await expect(page.locator('#reference-heading')).toContainText('第 1 批',{timeout:60000});
  const action=(s:string)=>page.locator(`[data-pred-action="${s}"]`);
  await expect(page.locator('#reference-total')).toContainText('0 / 28');await expect(action('save')).toBeDisabled();
+ await expect(page.locator('#reference-path, #reference-controls input[type=range]')).toHaveCount(0);
+ const initial=await page.evaluate(k=>localStorage.getItem(k),key);const bar=page.getByRole('progressbar');const box=(await bar.boundingBox())!;
+ await page.mouse.move(box.x+1,box.y+box.height/2);await page.mouse.down();await page.mouse.move(box.x+box.width-1,box.y+box.height/2,{steps:5});await page.mouse.up();await page.keyboard.press('End');
+ await expect(page.locator('#reference-percent')).toHaveText('0%');expect(await page.evaluate(k=>localStorage.getItem(k),key)).toBe(initial);await expect(action('save')).toBeDisabled();
  await action('forward').click();await expect(page.locator('#reference-percent')).toHaveText('10%');
  await action('undo').click();await expect(page.locator('#reference-percent')).toHaveText('0%');
  await action('redo').click();await expect(page.locator('#reference-percent')).toHaveText('10%');
@@ -25,7 +29,10 @@ test('真实28冠预测：原始对比、三批继承、恢复、逐牙完成与
  await page.screenshot({path:'docs/screenshots/reference-mobile.png',fullPage:true});
  await page.setViewportSize({width:1440,height:900});
  for(let i=0;i<3;i++){
-  for(const id of data.groups[i]){await action('select-'+id).click();await page.locator('#reference-path').press('End');await expect(page.locator('#reference-percent')).toHaveText('100%');}
+  for(const id of data.groups[i]){await action('select-'+id).click();const step=Number((await page.locator('#reference-percent').innerText()).replace('%',''))/10;if(step<10){await action('forward').click();
+   // Keep one real pointer click per tooth; the remaining individual button events avoid hundreds of software-WebGL actionability waits.
+   await action('forward').evaluate((_,remaining)=>{for(let n=0;n<remaining;n++){const button=document.querySelector<HTMLButtonElement>('[data-pred-action=forward]');if(!button||button.disabled)throw Error('参考步进提前禁用');button.click();}},9-step);
+  }await expect(page.locator('#reference-percent')).toHaveText('100%');}
   await expect(action('save')).toBeEnabled();
   if(i===0){await expect(page.locator('#reference-total')).toContainText('9 / 28');await expect(page.locator('#reference-sidebar')).toContainText('19 颗未到参考位置');}
   await action('save').click();
@@ -47,7 +54,7 @@ test('参考记录不兼容时保留原文，不重置旧进度',async({page})=>
  expect(await page.evaluate(k=>localStorage.getItem(k),key)).toBe(raw);expect(await page.evaluate(k=>localStorage.getItem(k),oldKey)).toBe(old);
 });
 test('保存失败不应用参考步进，不把未保存进度当过关',async({page})=>{
- await page.goto('/');await page.locator('[data-action="prediction"]').click();await expect(page.locator('#reference-path')).toBeVisible({timeout:60000});
+ await page.goto('/');await page.locator('[data-action="prediction"]').click();await expect(page.getByRole('progressbar')).toBeVisible({timeout:60000});
  const before=await page.evaluate(k=>localStorage.getItem(k),key);
  await page.evaluate(()=>{Storage.prototype.setItem=()=>{throw new DOMException('quota','QuotaExceededError');};});
  await page.locator('[data-pred-action="forward"]').click();await expect(page.locator('#reference-controls [role="status"]')).toContainText('保存失败');
@@ -57,7 +64,7 @@ test('保存失败不应用参考步进，不把未保存进度当过关',async(
 test('窄屏操作区不遮挡实际牙模画布',async({page})=>{
  await page.setViewportSize({width:390,height:900});await page.goto('/');await expect(page.locator('#title-studio')).toHaveAttribute('data-ready','true',{timeout:60000});
  await page.screenshot({path:'docs/screenshots/reference-home-mobile.png',fullPage:true});await page.locator('[data-action="prediction"]').click();
- await expect(page.locator('#reference-path')).toBeVisible({timeout:60000});await page.locator('[data-pred-action="forward"]').click();
+ await expect(page.getByRole('progressbar')).toBeVisible({timeout:60000});await page.locator('[data-pred-action="forward"]').click();
  await expect.poll(async()=>{
   const panel=await page.locator('#reference-controls').boundingBox(),canvas=await page.locator('#reference-viewport canvas').boundingBox();
   return !!panel&&!!canvas&&canvas.y>=panel.y+panel.height&&canvas.height>=180;

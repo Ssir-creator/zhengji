@@ -118,3 +118,24 @@ it("拒绝坏四元数、枢轴变化、篡改回放、非有限数和跳关；�
   expect(replayPoses(next, 400)).toEqual(next.poses);
   expect(next.stats.moves).toBe(405);
 });
+it("位置与方向必须同时满足：只挪到位或只转到位均不能确认", () => {
+  const s = freshChallenge(data),
+    id = taskCards(data)[0][0];
+  s.observed.push(0);
+  const positionOnly = {
+    ...structuredClone(data.target[id]),
+    quaternion: structuredClone(data.original[id].quaternion),
+  };
+  const rotationOnly = {
+    ...structuredClone(data.target[id]),
+    translation: structuredClone(data.original[id].translation),
+  };
+  const moved = moveChallenge(data, s, id, positionOnly, "只平移");
+  expect(checkChallengeTooth(data, moved, id).passed).toBe(false);
+  expect(checkChallengeTooth(data, moved, id).next.checked).not.toContain(id);
+  const rotated = moveChallenge(data, s, id, rotationOnly, "只旋转");
+  expect(checkChallengeTooth(data, rotated, id).passed).toBe(false);
+  expect(checkChallengeTooth(data, rotated, id).next.checked).not.toContain(id);
+  const both = moveChallenge(data, s, id, data.target[id], "位置与方向均到位");
+  expect(checkChallengeTooth(data, both, id).passed).toBe(true);
+});
