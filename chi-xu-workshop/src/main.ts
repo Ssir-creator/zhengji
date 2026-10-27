@@ -1,5 +1,6 @@
 import './style.css';
 import './game-theme.css';
+import './course-home.css';
 import {uiIcon} from './ui';
 import {chapters,circles,taskName,guidance} from './player';
 import { Quaternion,Vector3 } from 'three';
@@ -103,7 +104,7 @@ function render(){
  const main=$('#main')!;
  if(screen==='home'){
  let workshopSave=false;try{workshopSave=!!localStorage.getItem('chi-xu-workshop:reference-challenge:v2');}catch{}
- main.innerHTML=`<section class="home game-title"><figure class="hero title-studio"><div id="title-studio" aria-label="可旋转的牙模"></div><div class="title-vignette" aria-hidden="true"></div><figcaption id="studio-status" role="status">正在准备工坊…</figcaption></figure><div class="title-frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="home-copy"><div class="title-crest" aria-hidden="true">${uiIcon('emblem')}</div><div class="eyebrow">C H I X U · W O R K S H O P</div><h1>齿序<span>工坊</span></h1><p class="lead">观察 · 调校 · 找到你的次序</p><nav class="home-card" aria-label="游戏主菜单">${btn(workshopSave?'继续工坊':'进入工坊','interaction',true,false,'data-menu-primary="true"')}${btn('参考排齐 · 引导','prediction')}${hasSave()?btn('继续旧版挑战','continue'):btn('旧版三关','new')}${btn('自由练习','practice')}${hasSave()?btn('重开旧版挑战','new'):''}<small>进度自动保存</small></nav><div class="home-menu-help"><kbd>↑</kbd><kbd>↓</kbd> 选择 <kbd>Enter</kbd> 进入</div><p class="asset-status">${assets?'工坊已就绪':'进入后准备工作台'}</p></div><div class="title-chapters" aria-label="同一病例的三个连续批次">${[9,9,10].map((n,i)=>`<span><b>0${i+1}</b><small>${n} 颗 / 连续保留</small></span>`).join('')}</div></section>${warning?`<div class="warning title-warning">${esc(warning)}${btn('导出旧记录','export-raw')}</div>`:''}`;
+ main.innerHTML=`<section class="home game-title"><figure class="hero title-studio"><div id="title-studio" aria-label="可旋转的牙模"></div><div class="title-vignette" aria-hidden="true"></div><figcaption id="studio-status" role="status">正在准备工坊…</figcaption></figure><div class="title-frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="home-copy"><div class="title-crest" aria-hidden="true">${uiIcon('emblem')}</div><div class="eyebrow">C H I X U · W O R K S H O P</div><h1>齿序<span>工坊</span></h1><p class="lead">观察 · 调校 · 找到你的次序</p><nav class="home-card" aria-label="游戏主菜单">${btn(localStorage.getItem('chi-xu-workshop:spatial-course:v1')?'继续基础挑战':'开始基础挑战','course',true,false,'data-menu-primary="true"')}${btn(workshopSave?'继续九任务':'九任务挑战','interaction')}${btn('参考排齐 · 引导','prediction')}${hasSave()?btn('继续旧版挑战','continue'):btn('旧版三关','new')}${btn('自由练习','practice')}${hasSave()?btn('重开旧版挑战','new'):''}<small>进度自动保存</small></nav><div class="home-menu-help"><kbd>↑</kbd><kbd>↓</kbd> 选择 <kbd>Enter</kbd> 进入</div><p class="asset-status">${assets?'工坊已就绪':'进入后准备工作台'}</p></div><div class="title-chapters" aria-label="基础挑战学习路线">${['挪与转','找出遗漏','独立复核'].map((n,i)=>`<span><b>0${i+1}</b><small>${n}</small></span>`).join('')}</div></section>${warning?`<div class="warning title-warning">${esc(warning)}${btn('导出旧记录','export-raw')}</div>`:''}`;
  disposeStudio=mountStudio($('#title-studio')!,$('#studio-status')!,assets);
  }else if(screen==='levels'){
  const count=session?.saved_snapshots.length??0;
@@ -217,11 +218,11 @@ function setComparison(mode:'before'|'after'|null){
  scene?.cancelDrag();comparison=mode;scene?.apply(mode==='before'?start:poses);updateTool();showGhosts();updateHUD();
 }
 
-async function openPrediction(interactive=false){
- if(!assets)return loadBuiltIn(interactive?'interaction':'prediction');
+async function openPrediction(interactive=false,course=false){
+ if(!assets)return loadBuiltIn(course?'course':interactive?'interaction':'prediction');
  const version=++renderVersion;
  try{
-  const [module,response]=await Promise.all([interactive?import('./interaction-workshop'):import('./prediction-workshop'),fetch('/cases/initial/prediction/reference.json')]);
+  const [module,response]=await Promise.all([course?import('./course-workshop'):interactive?import('./interaction-workshop'):import('./prediction-workshop'),fetch('/cases/initial/prediction/reference.json')]);
   if(!response.ok)throw Error('预测参考暂时不可用，请更新游戏后重试。');
   const reference=await response.json();if(version!==renderVersion)return;
   disposeStudio?.();disposeStudio=null;scene?.dispose();scene=null;screen='home';
@@ -241,7 +242,7 @@ async function loadBuiltIn(after=''){
  try{
   const next=await loadBundledCase(text=>{const label=$('#load-state');if(label){const match=text.match(/(\d+)\/28/);label.textContent=match?`正在摆好牙齿 ${match[1]} / 28`:'正在准备工作台…';}});
   installCase(next);$<HTMLDialogElement>('#modal')?.close();screen='home';render();
-  if(after==='new')newChallenge();else if(after==='continue')resume();else if(after==='practice')startPractice();else if(after==='prediction')void openPrediction();else if(after==='interaction')void openPrediction(true);
+  if(after==='course')void openPrediction(false,true);else if(after==='new')newChallenge();else if(after==='continue')resume();else if(after==='practice')startPractice();else if(after==='prediction')void openPrediction();else if(after==='interaction')void openPrediction(true);
  }catch(err){openAssets(after);const label=$('#load-state');if(label){label.textContent=String(err);label.classList.add('error');}else toast(String(err));}
  finally{loadingBuiltIn=false;const f=$<HTMLInputElement>('#case-files');if(f)f.disabled=false;const b=$<HTMLButtonElement>('[data-action="load-built-in"]');if(b){b.disabled=false;b.textContent='重试加载内置病例';}}
 }
@@ -262,6 +263,7 @@ app.addEventListener('click',e=>{const b=(e.target as HTMLElement).closest<HTMLB
  if(a.startsWith('axis-')){axis=a.slice(5) as Axis;updateHUD();return;}
  switch(a){
  case 'prediction':void openPrediction();break;
+ case 'course':void openPrediction(false,true);break;
  case 'interaction':void openPrediction(true);break;
  case 'home':if(practice)exitPractice();if(replaying)exitReplay();preserve();screen='home';render();break;
  case 'levels':if(practice)exitPractice();else{scene?.cancelDrag();if(replaying)exitReplay();preserve();screen='levels';render();}break;
@@ -286,7 +288,7 @@ app.addEventListener('click',e=>{const b=(e.target as HTMLElement).closest<HTMLB
 app.addEventListener('change',async e=>{const input=e.target as HTMLInputElement;
  if(input.id==='case-files'){
   const status=$('#load-state')!;input.disabled=true;
-  try{const next=await loadCase(Array.from(input.files??[]),text=>status.textContent=text);installCase(next);const after=requestedAfterLoad;$<HTMLDialogElement>('#modal')!.close();screen='home';render();if(after==='new')newChallenge();if(after==='continue')resume();if(after==='practice')startPractice();toast(`已核验并载入 28 个真实 STL。${warning}`);
+  try{const next=await loadCase(Array.from(input.files??[]),text=>status.textContent=text);installCase(next);const after=requestedAfterLoad;$<HTMLDialogElement>('#modal')!.close();screen='home';render();if(after==='course')void openPrediction(false,true);else if(after==='new')newChallenge();if(after==='continue')resume();if(after==='practice')startPractice();toast(`已核验并载入 28 个真实 STL。${warning}`);
   }catch(err){status.textContent=String(err);status.classList.add('error');input.disabled=false;}return;
  }
  switch(input.id){

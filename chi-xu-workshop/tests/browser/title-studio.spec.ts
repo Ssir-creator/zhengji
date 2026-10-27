@@ -38,9 +38,9 @@ test('首页在窄屏上仍可开始并加载实际牙模',async({page})=>{
 test('标题主菜单支持方向键选择与Enter进入，旧记录保留',async({page})=>{
  await page.goto('/');await expect(page.locator('#title-studio')).toHaveAttribute('data-ready','true',{timeout:60000});
  const old='legacy record preserved';await page.evaluate(raw=>localStorage.setItem('chi-xu-workshop:challenge:v1',raw),old);
+ await page.keyboard.press('ArrowDown');await expect(page.locator('[data-action="course"]')).toBeFocused();
  await page.keyboard.press('ArrowDown');await expect(page.locator('[data-action="interaction"]')).toBeFocused();
- await page.keyboard.press('ArrowDown');await expect(page.locator('[data-action="prediction"]')).toBeFocused();
- await page.keyboard.press('ArrowUp');await expect(page.locator('[data-action="interaction"]')).toBeFocused();
- await page.keyboard.press('Enter');await expect(page.locator('#int-task-line')).toBeVisible({timeout:60000});await expect(page.locator('#int-total')).toContainText('0/28');
+ await page.keyboard.press('ArrowUp');await expect(page.locator('[data-action="course"]')).toBeFocused();
+ await page.keyboard.press('Enter');await expect(page.locator('#course-prompt')).toBeVisible({timeout:60000});await expect(page.locator('#course-chapter')).toContainText('1 / 6');
  expect(await page.evaluate(()=>localStorage.getItem('chi-xu-workshop:challenge:v1'))).toBe(old);
 });

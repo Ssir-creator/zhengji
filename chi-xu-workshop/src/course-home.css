@@ -1,0 +1,96 @@
+/* The new course starts from a playable title scene, not a site landing page. */
+.game-title .title-frame,
+.game-title .title-crest,
+.game-title .asset-status {
+  display: none;
+}
+.game-title .title-vignette {
+  background: linear-gradient(
+    90deg,
+    #f4eee4ed 0%,
+    #f4eee4a8 27%,
+    transparent 60%
+  );
+}
+.game-title .home-copy {
+  color: #343b3b;
+}
+.game-title h1,
+.game-title h1 > span {
+  color: #343b3b;
+  text-shadow: none;
+}
+.game-title .lead,
+.game-title .home-copy > .eyebrow,
+.game-title .home-menu-help {
+  color: #5a625e;
+}
+.game-title .home-card {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+.game-title .home-card button {
+  color: #333b3c;
+  border: 1px solid #b9b2a5;
+  background: linear-gradient(#fffdf5, #e9e3d8);
+  border-radius: 13px;
+  box-shadow: 0 3px 0 #bcb3a3;
+  text-shadow: none;
+}
+.game-title .home-card button:hover:enabled {
+  color: #332c24;
+  background: #fffaf0;
+  border-color: #8e7966;
+}
+.game-title .home-card button.primary {
+  background: linear-gradient(#fa9978, #e77552);
+  border-color: #c86647;
+  color: #33221c;
+  box-shadow: 0 4px 0 #b25d40;
+  animation: none;
+}
+.game-title .home-card button.primary:hover:enabled {
+  background: #fbad8c;
+  color: #33221c;
+}
+.game-title .home-card small {
+  color: #5e635d;
+}
+.game-title .title-chapters {
+  color: #4d5a53;
+  border-color: #b9b2a5;
+  background: #f6f0e5cf;
+}
+.game-title .title-chapters b,
+.game-title .title-chapters small {
+  color: #4d5a53;
+}
+.game-title figcaption {
+  color: #444f49;
+  background: #fbf7eee6;
+  border-color: #d0c6b1;
+}
+.game-title kbd {
+  color: #444f49;
+  background: #fff9f0;
+  border-color: #bcb4a5;
+}
+@media (max-width: 650px) {
+  .game-title .title-vignette {
+    background: linear-gradient(
+      0deg,
+      #f4eee4 0%,
+      #f4eee4ed 35%,
+      transparent 68%
+    );
+  }
+  .game-title .home-copy {
+    background: transparent;
+  }
+  .game-title .home-card button {
+    min-height: 42px;
+    padding: 8px 12px;
+  }
+}

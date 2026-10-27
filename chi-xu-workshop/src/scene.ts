@@ -8,12 +8,13 @@ import { OutlinePass } from 'three/addons/postprocessing/OutlinePass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { copy,type Tool as GuideTool,type Axis as GuideAxis,type Pose,type Poses,type Tool,type Axis,type Vec3,type Manifest } from './core';
 import type { CaseAssets } from './assets';
-import {toothColors,toothState} from './appearance';
+import {toothColors,toothState,type ToothState} from './appearance';
 import {motionCue} from './motion';
 export class WorkshopScene{
  renderer:T.WebGLRenderer;scene=new T.Scene();camera=new T.PerspectiveCamera(35,1,.01,1e6);orbit:OrbitControls;transform:TransformControls;composer:EffectComposer;outline:OutlinePass;
  taskIds:string[]=[];completedIds:string[]=[];fixedIds:string[]=[];hoverId:string|undefined;guideGroup=new T.Group();guideArrow=new T.ArrowHelper(new T.Vector3(1,0,0),new T.Vector3(),1,'#326857',.2,.1);guideRing=new T.Mesh(new T.TorusGeometry(1,.035,6,64),new T.MeshBasicMaterial({color:'#326857',transparent:true,opacity:.85,depthTest:false}));
  teeth=new Map<string,T.Mesh>();ghosts=new Map<string,T.Mesh>();furniture=new T.Group();measurements=new T.Group();gizmo=new T.AxesHelper(1);selected:string|null=null;selectionEditable=false;before:Pose|null=null;dragCancelled=false;size=100;center=new T.Vector3();frame=0;dirty=true;outlineKey="";outlineChanged=0;reduced=false;ro:ResizeObserver;low=false;disposed=false;last=performance.now();fps=0;frames=0;
+ appearancePalette:Partial<Record<ToothState,string>>={};
  touchEditing=false;onResize:()=>void=()=>{};
  onSelect:(id:string)=>void=()=>{};onCommit:(id:string,before:Pose,after:Pose)=>void=()=>{};onPreview:(id:string,pose:Pose)=>void=()=>{};onFailure:(message:string)=>void=()=>{};
  constructor(public host:HTMLElement,private offsetForSidebar=true){
@@ -80,7 +81,7 @@ export class WorkshopScene{
    const state=toothState(id,{selected:this.selectionEditable?this.selected:null,hover:this.hoverId,tasks:this.taskIds,completed:this.completedIds,fixed:this.fixedIds});
    if(mesh.userData.appearance===state)continue;
    const material=mesh.material as T.MeshPhysicalMaterial;
-   material.color.set(toothColors[state]);material.emissive.set(state==='selected'?'#6e350b':'#000000');material.emissiveIntensity=state==='selected'?.08:0;
+   material.color.set(this.appearancePalette[state]??toothColors[state]);material.emissive.set(state==='selected'?'#6e350b':'#000000');material.emissiveIntensity=state==='selected'?.08:0;
    mesh.userData.appearance=state;this.dirty=true;
   }
  }
