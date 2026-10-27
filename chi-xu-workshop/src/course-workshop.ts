@@ -1,3 +1,11 @@
+import {
+  Vector3,
+  Group,
+  EdgesGeometry,
+  LineSegments,
+  LineBasicMaterial,
+  ArrowHelper,
+} from "three";
 import "./course-workshop.css";
 import { WorkshopScene } from "./scene";
 import { attachDirectDrag } from "./direct-drag";
@@ -51,7 +59,7 @@ export function mountPrediction(
     redo: CourseState[] = [];
   const b = (label: string, action: string, icon = action) =>
     `<button data-course="${action}">${uiIcon(icon)}<span>${label}</span></button>`;
-  app.innerHTML = `<main class="course-game"><header class="course-top"><div><small id="course-chapter"></small><strong id="course-prompt"></strong></div><nav class="course-nodes" aria-label="六关进度"></nav><details id="course-tools"><summary aria-label="工具">${uiIcon("settings")}</summary><div>${b("参考轮廓", "outline", "eye")}${b("看参考 / 回来", "reference", "eye")}${b("撤销", "undo")}${b("重做", "redo")}${b("找一下遗漏", "locate", "focus")}${b("回看操作", "replay")}${b("声音：关", "sound", "sound")}${b("减少动效", "motion", "settings")}${b("导出记录", "export")}${b("练习说明", "help", "task")}${b("回到首页", "exit")}</div></details></header><div id="course-viewport"></div><div id="course-region"></div><div id="course-label" hidden></div><div id="course-mode" hidden></div><div id="course-guess" hidden><strong>这里需要怎么处理？</strong>${b("只挪", "guess-translate", "move")}${b("只转", "guess-rotate", "rotate")}${b("两项", "guess-both", "adjust")}</div><p id="course-feedback" role="status"></p><div id="course-success" hidden><strong>Perfect!</strong><p></p>${b("继续", "next", "check")}</div><section id="course-adjust" hidden><div>${b("挪位置", "translate", "move")}${b("转方向", "rotate")}</div><details><summary>细一点</summary><label>沿 <select id="course-axis" aria-label="调整轴"><option>X</option><option>Y</option><option>Z</option></select> 轴</label><label><input type="checkbox" id="course-fine">细调</label><div>${b("反向", "minus", "undo")}${b("正向", "plus", "redo")}${b("撤销", "undo-step", "undo")}</div><div>${b("试一步", "trial", "eye")}${b("应用", "apply", "check")}${b("取消", "cancel")}</div><label><input type="checkbox" id="course-handles">轴向手柄</label></details></section><nav class="course-dock">${b("调整", "adjust", "move")}<details id="course-view"><summary>${uiIcon("eye")}<span>视角</span></summary><div>${b("整体看", "view-overview", "home")}${b("从上面看", "view-occlusal", "eye")}${b("换个角度", "view-front", "rotate")}${b("另一侧", "view-side", "rotate")}${b("放大观察", "focus")}${b("退远一点", "zoom", "zoom")}</div></details>${b("核对", "check")}</nav><section id="course-recap" hidden><strong>回看这一步</strong><p id="course-recap-text"></p><input type="range" id="course-timeline" min="0" value="0" aria-label="回看操作"><p>回放只看，不会改变进度。</p><div>${b("回到操作", "live", "cancel")}</div><section id="course-reflection" hidden><p>是什么帮你发现了遗漏？</p>${b("换角度", "reflect-view", "eye")}${b("核对反馈", "reflect-check", "check")}${b("前后对比", "reflect-compare", "replay")}<p>符合参考，就一定适合真实治疗吗？</p>${b("是", "boundary-yes", "check")}${b("不一定", "boundary-no", "eye")}<p id="course-boundary"></p>${b("跳过 / 完成", "exit", "exit")}</section></section><section id="course-help" hidden><strong>牙列空间观察与调整基础</strong><p>拖牙调整，拖空白转视角。G 挪、R 转，Esc 取消。精细调整里可以换轴、细调。</p><p>本章练习位置和朝向，不用于制定治疗方案。参考不是唯一的临床方案；核对不检查咬合、碰撞或移动安全。</p><p>轮廓和定位随时可用，不扣分。Perfect! 表示完成本关练习。</p>${b("开始动手", "close-help", "check")}</section></main>`;
+  app.innerHTML = `<main class="course-game"><header class="course-top"><div><small id="course-chapter"></small><strong id="course-prompt"></strong></div><nav class="course-nodes" aria-label="六关进度"></nav><details id="course-tools"><summary aria-label="工具">${uiIcon("settings")}</summary><div>${b("参考轮廓", "outline", "eye")}${b("看参考 / 回来", "reference", "eye")}${b("撤销", "undo")}${b("重做", "redo")}${b("找一下遗漏", "locate", "focus")}${b("回看操作", "replay")}${b("声音：关", "sound", "sound")}${b("减少动效", "motion", "settings")}${b("导出记录", "export")}${b("练习说明", "help", "task")}${b("回到首页", "exit")}</div></details></header><div id="course-viewport"></div><div id="course-region"></div><div id="course-guide" hidden><button data-course="pick-task" id="course-task-callout">移动这颗牙</button><span id="course-target-callout">蓝色轮廓是目标</span><svg aria-hidden="true"><path id="course-task-leader"/><path id="course-target-leader"/></svg><button data-course="target-peek" id="course-peek">看正确位置</button></div><div id="course-label" hidden></div><div id="course-mode" hidden></div><div id="course-guess" hidden><strong>这里需要怎么处理？</strong>${b("只挪", "guess-translate", "move")}${b("只转", "guess-rotate", "rotate")}${b("两项", "guess-both", "adjust")}</div><p id="course-feedback" role="status"></p><div id="course-success" hidden><strong>Perfect!</strong><p></p>${b("继续", "next", "check")}</div><section id="course-adjust" hidden><div>${b("挪位置", "translate", "move")}${b("转方向", "rotate")}</div><details><summary>细一点</summary><label>沿 <select id="course-axis" aria-label="调整轴"><option>X</option><option>Y</option><option>Z</option></select> 轴</label><label><input type="checkbox" id="course-fine">细调</label><div>${b("反向", "minus", "undo")}${b("正向", "plus", "redo")}${b("撤销", "undo-step", "undo")}</div><div>${b("试一步", "trial", "eye")}${b("应用", "apply", "check")}${b("取消", "cancel")}</div><label><input type="checkbox" id="course-handles">轴向手柄</label></details></section><nav class="course-dock">${b("调整", "adjust", "move")}<details id="course-view"><summary>${uiIcon("eye")}<span>视角</span></summary><div>${b("整体看", "view-overview", "home")}${b("从上面看", "view-occlusal", "eye")}${b("换个角度", "view-front", "rotate")}${b("另一侧", "view-side", "rotate")}${b("放大观察", "focus")}${b("退远一点", "zoom", "zoom")}</div></details>${b("核对", "check")}</nav><section id="course-recap" hidden><strong>回看这一步</strong><p id="course-recap-text"></p><input type="range" id="course-timeline" min="0" value="0" aria-label="回看操作"><p>回放只看，不会改变进度。</p><div>${b("回到操作", "live", "cancel")}</div><section id="course-reflection" hidden><p>是什么帮你发现了遗漏？</p>${b("换角度", "reflect-view", "eye")}${b("核对反馈", "reflect-check", "check")}${b("前后对比", "reflect-compare", "replay")}<p>符合参考，就一定适合真实治疗吗？</p>${b("是", "boundary-yes", "check")}${b("不一定", "boundary-no", "eye")}<p id="course-boundary"></p>${b("跳过 / 完成", "exit", "exit")}</section></section><section id="course-help" hidden><strong>牙列空间观察与调整基础</strong><p>拖牙调整，拖空白转视角。G 挪、R 转，Esc 取消。精细调整里可以换轴、细调。</p><p>本章练习位置和朝向，不用于制定治疗方案。参考不是唯一的临床方案；核对不检查咬合、碰撞或移动安全。</p><p>轮廓和定位随时可用，不扣分。Perfect! 表示完成本关练习。</p>${b("开始动手", "close-help", "check")}</section></main>`;
   document.body.classList.add("course-mode");
   const el = <T extends HTMLElement = HTMLElement>(q: string) =>
     app.querySelector<T>(q)!;
@@ -70,6 +78,106 @@ export function mountPrediction(
   }
   scene.outline.visibleEdgeColor.set("#e47953");
   scene.outline.hiddenEdgeColor.set("#e47953");
+  const targetGuide = new Group();
+  scene.scene.add(targetGuide);
+  const guideEdges = new Map<string, LineSegments>();
+  for (const id of ["6", "8"]) {
+    const edge = new LineSegments(
+      new EdgesGeometry(scene.teeth.get(id)!.geometry, 32),
+      new LineBasicMaterial({
+        color: "#237fba",
+        depthTest: false,
+        transparent: true,
+        opacity: 0.9,
+      }),
+    );
+    edge.renderOrder = 30;
+    edge.visible = false;
+    guideEdges.set(id, edge);
+    targetGuide.add(edge);
+  }
+  const goalArrow = new ArrowHelper(
+    new Vector3(1, 0, 0),
+    new Vector3(),
+    1,
+    "#237fba",
+    0.2,
+    0.1,
+  );
+  goalArrow.renderOrder = 31;
+  targetGuide.add(goalArrow);
+  goalArrow.traverse((o) => {
+    const m = (o as import("three").Mesh).material;
+    if (m && !Array.isArray(m)) m.depthTest = false;
+  });
+  function guidance() {
+    const visible =
+      state.stage < 2 && !state.completed && !success && !replay && !readonly;
+    el("#course-guide").hidden = !visible;
+    el("#course-guide svg").style.display = visible ? "" : "none";
+    for (const edge of guideEdges.values()) edge.visible = false;
+    goalArrow.visible = false;
+    el("#course-peek").textContent = readonly ? "回到操作" : "看正确位置";
+    // Read-only comparison has a direct return next to the model as well.
+    if (readonly && state.stage < 2 && !replay) {
+      el("#course-guide").hidden = false;
+      el("#course-task-callout").hidden = true;
+      el("#course-target-callout").hidden = true;
+      return;
+    }
+    el("#course-task-callout").hidden = !visible;
+    el("#course-target-callout").hidden = !visible;
+    if (!visible) return;
+    const id = lesson().ids[0],
+      target = data.target[id],
+      mesh = scene.teeth.get(id)!,
+      edge = guideEdges.get(id)!;
+    edge.position
+      .fromArray(target.pivot)
+      .add(new Vector3(...target.translation));
+    edge.quaternion.fromArray(target.quaternion);
+    edge.visible = true;
+    const remaining = edge.position.clone().sub(mesh.position),
+      length = remaining.length();
+    if (state.stage === 0 && length > 0.075) {
+      goalArrow.position.copy(mesh.position);
+      goalArrow.setDirection(remaining.normalize());
+      goalArrow.setLength(
+        length,
+        Math.min(length * 0.35, scene.size * 0.014),
+        Math.min(length * 0.18, scene.size * 0.007),
+      );
+      goalArrow.visible = true;
+    }
+    const current = scene.marker(id),
+      goal = scene.projectPoint(edge.position.toArray()),
+      w = scene.host.clientWidth,
+      h = scene.host.clientHeight;
+    if (!current?.visible || !goal.visible) {
+      el("#course-task-callout").style.left = "12px";
+      el("#course-task-callout").style.top = "125px";
+      el("#course-target-callout").hidden = true;
+      return;
+    }
+    const x = Math.max(100, Math.min(w - 100, current.x)),
+      y = Math.max(160, Math.min(h - 210, current.y));
+    const a = el("#course-task-callout"),
+      b = el("#course-target-callout");
+    a.style.left = `${x}px`;
+    a.style.top = `${y - 90}px`;
+    a.textContent = state.stage === 0 ? "① 移动这颗牙" : "① 转动这颗牙";
+    b.style.left = `${Math.max(100, Math.min(w - 100, goal.x))}px`;
+    b.style.top = `${Math.max(y + 55, Math.min(h - 165, goal.y + 65))}px`;
+    el("#course-task-leader").setAttribute(
+      "d",
+      `M ${x} ${y - 65} L ${current.x} ${current.y}`,
+    );
+    el("#course-target-leader").setAttribute(
+      "d",
+      `M ${Math.max(100, Math.min(w - 100, goal.x))} ${Math.max(y + 55, Math.min(h - 165, goal.y + 65))} L ${goal.x} ${goal.y}`,
+    );
+    scene.dirty = true;
+  }
   function fit() {
     scene.scene.updateMatrixWorld(true);
     scene.camera.updateMatrixWorld(true);
@@ -152,6 +260,7 @@ export function mountPrediction(
         : null,
     );
     ui();
+    guidance();
   }
   function ui() {
     el("#course-chapter").textContent =
@@ -246,6 +355,12 @@ export function mountPrediction(
   }
   function select(id: string) {
     if (readonly || replay || success) return;
+    if (state.stage < 2 && !candidate(id)) {
+      selected = lesson().ids[0];
+      feedback = "这颗先不用动。跟着橙色标记，蓝色轮廓就是目标。";
+      paint();
+      return;
+    }
     selected = id;
     feedback = candidate(id)
       ? state.stage === 3
@@ -267,6 +382,27 @@ export function mountPrediction(
   const direct = attachDirectDrag(scene, {
     select,
     canEdit: edit,
+    constrain: (id, before, pose, normal) => {
+      if (state.stage !== 0) return pose;
+      // Intro follows the remaining reference displacement, including resumed attempts; no snapping.
+      const direction = new Vector3(...data.target[id].translation).sub(
+        new Vector3(...before.translation),
+      );
+      const plane = direction
+        .clone()
+        .addScaledVector(normal, -direction.dot(normal));
+      if (plane.lengthSq() < 1e-10) return before;
+      const amount =
+        new Vector3(...pose.translation)
+          .sub(new Vector3(...before.translation))
+          .dot(plane) / plane.lengthSq();
+      return {
+        ...pose,
+        translation: new Vector3(...before.translation)
+          .addScaledVector(direction, amount)
+          .toArray(),
+      };
+    },
     tool: () => tool,
     fine: () => fine,
     preview: () => {
@@ -324,6 +460,13 @@ export function mountPrediction(
       feedback =
         state.stage === 3 ? "有一处还没做好，换个角度找找。" : "先选一颗看看。";
       ui();
+      return;
+    }
+    if (state.stage === 0) {
+      selected = lesson().ids[0];
+      outline = true;
+      feedback = "还没重合。沿蓝色箭头挪，或点“看正确位置”对照。";
+      paint();
       return;
     }
     const e = poseError(state.poses[selected], data.target[selected]);
@@ -394,10 +537,14 @@ export function mountPrediction(
     el<HTMLDetailsElement>("#course-view").open = false;
   }
   function click(event: MouseEvent) {
-    const a = (event.target as HTMLElement).closest<HTMLElement>(
-      "[data-course]",
-    )?.dataset.course;
+    let a = (event.target as HTMLElement).closest<HTMLElement>("[data-course]")
+      ?.dataset.course;
     if (!a) return;
+    if (a === "target-peek") a = "reference";
+    if (a === "pick-task") {
+      select(lesson().ids[0]);
+      return;
+    }
     closeMenus();
     if (a === "exit") {
       onExit();
@@ -643,6 +790,7 @@ export function mountPrediction(
   paint();
   if (state.completed) showReplay();
   const timer = setInterval(() => {
+    guidance();
     el("#course-region").innerHTML =
       state.stage >= 2 && !readonly && !replay
         ? lesson()
@@ -684,6 +832,12 @@ export function mountPrediction(
     app.removeEventListener("click", click);
     app.removeEventListener("change", change);
     app.removeEventListener("pointerdown", down);
+    for (const edge of guideEdges.values()) {
+      edge.geometry.dispose();
+      (edge.material as LineBasicMaterial).dispose();
+    }
+    targetGuide.removeFromParent();
+    goalArrow.dispose();
     scene.dispose();
     void audio?.close();
     document.body.classList.remove("course-mode");

@@ -9,6 +9,7 @@ export function attachDirectDrag(
     canEdit: () => boolean;
     tool: () => Tool;
     fine: () => boolean;
+    constrain?: (id: string, before: Pose, pose: Pose, normal: Vector3) => Pose;
     preview: (id: string, pose: Pose) => void;
     commit: (id: string, before: Pose, after: Pose) => void;
     cancel: () => void;
@@ -101,9 +102,10 @@ export function attachDirectDrag(
         .normalize()
         .toArray();
     }
-    active.after = p;
-    scene.apply({ [a.id]: p });
-    options.preview(a.id, p);
+    const after = options.constrain?.(a.id, a.before, p, a.normal) ?? p;
+    active.after = after;
+    scene.apply({ [a.id]: after });
+    options.preview(a.id, after);
     e.preventDefault();
     e.stopImmediatePropagation();
   }

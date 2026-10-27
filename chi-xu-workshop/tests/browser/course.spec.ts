@@ -251,3 +251,130 @@ test("终章完成后回看与边界判断可跳过，完成状态不被回放�
   await page.locator('#course-reflection [data-course="exit"]').click();
   await expect(page.locator('[data-action="course"]')).toBeVisible();
 });
+
+test("入门任务牙与正确位置无需试点可见；看目标不写进度，点错牙保留指引", async ({
+  page,
+}) => {
+  await enter(page);
+  await expect(page.locator("#course-task-callout")).toBeVisible();
+  await expect(page.locator("#course-target-callout")).toContainText(
+    "蓝色轮廓",
+  );
+  const before = await saved(page);
+  const inspect = () =>
+    page.evaluate(() => {
+      const s = (window as any).__courseScene;
+      const guides = s.scene.children.find((o: any) =>
+        o.children.some((c: any) => c.type === "LineSegments"),
+      );
+      return {
+        selected: s.selected,
+        blue: guides?.children.some(
+          (c: any) => c.type === "LineSegments" && c.visible,
+        ),
+        camera: s.camera.position.toArray(),
+      };
+    });
+  expect((await inspect()).blue).toBe(true);
+  // Use a real pointer on a non-task mesh, instead of calling selection directly.
+  const point = await page.evaluate(() => {
+    const s = (window as any).__courseScene,
+      m = s.teeth.get("10"),
+      a = m.geometry.attributes.position,
+      r = s.host.getBoundingClientRect();
+    for (let i = 0; i < a.count; i += Math.max(1, Math.floor(a.count / 400))) {
+      const v = m.position
+          .clone()
+          .set(a.getX(i), a.getY(i), a.getZ(i))
+          .applyMatrix4(m.matrixWorld)
+          .project(s.camera),
+        x = ((v.x + 1) * r.width) / 2,
+        y = ((1 - v.y) * r.height) / 2;
+      if (
+        y > 150 &&
+        y < r.height - 230 &&
+        s.pick(new PointerEvent("pointermove", { clientX: x, clientY: y })) ===
+          "10"
+      )
+        return { x, y };
+    }
+    throw Error("no fixed tooth");
+  });
+  await page.mouse.click(point.x, point.y);
+  expect((await inspect()).selected).toBe("6");
+  expect(await saved(page)).toBe(before);
+  await page.locator("#course-peek").click();
+  await expect(page.locator("#course-mode")).toContainText("参考");
+  expect(await saved(page)).toBe(before);
+  await page.locator("#course-peek").click();
+  await expect(page.locator("#course-task-callout")).toBeVisible();
+  await b(page, "check").click();
+  await expect(page.locator("#course-feedback")).toContainText("蓝色箭头");
+  await page.screenshot({ path: "docs/screenshots/course-guidance.png" });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.locator("#course-task-callout")).toBeInViewport();
+  await expect(page.locator("#course-peek")).toBeInViewport();
+  await page.screenshot({
+    path: "docs/screenshots/course-guidance-mobile.png",
+  });
+});
+
+test("第一关旧进度偏离后，拖动仍沿剩余目标方向，预览可取消且不会吸附", async ({
+  page,
+}) => {
+  await enter(page);
+  await b(page, "adjust").click();
+  await page.locator("#course-adjust details>summary").click();
+  await b(page, "plus").click();
+  await b(page, "adjust").click();
+  const before = JSON.parse((await saved(page))!);
+  const point = await page.evaluate(() => {
+    const s = (window as any).__courseScene,
+      m = s.teeth.get("6"),
+      a = m.geometry.attributes.position,
+      r = s.host.getBoundingClientRect();
+    for (let i = 0; i < a.count; i += Math.max(1, Math.floor(a.count / 600))) {
+      const v = m.position
+          .clone()
+          .set(a.getX(i), a.getY(i), a.getZ(i))
+          .applyMatrix4(m.matrixWorld)
+          .project(s.camera),
+        x = ((v.x + 1) * r.width) / 2,
+        y = ((1 - v.y) * r.height) / 2;
+      if (
+        y > 200 &&
+        y < r.height - 250 &&
+        s.pick(new PointerEvent("pointermove", { clientX: x, clientY: y })) ===
+          "6" &&
+        document.elementFromPoint(x, y)?.tagName === "CANVAS"
+      )
+        return { x, y };
+    }
+    throw Error("no task tooth");
+  });
+  await page.mouse.move(point.x, point.y);
+  await page.mouse.down();
+  await page.mouse.move(point.x + 33, point.y + 11, { steps: 6 });
+  expect(JSON.parse((await saved(page))!)).toEqual(before);
+  await page.mouse.up();
+  const after = JSON.parse((await saved(page))!),
+    delta = after.poses["6"].translation.map(
+      (v: number, i: number) => v - before.poses["6"].translation[i],
+    ),
+    remaining = data.target["6"].translation.map(
+      (v, i) => v - before.poses["6"].translation[i],
+    );
+  expect(Math.hypot(...delta)).toBeGreaterThan(0.001);
+  for (let i = 0; i < 3; i++)
+    for (let j = 0; j < 3; j++)
+      expect(delta[i] * remaining[j] - delta[j] * remaining[i]).toBeCloseTo(
+        0,
+        8,
+      );
+  expect(after.poses["6"].quaternion).toEqual(before.poses["6"].quaternion);
+  expect(after.poses["6"].translation).not.toEqual(
+    data.target["6"].translation,
+  );
+  for (const id of Object.keys(data.original).filter((id) => id !== "6"))
+    expect(after.poses[id]).toEqual(before.poses[id]);
+});

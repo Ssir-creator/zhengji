@@ -485,3 +485,70 @@ body.course-mode {
 .course-game nav {
   margin: 0;
 }
+#course-guide {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+#course-guide svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+#course-guide path {
+  fill: none;
+  stroke-width: 2;
+  stroke-dasharray: 4 3;
+}
+#course-task-leader {
+  stroke: #cc633f;
+}
+#course-target-leader {
+  stroke: #237fba;
+}
+#course-task-callout,
+#course-target-callout {
+  position: absolute;
+  transform: translateX(-50%);
+  z-index: 1;
+  white-space: nowrap;
+  min-height: 36px;
+  font-size: 14px;
+}
+#course-task-callout {
+  pointer-events: auto;
+  background: #fa9674;
+  border: 2px solid #b54a28;
+  color: #352018;
+  box-shadow: 0 3px 0 #aa5337;
+}
+#course-target-callout {
+  padding: 9px 12px;
+  background: #eff9ffef;
+  border: 2px solid #237fba;
+  border-radius: 12px;
+  color: #175782;
+}
+#course-peek {
+  position: absolute;
+  left: 50%;
+  bottom: 115px;
+  transform: translateX(-50%);
+  pointer-events: auto;
+  background: #eef8ff;
+  color: #175782;
+  border-color: #237fba;
+}
+#course-guide:not([hidden]) ~ #course-feedback {
+  bottom: 175px;
+}
+#course-guide:not([hidden]) ~ #course-label {
+  display: none;
+}
+#course-guide:not([hidden]) ~ #course-mode {
+  top: 105px;
+}
