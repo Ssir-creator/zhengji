@@ -1,3 +1,4 @@
+import {extractGameZip} from './extract-game.mjs';
 import {acquireUpdateLock} from './update-lock.mjs';
 import * as http from 'node:http';
 import {tmpdir} from 'node:os';
@@ -80,22 +81,19 @@ async function downloadArchive(version,destination){
  const etag=await archiveRequest('GET',destination);
  if(!etag||archiveVersion(etag)!==version)throw new Error('下载期间新版发生变化，请重新更新；旧版未替换。');
 }
-export async function extractArchive(archive,destination,{platform=process.platform,execute=run,wait=ms=>new Promise(accept=>setTimeout(accept,ms))}={}){
+export async function extractArchive(archive,destination,{platform=process.platform,execute=run,extract=extractGameZip,wait=ms=>new Promise(accept=>setTimeout(accept,ms))}={}){
  if(platform!=='win32'){
   await mkdir(destination);await execute('unzip',['-q',archive,'-d',destination],dirname(archive));return;
  }
- // Expand-Archive can emit nonterminating errors, erase partial output and still
- // exit zero. Use .NET directly and propagate every extraction failure instead.
- // Fresh directories also let a transient scanner lock settle without reusing
- // partially extracted files. All attempts stay inside the updater's work dir.
- const command="$ErrorActionPreference = 'Stop'; try { Add-Type -AssemblyName System.IO.Compression.FileSystem; [System.IO.Compression.ZipFile]::ExtractToDirectory($env:CHIXU_UPDATE_ARCHIVE, $env:CHIXU_UPDATE_EXTRACT) } catch { [Console]::Error.WriteLine($_.Exception.Message); exit 1 }";
+ // Extract runtime files with Node, excluding docs/screenshots and videos.
+ // Fresh staging directories are published only after extraction succeeds.
  let failure;
  for(let attempt=0;attempt<4;attempt++){
   if(attempt)await wait(500*2**(attempt-1));
   const staging=await mkdtemp(join(dirname(destination),'.extract-'));
   try{
    // Paths are environment data, never interpolated into PowerShell code.
-   await execute('powershell.exe',['-NoProfile','-NonInteractive','-Command',command],dirname(archive),{env:{...process.env,CHIXU_UPDATE_ARCHIVE:archive,CHIXU_UPDATE_EXTRACT:staging}});
+   await extract(archive,staging);
    await rename(staging,destination);return;
   }catch(error){failure=error;}
  }
@@ -104,7 +102,7 @@ export async function extractArchive(archive,destination,{platform=process.platf
 async function validateProject(root){
  const pkg=JSON.parse(await readFile(join(root,'package.json'),'utf8'));
  if(pkg.name!=='chi-xu-workshop')throw new Error('没有找到齿序工坊工程，已停止更新。');
- for(const path of ['package-lock.json','src/main.ts','public/cases/initial/manifest.json','scripts/start-windows.ps1','scripts/update-windows.ps1','scripts/update.mjs','scripts/update-lock.mjs','scripts/game-instance.mjs','scripts/start.mjs','scripts/launch.mjs','vite.config.ts']){
+ for(const path of ['package-lock.json','src/main.ts','public/cases/initial/manifest.json','scripts/start-windows.ps1','scripts/update-windows.ps1','scripts/update.mjs','scripts/update-lock.mjs','scripts/extract-game.mjs','scripts/game-instance.mjs','scripts/start.mjs','scripts/launch.mjs','vite.config.ts']){
   if(!await exists(join(root,path)))throw new Error(`新版缺少 ${path}，旧版未替换。`);
  }
 }
