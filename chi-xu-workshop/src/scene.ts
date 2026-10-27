@@ -17,10 +17,10 @@ export class WorkshopScene{
  touchEditing=false;onResize:()=>void=()=>{};
  onSelect:(id:string)=>void=()=>{};onCommit:(id:string,before:Pose,after:Pose)=>void=()=>{};onPreview:(id:string,pose:Pose)=>void=()=>{};onFailure:(message:string)=>void=()=>{};
  constructor(public host:HTMLElement,private offsetForSidebar=true){
-  this.renderer=new T.WebGLRenderer({antialias:true,alpha:false});this.renderer.setPixelRatio(Math.min(devicePixelRatio,2));this.renderer.setClearColor('#414c3c');this.renderer.toneMapping=T.ACESFilmicToneMapping;this.renderer.toneMappingExposure=1.08;this.renderer.shadowMap.enabled=true;this.renderer.shadowMap.autoUpdate=false;this.renderer.shadowMap.needsUpdate=true;this.renderer.shadowMap.type=T.PCFSoftShadowMap;this.renderer.setSize(host.clientWidth,host.clientHeight);host.append(this.renderer.domElement);
-  const ambient=new T.HemisphereLight('#fff1d8','#52604c',1.05);ambient.position.set(0,0,1);this.scene.add(ambient);
-  const light=new T.DirectionalLight('#fff1d4',3.05);light.position.set(-80,-90,150);light.castShadow=true;light.shadow.mapSize.set(1024,1024);light.shadow.camera.left=-120;light.shadow.camera.right=120;light.shadow.camera.top=120;light.shadow.camera.bottom=-120;light.shadow.camera.far=700;light.shadow.bias=-.0001;this.scene.add(light);
-  const fill=new T.DirectionalLight('#dcecf4',.85);fill.position.set(80,50,60);this.scene.add(fill);
+  this.renderer=new T.WebGLRenderer({antialias:true,alpha:false});this.renderer.setPixelRatio(Math.min(devicePixelRatio,2));this.renderer.setClearColor('#e3dfd4');this.renderer.toneMapping=T.ACESFilmicToneMapping;this.renderer.toneMappingExposure=1.08;this.renderer.shadowMap.enabled=true;this.renderer.shadowMap.autoUpdate=false;this.renderer.shadowMap.needsUpdate=true;this.renderer.shadowMap.type=T.PCFSoftShadowMap;this.renderer.setSize(host.clientWidth,host.clientHeight);host.append(this.renderer.domElement);
+  const ambient=new T.HemisphereLight('#fff8e8','#a1a39c',1.35);ambient.position.set(0,0,1);this.scene.add(ambient);
+  const light=new T.DirectionalLight('#fff4df',2.6);light.position.set(-80,-90,150);light.castShadow=true;light.shadow.mapSize.set(1024,1024);light.shadow.camera.left=-120;light.shadow.camera.right=120;light.shadow.camera.top=120;light.shadow.camera.bottom=-120;light.shadow.camera.far=700;light.shadow.bias=-.0001;this.scene.add(light);
+  const fill=new T.DirectionalLight('#dcecf4',1.1);fill.position.set(80,50,60);this.scene.add(fill);
   const rim=new T.DirectionalLight('#c5e4ee',1.4);rim.position.set(20,100,90);this.scene.add(rim);
   this.camera.up.set(0,0,1);this.camera.position.set(100,-100,100);
   this.orbit=new OrbitControls(this.camera,this.renderer.domElement);this.orbit.enableDamping=true;this.orbit.addEventListener('change',()=>{this.dirty=true;});this.orbit.minDistance=1;this.orbit.maxDistance=500;
@@ -51,12 +51,12 @@ export class WorkshopScene{
  makeFurniture(box:T.Box3){
   const d=this.size;const c=this.center;const z=box.min.z-d*.12;
   const rounded=(w:number,h:number,t:number,color:string,x:number,y:number,height:number)=>{const m=new T.Mesh(new RoundedBoxGeometry(w,h,t,3,Math.min(w,h,t)*.25),new T.MeshStandardMaterial({color,roughness:.65}));m.position.set(x,y,height);m.receiveShadow=true;m.castShadow=true;this.furniture.add(m);return m;};
-  rounded(d*1.65,d*1.35,d*.065,'#695b42',c.x,c.y,z-d*.09);
-  rounded(d*1.59,d*1.29,d*.05,'#beb99d',c.x,c.y,z-d*.045);
-  rounded(d*.82,d*.72,d*.035,'#9aab92',c.x,c.y,z);
+  rounded(d*1.65,d*1.35,d*.065,'#77796b',c.x,c.y,z-d*.09);
+  rounded(d*1.59,d*1.29,d*.05,'#eeeadf',c.x,c.y,z-d*.045);
+  rounded(d*.82,d*.72,d*.035,'#b8b9ab',c.x,c.y,z);
   for(let i=0;i<3;i++){rounded(d*.12,d*.055,d*.04,'#c6b594',c.x+d*(.46+i*.15),c.y+d*.38,z);rounded(d*.1,d*.025,d*.14,['#a1b3ae','#c1c8c4','#c8aa70'][i],c.x+d*(.46+i*.15),c.y+d*.38,z+d*.08);}
-  for(let i=0;i<5;i++)rounded(d*2.8,d*.006,d*.002,'#80704f',c.x,c.y+d*(i*.32-.64),z-d*.135);
-  const floor=new T.Mesh(new T.PlaneGeometry(d*20,d*20),new T.MeshStandardMaterial({color:'#59634d',roughness:1}));floor.position.set(c.x,c.y,z-d*.14);floor.receiveShadow=true;this.furniture.add(floor);
+  for(let i=0;i<5;i++)rounded(d*2.8,d*.006,d*.002,'#d6c4a8',c.x,c.y+d*(i*.32-.64),z-d*.135);
+  const floor=new T.Mesh(new T.PlaneGeometry(d*20,d*20),new T.MeshStandardMaterial({color:'#dfd1ba',roughness:1}));floor.position.set(c.x,c.y,z-d*.14);floor.receiveShadow=true;this.furniture.add(floor);
   this.gizmo.scale.setScalar(d*.1);this.gizmo.position.set(c.x-d*.6,c.y-d*.45,z);this.gizmo.visible=false;this.furniture.add(this.gizmo);
   const wood='#b99b70',mint='#737c6c';
   // Decorative lamp and tray sit outside the dental work area; they have no click behavior.
