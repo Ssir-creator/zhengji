@@ -1,7 +1,7 @@
 import { poseError, type Pose, type Poses, type Tool } from "./core";
 import type { ReferenceCase } from "./prediction";
 export const COURSE_KEY = "chi-xu-workshop:spatial-course:v1";
-export const tolerance = { position: 0.075, rotation: 0.6 };
+export const tolerance = { position: 0.075, rotation: 5 };
 export const lessons = [
   {
     title: "挪到这里",
@@ -230,6 +230,7 @@ export function advanceCourse(data: ReferenceCase, s: CourseState) {
   return validateCourse(next, data);
 }
 export function correction(before: Pose, after: Pose, target: Pose) {
+  if (passed(after, target)) return "已经到位了，点“核对”就好。";
   const a = poseError(before, target),
     b = poseError(after, target);
   if (a.position <= tolerance.position && b.position > tolerance.position)

@@ -1,3 +1,4 @@
+import { Quaternion, Vector3 } from "three";
 import { test, expect, type Page } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { referenceCase } from "../../src/prediction";
@@ -377,4 +378,51 @@ test("第一关旧进度偏离后，拖动仍沿剩余目标方向，预览可�
   );
   for (const id of Object.keys(data.original).filter((id) => id !== "6"))
     expect(after.poses[id]).toEqual(before.poses[id]);
+});
+
+test("第二关视觉接近即可通过，明显方向偏差仍提示修正", async ({ page }) => {
+  await page.goto("/");
+  let s = fixture(1);
+  const target = data.target["8"];
+  const p = {
+    ...structuredClone(target),
+    quaternion: new Quaternion()
+      .setFromAxisAngle(new Vector3(0, 0, 1), (4 * Math.PI) / 180)
+      .multiply(new Quaternion(...target.quaternion))
+      .toArray() as typeof target.quaternion,
+  };
+  s = moveCourse(data, s, "8", p, "rotate");
+  await page.evaluate(
+    ({ key, s }) => localStorage.setItem(key, JSON.stringify(s)),
+    { key: COURSE_KEY, s },
+  );
+  await page.locator('[data-action="course"]').click();
+  await expect(page.locator(".course-dock")).toBeVisible({ timeout: 60000 });
+  await b(page, "check").click();
+  await expect(page.locator("#course-success")).toBeVisible();
+  await expect(page.locator("#course-success")).toHaveCSS("opacity", "1");
+  await page.screenshot({
+    path: "docs/screenshots/course-rotation-tolerance.png",
+  });
+  await b(page, "next").click();
+  await expect(page.locator("#course-chapter")).toContainText("3 / 6");
+  await tools(page, "exit");
+  s = fixture(1);
+  const bad = {
+    ...structuredClone(target),
+    quaternion: new Quaternion()
+      .setFromAxisAngle(new Vector3(0, 0, 1), (8 * Math.PI) / 180)
+      .multiply(new Quaternion(...target.quaternion))
+      .toArray() as typeof target.quaternion,
+  };
+  s = moveCourse(data, s, "8", bad, "rotate");
+  await page.evaluate(
+    ({ key, s }) => localStorage.setItem(key, JSON.stringify(s)),
+    { key: COURSE_KEY, s },
+  );
+  await page.locator('[data-action="course"]').click();
+  await expect(page.locator(".course-dock")).toBeVisible();
+  await b(page, "check").click();
+  await expect(page.locator("#course-feedback")).toContainText("方向还差一点");
+  await expect(page.locator("#course-success")).toBeHidden();
 });

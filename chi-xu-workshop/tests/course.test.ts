@@ -1,7 +1,10 @@
+import { Quaternion, Vector3 } from "three";
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { referenceCase } from "../src/prediction";
 import {
+  tolerance,
+  passed,
   freshCourse,
   validateCourse,
   moveCourse,
@@ -104,4 +107,30 @@ describe("六关空间课程", () => {
     );
     expect(p.translation).not.toEqual(data.target["14"].translation);
   });
+});
+
+it("方向允许视觉上接近，明显偏差仍需修正，旧进度可继续", () => {
+  const target = data.target["8"];
+  const offset = (angle: number) => ({
+    ...structuredClone(target),
+    quaternion: new Quaternion()
+      .setFromAxisAngle(new Vector3(0, 0, 1), (angle * Math.PI) / 180)
+      .multiply(new Quaternion(...target.quaternion))
+      .toArray() as typeof target.quaternion,
+  });
+  expect(passed(offset(4.9), target)).toBe(true);
+  expect(passed(offset(5.1), target)).toBe(false);
+  expect(correction(offset(8), offset(4), target)).toContain("已经到位");
+  let s = advanceCourse(data, solve(freshCourse(data)));
+  s = moveCourse(data, s, "8", offset(4), "rotate");
+  expect(lessonReady(data, s)).toBe(true);
+  expect(validateCourse(JSON.parse(JSON.stringify(s)), data)).toEqual(s);
+  expect(advanceCourse(data, s).stage).toBe(2);
+  for (let i = 0; i < 6; i++)
+    expect(
+      lessons[i].ids.every((id) =>
+        passed(stageStart(data, i, data.original)[id], data.target[id]),
+      ),
+    ).toBe(false);
+  expect(tolerance.rotation).toBe(5);
 });

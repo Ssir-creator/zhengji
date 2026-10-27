@@ -15,6 +15,7 @@ import { poseError, type Pose, type Tool, type Axis } from "./core";
 import { referenceCase, type Prediction } from "./prediction";
 import { nudgePose } from "./challenge";
 import {
+  tolerance,
   COURSE_KEY,
   lessons,
   freshCourse,
@@ -139,7 +140,7 @@ export function mountPrediction(
     edge.visible = true;
     const remaining = edge.position.clone().sub(mesh.position),
       length = remaining.length();
-    if (state.stage === 0 && length > 0.075) {
+    if (state.stage === 0 && length > tolerance.position) {
       goalArrow.position.copy(mesh.position);
       goalArrow.setDirection(remaining.normalize());
       goalArrow.setLength(
@@ -481,9 +482,9 @@ export function mountPrediction(
           : "这颗没问题，还有别处。";
     } else
       feedback =
-        e.position <= 0.075
+        e.position <= tolerance.position
           ? "位置合适，方向还差一点。"
-          : e.rotation <= 0.6
+          : e.rotation <= tolerance.rotation
             ? "方向合适，位置还差一点。"
             : "位置和方向都还需要处理。";
     paint();
