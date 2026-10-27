@@ -1,3 +1,11 @@
+## 六关通关演示 · 2026-10-27
+
+[下载六关通关演示 MP4](https://raw.githubusercontent.com/Ssir-creator/zhengji/chi-xu-workshop-dev/chi-xu-workshop/docs/videos/chi-xu-six-levels-20261027.mp4)
+
+3分钟，1920×1080，H.264 MP4，约5.3MiB，中文简短字幕，无语音解说。完整经过六关，重复微调约2.4倍加速，含核对与最终完成回放。代码版本3d7db85。
+
+录制使用独立浏览器，305个实际UI调整事件产生进度，无通关存档注入；自动化读取参考用于规划真实按钮操作，不修改位姿或判定。最终completed=true、页面报错为空，视频全流解码通过。详见six-levels-verification.json与six-levels-notes.txt。该视频展示基础课程，不是全部28颗完成参考排齐。
+
 # 齿序工坊 · 当前版本实机演示
 
 [下载演示视频（MP4，1 分 52 秒，1080P，约 4.5 MiB）](https://raw.githubusercontent.com/Ssir-creator/zhengji/chi-xu-workshop-dev/chi-xu-workshop/docs/videos/chi-xu-workshop-current-20261026.mp4)
