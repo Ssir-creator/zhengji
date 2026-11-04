@@ -1,3 +1,4 @@
+import { Quaternion } from "three";
 import { poseError, type Pose, type Poses, type Tool } from "./core";
 import type { ReferenceCase } from "./prediction";
 export const COURSE_KEY = "chi-xu-workshop:spatial-course:v1";
@@ -96,9 +97,20 @@ export function freshCourse(data: ReferenceCase): CourseState {
     reflection: "",
   };
 }
+export function courseLimits(target: Pose) {
+  const displacement = Math.hypot(...target.translation),
+    angle =
+      (new Quaternion(...target.quaternion).angleTo(new Quaternion()) * 180) /
+      Math.PI;
+  return {
+    position: Math.max(tolerance.position, Math.min(0.35, displacement * 0.5)),
+    rotation: Math.max(tolerance.rotation, Math.min(8, angle * 0.5)),
+  };
+}
 export function passed(p: Pose, target: Pose) {
   const e = poseError(p, target);
-  return e.position <= tolerance.position && e.rotation <= tolerance.rotation;
+  const limits = courseLimits(target);
+  return e.position <= limits.position && e.rotation <= limits.rotation;
 }
 export function lessonReady(data: ReferenceCase, s: CourseState) {
   return lessons[s.stage].ids.every((id) =>
@@ -231,11 +243,12 @@ export function advanceCourse(data: ReferenceCase, s: CourseState) {
 }
 export function correction(before: Pose, after: Pose, target: Pose) {
   if (passed(after, target)) return "已经到位了，点“核对”就好。";
+  const limits = courseLimits(target);
   const a = poseError(before, target),
     b = poseError(after, target);
-  if (a.position <= tolerance.position && b.position > tolerance.position)
+  if (a.position <= limits.position && b.position > limits.position)
     return "刚才挪动了原本合适的位置，可以撤销。";
-  if (a.rotation <= tolerance.rotation && b.rotation > tolerance.rotation)
+  if (a.rotation <= limits.rotation && b.rotation > limits.rotation)
     return "刚才改变了原本合适的方向，可以撤销。";
   if (b.position > a.position + 1e-5 || b.rotation > a.rotation + 1e-4)
     return "这一步更远了，试试反向，或撤销。";

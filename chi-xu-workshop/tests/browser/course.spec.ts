@@ -521,9 +521,81 @@ test("找错与终章不预标答案，但始终有直接参考入口且不改�
   }
 });
 
-test('第一关近似位置可过关，核对后不吸附并保留到第二关',async({page})=>{
- await page.goto('/');let s=fixture(0);const near=structuredClone(data.target['6']);near.translation[0]+=.18;s=moveCourse(data,s,'6',near,'translate');
- await page.evaluate(({s,key})=>localStorage.setItem(key,JSON.stringify(s)),{s,key:COURSE_KEY});
- await page.locator('[data-action="course"]').click();await expect(page.locator('.course-dock')).toBeVisible({timeout:60000});await b(page,'check').click();
- await expect(page.locator('#course-chapter')).toContainText('2 / 6');const result=JSON.parse((await saved(page))!);expect(result.poses['6']).toEqual(near);expect(result.poses['6']).not.toEqual(data.target['6']);
+test("第一关近似位置可过关，核对后不吸附并保留到第二关", async ({ page }) => {
+  await page.goto("/");
+  let s = fixture(0);
+  const near = structuredClone(data.target["6"]);
+  near.translation[0] += 0.18;
+  s = moveCourse(data, s, "6", near, "translate");
+  await page.evaluate(
+    ({ s, key }) => localStorage.setItem(key, JSON.stringify(s)),
+    { s, key: COURSE_KEY },
+  );
+  await page.locator('[data-action="course"]').click();
+  await expect(page.locator(".course-dock")).toBeVisible({ timeout: 60000 });
+  await b(page, "check").click();
+  await expect(page.locator("#course-chapter")).toContainText("2 / 6");
+  const result = JSON.parse((await saved(page))!);
+  expect(result.poses["6"]).toEqual(near);
+  expect(result.poses["6"]).not.toEqual(data.target["6"]);
+});
+
+test("第三关明确方向和分项达标，按提示微调可撤销并以近似结果过关", async ({
+  page,
+}) => {
+  await enter(page, 2);
+  await b(page, "pick-10").click();
+  await expect(page.locator("#course-direction")).toBeVisible();
+  await expect(page.locator("#course-motion-arrow")).not.toHaveAttribute(
+    "d",
+    "",
+  );
+  const original = JSON.parse((await saved(page))!);
+  await b(page, "assist").click();
+  let current = JSON.parse((await saved(page))!);
+  expect(current.poses["10"].translation).not.toEqual(
+    original.poses["10"].translation,
+  );
+  expect(current.poses["10"].quaternion).toEqual(
+    original.poses["10"].quaternion,
+  );
+  expect(current.poses["9"]).toEqual(original.poses["9"]);
+  await tools(page, "undo");
+  expect(JSON.parse((await saved(page))!).poses).toEqual(original.poses);
+  for (let i = 0; i < 6 && (await b(page, "assist").isEnabled()); i++)
+    await b(page, "assist").click();
+  await expect(page.locator("#course-direction small")).toContainText("位置 ✓");
+  await b(page, "adjust").click();
+  await b(page, "rotate").click();
+  await expect(page.locator("#course-direction strong")).toContainText("弧形");
+  await expect
+    .poll(async () => {
+      const a = await page.locator("#course-direction").boundingBox(),
+        b = await page.locator("#course-target-callout").boundingBox();
+      return (
+        a!.x + a!.width <= b!.x ||
+        b!.x + b!.width <= a!.x ||
+        a!.y + a!.height <= b!.y ||
+        b!.y + b!.height <= a!.y
+      );
+    })
+    .toBe(true);
+  await page.screenshot({ path: "docs/screenshots/course-clear-cue.png" });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.locator("#course-direction")).toBeInViewport();
+  await page.screenshot({
+    path: "docs/screenshots/course-clear-cue-mobile.png",
+  });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  for (let i = 0; i < 6 && (await b(page, "assist").isEnabled()); i++)
+    await b(page, "assist").click();
+  await b(page, "adjust").click();
+  await b(page, "check").click();
+  await expect(page.locator("#course-success")).toBeVisible();
+  current = JSON.parse((await saved(page))!);
+  expect(current.poses["10"]).not.toEqual(data.target["10"]);
+  await expect(page.locator("#course-success")).toHaveCSS("opacity", "1");
+  await page.screenshot({
+    path: "docs/screenshots/course-approximate-pass.png",
+  });
 });

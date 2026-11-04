@@ -583,3 +583,55 @@ body.course-mode {
 #course-guide[data-active="false"] ~ #course-label {
   display: block;
 }
+#course-guide #course-motion-arrow {
+  stroke: #167bad;
+  stroke-width: 4;
+  stroke-dasharray: none;
+  marker-end: url(#course-arrowhead);
+  filter: drop-shadow(0 1px 2px #fff);
+}
+#course-arrowhead path {
+  fill: #167bad;
+  stroke: none;
+}
+#course-target-leader {
+  stroke: #88969c !important;
+  stroke-width: 1 !important;
+  stroke-dasharray: 2 4 !important;
+}
+#course-direction {
+  position: absolute;
+  width: 230px;
+  padding: 10px 12px;
+  background: #fffcf4f2;
+  border: 1px solid #8bb8ca;
+  border-radius: 14px;
+  pointer-events: auto;
+  z-index: 2;
+}
+#course-direction strong {
+  display: block;
+  font-size: 14px;
+  color: #165a78;
+}
+#course-direction small {
+  display: block;
+  margin: 6px 0;
+  color: #394d49;
+}
+#course-direction button {
+  font-size: 13px;
+  min-height: 35px;
+  padding: 6px 10px;
+  background: #eef9ff;
+  color: #165a78;
+}
+@media (max-width: 650px) {
+  #course-direction {
+    max-width: 205px;
+    width: 205px;
+  }
+  #course-direction strong {
+    font-size: 13px;
+  }
+}
