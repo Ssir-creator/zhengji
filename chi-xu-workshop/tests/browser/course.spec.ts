@@ -426,3 +426,97 @@ test("第二关视觉接近即可通过，明显方向偏差仍提示修正", as
   await expect(page.locator("#course-feedback")).toContainText("方向还差一点");
   await expect(page.locator("#course-success")).toBeHidden();
 });
+
+test("第三关参考直接可见，选择同步目标，切换参考同镜头只读并收起操作栏", async ({
+  page,
+}) => {
+  await enter(page, 2);
+  await expect(page.locator("#course-peek")).toHaveText("查看参考");
+  await b(page, "pick-10").click();
+  await expect(page.locator("#course-target-callout")).toBeVisible();
+  const snap = () =>
+    page.evaluate(() => {
+      const s = (window as any).__courseScene;
+      return {
+        camera: s.camera.position.toArray(),
+        target: s.orbit.target.toArray(),
+        poses: Object.fromEntries(
+          [...s.teeth.keys()].map((id) => [id, s.readPose(id)]),
+        ),
+        edges: s.scene.children.flatMap((g: any) =>
+          g.children
+            .filter((o: any) => o.type === "LineSegments" && o.visible)
+            .map((o: any) => ({
+              position: o.position.toArray(),
+              quaternion: o.quaternion.toArray(),
+            })),
+        ),
+      };
+    });
+  const before = await snap(),
+    raw = await saved(page);
+  expect(before.edges.length).toBe(1);
+  const pivot = data.target["10"].pivot,
+    translation = data.target["10"].translation;
+  before.edges[0].position.forEach((v: number, i: number) =>
+    expect(v).toBeCloseTo(pivot[i] + translation[i], 8),
+  );
+  await b(page, "adjust").click();
+  await b(page, "check").click();
+  await expect
+    .poll(async () => {
+      const feedback = await page.locator("#course-feedback").boundingBox(),
+        panel = await page.locator("#course-adjust").boundingBox();
+      return feedback!.y + feedback!.height <= panel!.y;
+    })
+    .toBe(true);
+  await page.screenshot({
+    path: "docs/screenshots/course-reference-feedback.png",
+  });
+  await page.locator("#course-peek").click();
+  await expect(page.locator("#course-adjust")).toBeHidden();
+  await expect(page.locator("#course-peek")).toHaveText("回到操作");
+  const reference = await snap();
+  reference.camera.forEach((v: number, i: number) =>
+    expect(v).toBeCloseTo(before.camera[i], 8),
+  );
+  for (const id of ["9", "10"])
+    expect(reference.poses[id].quaternion).toEqual(data.target[id].quaternion);
+  expect(await saved(page)).toBe(raw);
+  await page.locator("#course-peek").click();
+  expect((await snap()).poses).toEqual(before.poses);
+  expect(await saved(page)).toBe(raw);
+  await page.screenshot({
+    path: "docs/screenshots/course-reference-third.png",
+  });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.locator("#course-peek")).toBeInViewport();
+  await b(page, "adjust").click();
+  await b(page, "check").click();
+  await expect
+    .poll(async () => {
+      const f = await page.locator("#course-feedback").boundingBox(),
+        p = await page.locator("#course-adjust").boundingBox();
+      return f!.y + f!.height <= p!.y;
+    })
+    .toBe(true);
+  await page.screenshot({
+    path: "docs/screenshots/course-reference-third-mobile.png",
+  });
+});
+
+test("找错与终章不预标答案，但始终有直接参考入口且不改保存", async ({
+  page,
+}) => {
+  for (const stage of [3, 5]) {
+    await enter(page, stage);
+    await expect(page.locator("#course-task-callout")).toBeHidden();
+    await expect(page.locator("#course-peek")).toBeVisible();
+    const raw = await saved(page);
+    await page.locator("#course-peek").click();
+    await expect(page.locator("#course-mode")).toContainText("参考");
+    await page.locator("#course-peek").click();
+    expect(await saved(page)).toBe(raw);
+    await tools(page, "exit");
+  }
+});

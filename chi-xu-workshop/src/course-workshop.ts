@@ -45,7 +45,7 @@ export function mountPrediction(
     tool: Tool = lessons[state.stage].tool ?? "translate",
     fine = false,
     axis: Axis = "X",
-    outline = state.stage < 2,
+    outline = state.stage < 3,
     readonly = false,
     replay = false,
     pending = false,
@@ -82,7 +82,7 @@ export function mountPrediction(
   const targetGuide = new Group();
   scene.scene.add(targetGuide);
   const guideEdges = new Map<string, LineSegments>();
-  for (const id of ["6", "8"]) {
+  for (const id of new Set(lessons.flatMap((lesson) => [...lesson.ids]))) {
     const edge = new LineSegments(
       new EdgesGeometry(scene.teeth.get(id)!.geometry, 32),
       new LineBasicMaterial({
@@ -112,15 +112,32 @@ export function mountPrediction(
     if (m && !Array.isArray(m)) m.depthTest = false;
   });
   function guidance() {
+    const available = !state.completed && !success && !replay;
+    const id =
+      state.stage < 2
+        ? lesson().ids[0]
+        : selected && candidate(selected)
+          ? selected
+          : null;
     const visible =
-      state.stage < 2 && !state.completed && !success && !replay && !readonly;
-    el("#course-guide").hidden = !visible;
+      available && !readonly && !!id && (state.stage < 2 || outline);
+    el(".course-game").dataset.advanced = String(state.stage >= 2);
+    const panel = el("#course-adjust");
+    el("#course-feedback").style.bottom = !panel.hidden
+      ? `${panel.getBoundingClientRect().height + 125}px`
+      : "";
+    el("#course-guide").hidden = !available;
+    el("#course-guide").dataset.active = String(visible);
     el("#course-guide svg").style.display = visible ? "" : "none";
     for (const edge of guideEdges.values()) edge.visible = false;
     goalArrow.visible = false;
-    el("#course-peek").textContent = readonly ? "回到操作" : "看正确位置";
+    el("#course-peek").textContent = readonly
+      ? "回到操作"
+      : state.stage < 2
+        ? "看正确位置"
+        : "查看参考";
     // Read-only comparison has a direct return next to the model as well.
-    if (readonly && state.stage < 2 && !replay) {
+    if (readonly && !replay) {
       el("#course-guide").hidden = false;
       el("#course-task-callout").hidden = true;
       el("#course-target-callout").hidden = true;
@@ -128,9 +145,8 @@ export function mountPrediction(
     }
     el("#course-task-callout").hidden = !visible;
     el("#course-target-callout").hidden = !visible;
-    if (!visible) return;
-    const id = lesson().ids[0],
-      target = data.target[id],
+    if (!visible || !id) return;
+    const target = data.target[id],
       mesh = scene.teeth.get(id)!,
       edge = guideEdges.get(id)!;
     edge.position
@@ -140,7 +156,10 @@ export function mountPrediction(
     edge.visible = true;
     const remaining = edge.position.clone().sub(mesh.position),
       length = remaining.length();
-    if (state.stage === 0 && length > tolerance.position) {
+    if (
+      (state.stage === 0 || (state.stage >= 2 && tool === "translate")) &&
+      length > tolerance.position
+    ) {
       goalArrow.position.copy(mesh.position);
       goalArrow.setDirection(remaining.normalize());
       goalArrow.setLength(
@@ -166,16 +185,29 @@ export function mountPrediction(
       b = el("#course-target-callout");
     a.style.left = `${x}px`;
     a.style.top = `${y - 90}px`;
-    a.textContent = state.stage === 0 ? "① 移动这颗牙" : "① 转动这颗牙";
-    b.style.left = `${Math.max(100, Math.min(w - 100, goal.x))}px`;
-    b.style.top = `${Math.max(y + 55, Math.min(h - 165, goal.y + 65))}px`;
+    a.textContent =
+      state.stage === 0
+        ? "① 移动这颗牙"
+        : state.stage === 1
+          ? "① 转动这颗牙"
+          : "当前选中";
+    const goalX = Math.max(
+      100,
+      Math.min(w - 100, goal.x + (state.stage >= 2 ? 150 : 0)),
+    );
+    const goalY =
+      state.stage >= 2
+        ? Math.max(165, y - 145)
+        : Math.max(y + 55, Math.min(h - 165, goal.y + 65));
+    b.style.left = `${goalX}px`;
+    b.style.top = `${goalY}px`;
     el("#course-task-leader").setAttribute(
       "d",
       `M ${x} ${y - 65} L ${current.x} ${current.y}`,
     );
     el("#course-target-leader").setAttribute(
       "d",
-      `M ${Math.max(100, Math.min(w - 100, goal.x))} ${Math.max(y + 55, Math.min(h - 165, goal.y + 65))} L ${goal.x} ${goal.y}`,
+      `M ${goalX} ${goalY + 20} L ${goal.x} ${goal.y}`,
     );
     scene.dirty = true;
   }
@@ -366,7 +398,9 @@ export function mountPrediction(
     feedback = candidate(id)
       ? state.stage === 3
         ? "先判断哪里需要修，再动手。"
-        : "拖动试试看。"
+        : state.stage >= 2
+          ? "蓝线是参考，可以先比较位置和朝向。"
+          : "拖动试试看。"
       : "这颗不在本次范围里，先检查眼前这一组。";
     paint();
   }
@@ -499,7 +533,7 @@ export function mountPrediction(
     undo.length = redo.length = 0;
     tool = lesson().tool ?? "translate";
     selected = state.stage < 3 || state.stage === 4 ? lesson().ids[0] : null;
-    outline = state.stage < 2;
+    outline = state.stage < 3;
     feedback = state.stage === 1 ? "位置不动，这次转方向。" : "";
     el("#course-adjust").hidden = true;
     paint();
@@ -640,6 +674,7 @@ export function mountPrediction(
     }
     if (a === "reference") {
       cancel();
+      el("#course-adjust").hidden = true;
       if (replay) {
         feedback = "先回到操作，再查看参考。";
         ui();
@@ -792,24 +827,36 @@ export function mountPrediction(
   if (state.completed) showReplay();
   const timer = setInterval(() => {
     guidance();
-    el("#course-region").innerHTML =
-      state.stage >= 2 && !readonly && !replay
-        ? lesson()
-            .ids.map((id, i) => {
-              const p = scene.marker(id);
-              return p?.visible
-                ? `<button aria-label="检查候选 ${i + 1}" data-course="pick-${id}" style="left:${p.x}px;top:${p.y - 30}px">${i + 1}</button>`
-                : "";
-            })
-            .join("")
-        : "";
+    const region = el("#course-region");
+    region.hidden = state.stage < 2 || readonly || replay;
+    const regionKey = lesson().ids.join(",");
+    if (region.dataset.key !== regionKey) {
+      region.dataset.key = regionKey;
+      region.innerHTML = lesson()
+        .ids.map(
+          (id, i) =>
+            `<button aria-label="检查候选 ${i + 1}" data-course="pick-${id}">${i + 1}</button>`,
+        )
+        .join("");
+    }
+    for (const id of lesson().ids) {
+      const point = scene.marker(id),
+        button = region.querySelector<HTMLElement>(
+          `[data-course="pick-${id}"]`,
+        )!;
+      button.hidden = !point?.visible;
+      if (point) {
+        button.style.left = `${point.x}px`;
+        button.style.top = `${point.y - 30}px`;
+      }
+    }
     if (!selected) {
       el("#course-label").hidden = true;
       return;
     }
     const p = scene.marker(selected);
     const label = el("#course-label");
-    label.hidden = !p?.visible;
+    label.hidden = !p?.visible || readonly || replay || success;
     if (p) {
       label.style.left = `${Math.max(8, Math.min(scene.host.clientWidth - 210, p.x + 22))}px`;
       label.style.top = `${Math.max(90, Math.min(scene.host.clientHeight - 190, p.y + 22))}px`;

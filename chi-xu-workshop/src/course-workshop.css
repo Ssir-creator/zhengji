@@ -552,3 +552,34 @@ body.course-mode {
 #course-guide:not([hidden]) ~ #course-mode {
   top: 105px;
 }
+/* Reference remains directly reachable after the introductory lessons. */
+.course-game[data-advanced="true"] #course-peek {
+  top: 105px;
+  right: 22px;
+  left: auto;
+  bottom: auto;
+  transform: none;
+  z-index: 7;
+}
+.course-game[data-advanced="true"] #course-task-callout {
+  background: #fff4eb;
+  border-color: #d87a50;
+  color: #52362a;
+  box-shadow: none;
+}
+#course-feedback {
+  z-index: 8;
+  background: #fffaf5;
+  color: #333b3c;
+  box-shadow: 0 2px 9px #443b2420;
+}
+@media (max-width: 650px) {
+  .course-game[data-advanced="true"] #course-peek {
+    top: 105px;
+    right: 12px;
+    min-height: 40px;
+  }
+}
+#course-guide[data-active="false"] ~ #course-label {
+  display: block;
+}
