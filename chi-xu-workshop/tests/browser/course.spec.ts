@@ -520,3 +520,10 @@ test("找错与终章不预标答案，但始终有直接参考入口且不改�
     await tools(page, "exit");
   }
 });
+
+test('第一关近似位置可过关，核对后不吸附并保留到第二关',async({page})=>{
+ await page.goto('/');let s=fixture(0);const near=structuredClone(data.target['6']);near.translation[0]+=.18;s=moveCourse(data,s,'6',near,'translate');
+ await page.evaluate(({s,key})=>localStorage.setItem(key,JSON.stringify(s)),{s,key:COURSE_KEY});
+ await page.locator('[data-action="course"]').click();await expect(page.locator('.course-dock')).toBeVisible({timeout:60000});await b(page,'check').click();
+ await expect(page.locator('#course-chapter')).toContainText('2 / 6');const result=JSON.parse((await saved(page))!);expect(result.poses['6']).toEqual(near);expect(result.poses['6']).not.toEqual(data.target['6']);
+});

@@ -134,3 +134,14 @@ it("方向允许视觉上接近，明显偏差仍需修正，旧进度可继续"
     ).toBe(false);
   expect(tolerance.rotation).toBe(5);
 });
+
+it('位置近似达标可以过关，不吸附，保存和下一关保留近似结果',()=>{
+ const start=freshCourse(data),target=data.target['6'];
+ const near=structuredClone(target);near.translation[0]+=.19;
+ const far=structuredClone(target);far.translation[0]+=.21;
+ expect(passed(near,target)).toBe(true);expect(passed(far,target)).toBe(false);
+ const moved=moveCourse(data,start,'6',near,'translate');expect(lessonReady(data,moved)).toBe(true);
+ expect(correction(start.poses['6'],near,target)).toContain('已经到位');
+ const next=advanceCourse(data,moved);expect(next.poses['6']).toEqual(near);expect(next.poses['6']).not.toEqual(target);
+ expect(validateCourse(JSON.parse(JSON.stringify(next)),data)).toEqual(next);
+});

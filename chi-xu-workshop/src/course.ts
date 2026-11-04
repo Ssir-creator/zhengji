@@ -1,7 +1,7 @@
 import { poseError, type Pose, type Poses, type Tool } from "./core";
 import type { ReferenceCase } from "./prediction";
 export const COURSE_KEY = "chi-xu-workshop:spatial-course:v1";
-export const tolerance = { position: 0.075, rotation: 5 };
+export const tolerance = { position: 0.2, rotation: 5 };
 export const lessons = [
   {
     title: "挪到这里",
