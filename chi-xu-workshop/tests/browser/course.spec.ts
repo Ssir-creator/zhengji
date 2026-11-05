@@ -118,9 +118,11 @@ test("找错：不预标错牙，预判后接手原错例；拖动预览取消�
   await b(page, "adjust").click();
   await page.locator("#course-adjust details>summary").click();
   await b(page, "plus").click();
+  await b(page, "plus").click();
   await expect(page.locator("#course-feedback")).toContainText(
     "原本合适的位置",
   );
+  await b(page, "undo-step").click();
   await b(page, "undo-step").click();
   expect(await saved(page)).toBe(initial);
   await b(page, "adjust").click();
@@ -455,12 +457,19 @@ test("第三关参考直接可见，选择同步目标，切换参考同镜头�
     });
   const before = await snap(),
     raw = await saved(page);
-  expect(before.edges.length).toBe(1);
+  expect(before.edges.length).toBe(2);
   const pivot = data.target["10"].pivot,
     translation = data.target["10"].translation;
-  before.edges[0].position.forEach((v: number, i: number) =>
-    expect(v).toBeCloseTo(pivot[i] + translation[i], 8),
-  );
+  before.edges
+    .find((edge: any) =>
+      edge.position.every(
+        (v: number, i: number) =>
+          Math.abs(v - (pivot[i] + translation[i])) < 1e-8,
+      ),
+    )!
+    .position.forEach((v: number, i: number) =>
+      expect(v).toBeCloseTo(pivot[i] + translation[i], 8),
+    );
   await b(page, "adjust").click();
   await b(page, "check").click();
   await expect
@@ -598,4 +607,58 @@ test("第三关明确方向和分项达标，按提示微调可撤销并以近�
   await page.screenshot({
     path: "docs/screenshots/course-approximate-pass.png",
   });
+});
+
+test("六关进入即有全部候选目标线，每关按参考微调可用，第四关记录实际工具预判且反馈无遮挡", async ({
+  page,
+}) => {
+  test.setTimeout(180000);
+  for (let stage = 0; stage < 6; stage++) {
+    await enter(page, stage);
+    const count = () =>
+      page.evaluate(() => {
+        const s = (window as any).__courseScene;
+        return s.scene.children.flatMap((g: any) =>
+          g.children.filter((o: any) => o.type === "LineSegments" && o.visible),
+        ).length;
+      });
+    await expect.poll(count).toBe(lessons[stage].ids.length);
+    const id = ["6", "8", "10", "12", "14", "20"][stage];
+    if (stage >= 2 && stage !== 4) await b(page, `pick-${id}`).click();
+    if ([1, 3, 5].includes(stage)) {
+      await b(page, "adjust").click();
+      await b(page, "rotate").click();
+      await b(page, "adjust").click();
+    }
+    await expect(page.locator("#course-direction")).toBeVisible();
+    await expect(b(page, "assist")).toBeEnabled();
+    const before = JSON.parse((await saved(page))!);
+    await b(page, "assist").click();
+    const after = JSON.parse((await saved(page))!);
+    expect(after.poses[id]).not.toEqual(before.poses[id]);
+    for (const other of Object.keys(data.original).filter((x) => x !== id))
+      expect(after.poses[other]).toEqual(before.poses[other]);
+    if (stage === 3) {
+      expect(before.guess["3:12"]).toBeUndefined();
+      expect(after.guess["3:12"]).toBe("rotate");
+      await expect
+        .poll(async () => {
+          const feedback = await page.locator("#course-feedback").boundingBox(),
+            guess = await page.locator("#course-guess").boundingBox();
+          return feedback!.y >= guess!.y + guess!.height;
+        })
+        .toBe(true);
+      await page.screenshot({
+        path: "docs/screenshots/course-fourth-reference.png",
+      });
+    }
+    if (stage === 5) {
+      await page.setViewportSize({ width: 390, height: 844 });
+      await expect(page.locator("#course-direction")).toBeInViewport();
+      await page.screenshot({
+        path: "docs/screenshots/course-sixth-reference-mobile.png",
+      });
+      await page.setViewportSize({ width: 1440, height: 900 });
+    }
+  }
 });

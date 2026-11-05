@@ -46,7 +46,7 @@ export function mountPrediction(
     tool: Tool = lessons[state.stage].tool ?? "translate",
     fine = false,
     axis: Axis = "X",
-    outline = state.stage < 3,
+    outline = true,
     readonly = false,
     replay = false,
     pending = false,
@@ -126,7 +126,10 @@ export function mountPrediction(
     const panel = el("#course-adjust");
     const feedbackBox = el("#course-feedback"),
       desktop = scene.host.clientWidth >= 650;
-    feedbackBox.style.top = desktop ? "110px" : "";
+    const guessBox = el("#course-guess");
+    feedbackBox.style.top = desktop
+      ? `${guessBox.hidden ? 110 : guessBox.getBoundingClientRect().bottom + 12}px`
+      : "";
     feedbackBox.style.left = desktop ? "22px" : "50%";
     feedbackBox.style.transform = desktop ? "none" : "translateX(-50%)";
     feedbackBox.style.bottom = desktop
@@ -138,6 +141,18 @@ export function mountPrediction(
     el("#course-guide").dataset.active = String(visible);
     el("#course-guide svg").style.display = visible ? "" : "none";
     for (const edge of guideEdges.values()) edge.visible = false;
+    if (available && !readonly && outline) {
+      for (const targetId of lesson().ids) {
+        const edge = guideEdges.get(targetId)!,
+          target = data.target[targetId];
+        edge.position
+          .fromArray(target.pivot)
+          .add(new Vector3(...target.translation));
+        edge.quaternion.fromArray(target.quaternion);
+        edge.visible = true;
+      }
+      scene.dirty = true;
+    }
     goalArrow.visible = false;
     el("#course-peek").textContent = readonly
       ? "回到操作"
@@ -154,7 +169,7 @@ export function mountPrediction(
     }
     el("#course-task-callout").hidden = !visible;
     el("#course-target-callout").hidden = !visible;
-    el("#course-direction").hidden = !visible || !edit();
+    el("#course-direction").hidden = !visible;
     el("#course-motion-arrow").setAttribute("d", "");
     if (!visible || !id) return;
     const target = data.target[id],
@@ -238,7 +253,16 @@ export function mountPrediction(
     const error = poseError(state.poses[id], target),
       limits = courseLimits(target);
     el<HTMLButtonElement>('[data-course="assist"]').disabled =
-      !edit() ||
+      (!edit() &&
+        !(
+          state.stage === 3 &&
+          selected &&
+          candidate(selected) &&
+          !readonly &&
+          !replay &&
+          !success &&
+          !state.completed
+        )) ||
       pending ||
       (tool === "translate"
         ? error.position <= limits.position
@@ -319,11 +343,7 @@ export function mountPrediction(
     );
     scene.ghostsAt(
       !readonly && !replay && outline
-        ? Object.fromEntries(
-            lesson()
-              .ids.filter((id) => state.stage < 3 || id === selected)
-              .map((id) => [id, data.target[id]]),
-          )
+        ? Object.fromEntries(lesson().ids.map((id) => [id, data.target[id]]))
         : null,
     );
     ui();
@@ -568,7 +588,7 @@ export function mountPrediction(
     undo.length = redo.length = 0;
     tool = lesson().tool ?? "translate";
     selected = state.stage < 3 || state.stage === 4 ? lesson().ids[0] : null;
-    outline = state.stage < 3;
+    outline = true;
     feedback = state.stage === 1 ? "位置不动，这次转方向。" : "";
     el("#course-adjust").hidden = true;
     paint();
@@ -631,6 +651,25 @@ export function mountPrediction(
     if (a === "close-help") {
       el("#course-help").hidden = true;
       return;
+    }
+    if (
+      a === "assist" &&
+      state.stage === 3 &&
+      selected &&
+      candidate(selected) &&
+      !readonly &&
+      !replay &&
+      !success &&
+      !state.completed &&
+      !pending &&
+      !state.guess[`3:${selected}`]
+    ) {
+      const intent = structuredClone(state);
+      intent.guess[`3:${selected}`] = tool;
+      if (!save(intent)) {
+        paint();
+        return;
+      }
     }
     if (a === "assist" && selected && edit() && !pending) {
       const id = selected;
