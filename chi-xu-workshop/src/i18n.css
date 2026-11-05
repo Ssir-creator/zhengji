@@ -1,0 +1,74 @@
+.language-picker {
+  display: inline-flex;
+  align-self: center;
+  gap: 4px;
+  padding: 4px;
+  margin: 0 auto 16px;
+  border: 1px solid #bcb8ac;
+  border-radius: 24px;
+  background: #fffaf1e8;
+}
+.language-picker button {
+  min-height: 36px;
+  padding: 6px 17px;
+  border: 0;
+  border-radius: 20px;
+  background: transparent;
+  color: #4e5551;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: none;
+}
+.language-picker button[aria-pressed="true"] {
+  background: #277f76;
+  color: white;
+}
+.language-picker button:focus-visible {
+  outline: 3px solid #e67d55;
+  outline-offset: 3px;
+}
+html[data-locale="en"] .home-copy h1 {
+  font-size: clamp(38px, 5vw, 70px);
+  letter-spacing: -0.04em;
+}
+html[data-locale="en"] .home-copy h1 span::before {
+  content: " ";
+}
+html[data-locale="en"] .home-card button {
+  white-space: normal;
+  line-height: 1.2;
+  font-size: 17px;
+}
+html[data-locale="en"] .course-game button {
+  white-space: normal;
+  line-height: 1.25;
+}
+html[data-locale="en"] #course-guide small {
+  white-space: normal;
+}
+html[data-locale="en"] .course-dock button {
+  font-size: 18px;
+}
+@media (max-width: 700px) {
+  .language-picker {
+    margin-bottom: 8px;
+  }
+  .language-picker button {
+    min-height: 32px;
+    padding: 5px 13px;
+  }
+  html[data-locale="en"] .home-card button {
+    font-size: 14px;
+  }
+  html[data-locale="en"] .course-dock button {
+    font-size: 15px;
+  }
+}
+
+.language-picker,
+.language-picker button {
+  pointer-events: auto;
+  position: relative;
+  z-index: 3;
+}

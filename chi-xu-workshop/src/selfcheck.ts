@@ -1,3 +1,4 @@
+import { translate } from './i18n';
 type BrowserCheck={name:string;passed:boolean;detail:string};
 const saveKey='chi-xu-workshop:challenge:v1';
 export async function runBrowserCheck(){
@@ -16,7 +17,7 @@ export async function runBrowserCheck(){
  finally{try{localStorage.removeItem(temporary);}catch{}}
  const limit=Date.now()+60000;
  while(Date.now()<limit&&!document.querySelector('#title-studio[data-ready="true"]')){
-  if(document.querySelector('#studio-status')?.textContent?.includes('无法显示'))break;
+  if(document.querySelector('#studio-status')?.textContent?.includes(translate('牙模暂时无法显示：')))break;
   await new Promise(resolve=>setTimeout(resolve,250));
  }
  await new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve())));

@@ -1,6 +1,9 @@
 import './style.css';
 import './game-theme.css';
 import './course-home.css';
+import './i18n.css';
+import { initializeLanguage, languagePickerHTML } from './i18n';
+initializeLanguage();
 import {uiIcon} from './ui';
 import {chapters,circles,taskName,guidance} from './player';
 import { Quaternion,Vector3 } from 'three';
@@ -104,7 +107,7 @@ function render(){
  const main=$('#main')!;
  if(screen==='home'){
  let workshopSave=false;try{workshopSave=!!localStorage.getItem('chi-xu-workshop:reference-challenge:v2');}catch{}
- main.innerHTML=`<section class="home game-title"><figure class="hero title-studio"><div id="title-studio" aria-label="可旋转的牙模"></div><div class="title-vignette" aria-hidden="true"></div><figcaption id="studio-status" role="status">正在准备工坊…</figcaption></figure><div class="title-frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="home-copy"><div class="title-crest" aria-hidden="true">${uiIcon('emblem')}</div><div class="eyebrow">C H I X U · W O R K S H O P</div><h1>齿序<span>工坊</span></h1><p class="lead">观察 · 调校 · 找到你的次序</p><nav class="home-card" aria-label="游戏主菜单">${btn(localStorage.getItem('chi-xu-workshop:spatial-course:v1')?'继续基础挑战':'开始基础挑战','course',true,false,'data-menu-primary="true"')}${btn(workshopSave?'继续九任务':'九任务挑战','interaction')}${btn('参考排齐 · 引导','prediction')}${hasSave()?btn('继续旧版挑战','continue'):btn('旧版三关','new')}${btn('自由练习','practice')}${hasSave()?btn('重开旧版挑战','new'):''}<small>进度自动保存</small></nav><div class="home-menu-help"><kbd>↑</kbd><kbd>↓</kbd> 选择 <kbd>Enter</kbd> 进入</div><p class="asset-status">${assets?'工坊已就绪':'进入后准备工作台'}</p></div><div class="title-chapters" aria-label="基础挑战学习路线">${['挪与转','找出遗漏','独立复核'].map((n,i)=>`<span><b>0${i+1}</b><small>${n}</small></span>`).join('')}</div></section>${warning?`<div class="warning title-warning">${esc(warning)}${btn('导出旧记录','export-raw')}</div>`:''}`;
+ main.innerHTML=`<section class="home game-title"><figure class="hero title-studio"><div id="title-studio" aria-label="可旋转的牙模"></div><div class="title-vignette" aria-hidden="true"></div><figcaption id="studio-status" role="status">正在准备工坊…</figcaption></figure><div class="title-frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="home-copy">${languagePickerHTML()}<div class="title-crest" aria-hidden="true">${uiIcon('emblem')}</div><div class="eyebrow">C H I X U · W O R K S H O P</div><h1>齿序<span>工坊</span></h1><p class="lead">观察 · 调校 · 找到你的次序</p><nav class="home-card" aria-label="游戏主菜单">${btn(localStorage.getItem('chi-xu-workshop:spatial-course:v1')?'继续基础挑战':'开始基础挑战','course',true,false,'data-menu-primary="true"')}${btn(workshopSave?'继续九任务':'九任务挑战','interaction')}${btn('参考排齐 · 引导','prediction')}${hasSave()?btn('继续旧版挑战','continue'):btn('旧版三关','new')}${btn('自由练习','practice')}${hasSave()?btn('重开旧版挑战','new'):''}<small>进度自动保存</small></nav><div class="home-menu-help"><kbd>↑</kbd><kbd>↓</kbd> 选择 <kbd>Enter</kbd> 进入</div><p class="asset-status">${assets?'工坊已就绪':'进入后准备工作台'}</p></div><div class="title-chapters" aria-label="基础挑战学习路线">${['挪与转','找出遗漏','独立复核'].map((n,i)=>`<span><b>0${i+1}</b><small>${n}</small></span>`).join('')}</div></section>${warning?`<div class="warning title-warning">${esc(warning)}${btn('导出旧记录','export-raw')}</div>`:''}`;
  disposeStudio=mountStudio($('#title-studio')!,$('#studio-status')!,assets);
  }else if(screen==='levels'){
  const count=session?.saved_snapshots.length??0;
