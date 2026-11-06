@@ -147,7 +147,7 @@ test("other play modes and native tool labels also follow the selected language"
   test.setTimeout(150000);
   await page.goto("/");
   await page.locator("[data-language-choice=en]").click();
-  for (const mode of ["interaction", "prediction", "practice", "levels"]) {
+  for (const mode of ["interaction", "prediction", "practice"]) {
     await page.goto("/");
     await page.locator(`[data-action=${mode}]`).first().click();
     await page.waitForTimeout(1800);

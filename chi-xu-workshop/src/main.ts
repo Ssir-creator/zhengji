@@ -103,11 +103,11 @@ function render(){
  disposeStudio?.();disposeStudio=null;
  scene?.dispose();scene=null;replaying=false;measureRequest++;measurePending=false;measureWorker?.terminate();measureWorker=null;
  const playing=['play','review','finish'].includes(screen);document.body.dataset.screen=screen;
- app.innerHTML=`<header class="${playing?'in-game':''}"><button class="brand" data-action="home"><span class="brand-mark">齿</span><span>齿序工坊<small>牙齿排列练习 / WORKSHOP</small></span></button><nav>${btn(playing?'关卡地图':'旧版关卡','levels')}${!playing?btn('牙模资源','assets'):''}${btn('菜单','settings')}</nav></header><main id="main"></main><footer><span>CHI XU WORKSHOP <span class="footer-separator">/</span> 牙齿排列练习</span><span>本机保存 · 无计时</span></footer><div id="notice" role="status" aria-live="polite"></div><dialog id="modal"></dialog>`;
+ app.innerHTML=`<header class="${playing?'in-game':''}"><button class="brand" data-action="home"><span class="brand-mark">齿</span><span>齿序工坊<small>牙齿排列练习 / WORKSHOP</small></span></button><nav>${playing?btn('关卡地图','levels'):''}${!playing?btn('牙模资源','assets'):''}${btn('菜单','settings')}</nav></header><main id="main"></main><footer><span>CHI XU WORKSHOP <span class="footer-separator">/</span> 牙齿排列练习</span><span>本机保存 · 无计时</span></footer><div id="notice" role="status" aria-live="polite"></div><dialog id="modal"></dialog>`;
  const main=$('#main')!;
  if(screen==='home'){
- let workshopSave=false;try{workshopSave=!!localStorage.getItem('chi-xu-workshop:reference-challenge:v2');}catch{}
- main.innerHTML=`<section class="home game-title"><figure class="hero title-studio"><div id="title-studio" aria-label="可旋转的牙模"></div><div class="title-vignette" aria-hidden="true"></div><figcaption id="studio-status" role="status">正在准备工坊…</figcaption></figure><div class="title-frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="home-copy">${languagePickerHTML()}<div class="title-crest" aria-hidden="true">${uiIcon('emblem')}</div><div class="eyebrow">C H I X U · W O R K S H O P</div><h1>齿序<span>工坊</span></h1><p class="lead">观察 · 调校 · 找到你的次序</p><nav class="home-card" aria-label="游戏主菜单">${btn(localStorage.getItem('chi-xu-workshop:spatial-course:v1')?'继续基础挑战':'开始基础挑战','course',true,false,'data-menu-primary="true"')}${btn(workshopSave?'继续九任务':'九任务挑战','interaction')}${btn('参考排齐 · 引导','prediction')}${hasSave()?btn('继续旧版挑战','continue'):btn('旧版三关','new')}${btn('自由练习','practice')}${hasSave()?btn('重开旧版挑战','new'):''}<small>进度自动保存</small></nav><div class="home-menu-help"><kbd>↑</kbd><kbd>↓</kbd> 选择 <kbd>Enter</kbd> 进入</div><p class="asset-status">${assets?'工坊已就绪':'进入后准备工作台'}</p></div><div class="title-chapters" aria-label="基础挑战学习路线">${['挪与转','找出遗漏','独立复核'].map((n,i)=>`<span><b>0${i+1}</b><small>${n}</small></span>`).join('')}</div></section>${warning?`<div class="warning title-warning">${esc(warning)}${btn('导出旧记录','export-raw')}</div>`:''}`;
+ let workshopSave=false,courseSave=false;try{workshopSave=!!localStorage.getItem('chi-xu-workshop:reference-challenge:v2');courseSave=!!localStorage.getItem('chi-xu-workshop:spatial-course:v1');}catch{}
+ main.innerHTML=`<section class="home game-title"><figure class="hero title-studio"><div id="title-studio" aria-label="可旋转的牙模"></div><div class="title-vignette" aria-hidden="true"></div><figcaption id="studio-status" role="status">正在准备工坊…</figcaption></figure><div class="title-frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="home-copy">${languagePickerHTML()}<div class="title-crest" aria-hidden="true">${uiIcon('emblem')}</div><div class="eyebrow">C H I X U · W O R K S H O P</div><h1>齿序<span>工坊</span></h1><p class="lead">观察 · 调校 · 找到你的次序</p><nav class="home-card" aria-label="游戏主菜单">${btn(courseSave?'继续基础挑战':'开始基础挑战','course',true,false,'data-menu-primary="true"')}${courseSave?`<div class="home-restart">${btn('重新开始基础挑战','restart-course')}</div>`:''}${btn(workshopSave?'继续九任务':'九任务挑战','interaction')}${workshopSave?`<div class="home-restart">${btn('重新开始九任务','restart-interaction')}</div>`:''}${btn('参考排齐 · 引导','prediction')}${btn('自由练习','practice')}<small>进度自动保存</small></nav><div class="home-menu-help"><kbd>↑</kbd><kbd>↓</kbd> 选择 <kbd>Enter</kbd> 进入</div><p class="asset-status">${assets?'工坊已就绪':'进入后准备工作台'}</p></div><div class="title-chapters" aria-label="基础挑战学习路线">${['挪与转','找出遗漏','独立复核'].map((n,i)=>`<span><b>0${i+1}</b><small>${n}</small></span>`).join('')}</div></section>${warning?`<div class="warning title-warning">${esc(warning)}${btn('导出旧记录','export-raw')}</div>`:''}`;
  disposeStudio=mountStudio($('#title-studio')!,$('#studio-status')!,assets);
  }else if(screen==='levels'){
  const count=session?.saved_snapshots.length??0;
@@ -221,13 +221,14 @@ function setComparison(mode:'before'|'after'|null){
  scene?.cancelDrag();comparison=mode;scene?.apply(mode==='before'?start:poses);updateTool();showGhosts();updateHUD();
 }
 
-async function openPrediction(interactive=false,course=false){
- if(!assets)return loadBuiltIn(course?'course':interactive?'interaction':'prediction');
+async function openPrediction(interactive=false,course=false,restart=false){
+ if(!assets)return loadBuiltIn(restart?(course?'restart-course':'restart-interaction'):course?'course':interactive?'interaction':'prediction');
  const version=++renderVersion;
  try{
   const [module,response]=await Promise.all([course?import('./course-workshop'):interactive?import('./interaction-workshop'):import('./prediction-workshop'),fetch('/cases/initial/prediction/reference.json')]);
   if(!response.ok)throw Error('预测参考暂时不可用，请更新游戏后重试。');
   const reference=await response.json();if(version!==renderVersion)return;
+  if(restart){const [{referenceCase},{restartChallenge}]=await Promise.all([import('./prediction'),import('./restart')]);if(version!==renderVersion)return;restartChallenge(course?'course':'interaction',referenceCase(reference,assets.manifest,Object.fromEntries(assets.assets.map(a=>[a.id,a.pivot]))));}
   disposeStudio?.();disposeStudio=null;scene?.dispose();scene=null;screen='home';
   disposePrediction=module.mountPrediction(app,assets,reference,()=>{screen='home';render();});
  }catch(error){screen='home';render();toast(String(error));}
@@ -245,7 +246,7 @@ async function loadBuiltIn(after=''){
  try{
   const next=await loadBundledCase(text=>{const label=$('#load-state');if(label){const match=text.match(/(\d+)\/28/);label.textContent=match?`正在摆好牙齿 ${match[1]} / 28`:'正在准备工作台…';}});
   installCase(next);$<HTMLDialogElement>('#modal')?.close();screen='home';render();
-  if(after==='course')void openPrediction(false,true);else if(after==='new')newChallenge();else if(after==='continue')resume();else if(after==='practice')startPractice();else if(after==='prediction')void openPrediction();else if(after==='interaction')void openPrediction(true);
+  if(after==='restart-course')void openPrediction(false,true,true);else if(after==='restart-interaction')void openPrediction(true,false,true);else if(after==='course')void openPrediction(false,true);else if(after==='new')newChallenge();else if(after==='continue')resume();else if(after==='practice')startPractice();else if(after==='prediction')void openPrediction();else if(after==='interaction')void openPrediction(true);
  }catch(err){openAssets(after);const label=$('#load-state');if(label){label.textContent=String(err);label.classList.add('error');}else toast(String(err));}
  finally{loadingBuiltIn=false;const f=$<HTMLInputElement>('#case-files');if(f)f.disabled=false;const b=$<HTMLButtonElement>('[data-action="load-built-in"]');if(b){b.disabled=false;b.textContent='重试加载内置病例';}}
 }
@@ -253,7 +254,7 @@ async function loadBuiltIn(after=''){
 let requestedAfterLoad='';
 function openAssets(after=''){requestedAfterLoad=after;const d=$<HTMLDialogElement>('#modal')!;d.innerHTML=`<div class="dialog-heading"><div><span class="eyebrow">练习设置</span><h2>选择练习模型</h2></div>${btn('关闭','close-modal')}</div><p>可以直接开始内置练习，或导入自己的病例 JSON 和对应的 28 个 STL。导入文件仅在本机读取。</p><details><summary>导入格式说明</summary><p>请使用参数模板填写模型编号，并确保每个编号、文件名和校验值与 STL 对应。填写完成后，将病例 JSON 与对应 STL 一起选择。</p></details><label class="file-drop">选择病例 JSON 和 28 个 STL<input id="case-files" type="file" accept=".json,.stl,.STL" multiple></label><p id="load-state" role="status">${assets?'练习已就绪':'请选择练习'}</p><div class="button-row">${btn(loadingBuiltIn?'正在准备练习…':'开始内置练习','load-built-in',true,loadingBuiltIn)}${btn('下载参数模板','template')}${btn('导出旧存档','export-raw')}</div>`;d.showModal();}
 function template(){exportData({case_id:'请填写匿名病例ID',asset_version:'待核对-v1',config_version:'prd-v1-provisional',unit:'u',unit_confirmed:false,scale:1,source:'待核对',usage_status:'待核对',teaching_reviewed:false,adjacency_confirmed:false,adjacency:[],teeth:Array.from({length:28},(_,i)=>({mesh_id:String(i+1),mesh_uri:'请填写对应原始文件名-'+(i+1)+'.stl',checksum:'请填写实际SHA256',jaw_group:'unknown',FDI:null,origin:[0,0,0],source:'待核对',usage_status:'待核对'})),levels:defaultLevels()},'case.template.json');}
-function openSettings(){const d=$<HTMLDialogElement>('#modal')!;d.innerHTML=`<div class="dialog-heading"><h2>歇一下，再继续</h2>${btn('回到游戏','close-modal',true)}</div><div class="menu-options">${btn('关卡地图','levels')}${btn('回到首页','home')}${assets?btn('保存一份记录','export'):''}</div><label class="setting"><input id="low-mode" type="checkbox" ${low?'checked':''}>画面更流畅（减少显示细节）</label><label class="setting"><input id="reduce-motion" type="checkbox" ${reduced?'checked':''}>减少动画</label><label class="setting"><input id="show-base" type="checkbox" ${showBase?'checked':''}>显示小工作台</label><details><summary>资源与练习说明</summary><p>这是一段牙齿摆放练习，不是诊疗建议。真实牙位、单位与教学角色仍待核对。触屏先使用点选和按钮；暂无音效。</p>${btn('牙模资源与导入','assets')}${assets?btn('查看练习细节','details'):''}</details>`;d.showModal();}
+function openSettings(){const d=$<HTMLDialogElement>('#modal')!;d.innerHTML=`<div class="dialog-heading"><h2>歇一下，再继续</h2>${btn('回到游戏','close-modal',true)}</div><div class="menu-options">${screen!=='home'?btn('关卡地图','levels'):''}${btn('回到首页','home')}${assets?btn('保存一份记录','export'):''}</div><label class="setting"><input id="low-mode" type="checkbox" ${low?'checked':''}>画面更流畅（减少显示细节）</label><label class="setting"><input id="reduce-motion" type="checkbox" ${reduced?'checked':''}>减少动画</label><label class="setting"><input id="show-base" type="checkbox" ${showBase?'checked':''}>显示小工作台</label><details><summary>资源与练习说明</summary><p>这是一段牙齿摆放练习，不是诊疗建议。真实牙位、单位与教学角色仍待核对。触屏先使用点选和按钮；暂无音效。</p>${btn('牙模资源与导入','assets')}${assets?btn('查看练习细节','details'):''}</details>`;d.showModal();}
 window.addEventListener('keydown',e=>{if(screen!=='home'||document.body.classList.contains('interaction-mode')||document.querySelector('dialog[open]')||(e.target as HTMLElement).closest('input,select,textarea'))return;if(e.key!=='ArrowDown'&&e.key!=='ArrowUp')return;const buttons=[...document.querySelectorAll<HTMLButtonElement>('.home-card button:not(:disabled)')];if(!buttons.length)return;e.preventDefault();const index=buttons.indexOf(document.activeElement as HTMLButtonElement),next=index<0?(e.key==='ArrowDown'?0:buttons.length-1):(index+(e.key==='ArrowDown'?1:-1)+buttons.length)%buttons.length;buttons[next].focus();});
 app.addEventListener('click',e=>{const b=(e.target as HTMLElement).closest<HTMLButtonElement>('[data-action]');if(!b||b.disabled)return;const a=b.dataset.action!;
  if(comparison&&['home','levels','new','continue','practice','next','review','adjust','save-stage','replay'].includes(a))setComparison(null);
@@ -267,6 +268,8 @@ app.addEventListener('click',e=>{const b=(e.target as HTMLElement).closest<HTMLB
  switch(a){
  case 'prediction':void openPrediction();break;
  case 'course':void openPrediction(false,true);break;
+ case 'restart-course':if(confirm('从第一关重新开始基础挑战？这会清除基础挑战进度，九任务和其他练习不受影响。'))void openPrediction(false,true,true);break;
+ case 'restart-interaction':if(confirm('从第一个任务重新开始九任务？这会清除九任务进度和方案尝试，基础挑战和其他练习不受影响。'))void openPrediction(true,false,true);break;
  case 'interaction':void openPrediction(true);break;
  case 'home':if(practice)exitPractice();if(replaying)exitReplay();preserve();screen='home';render();break;
  case 'levels':if(practice)exitPractice();else{scene?.cancelDrag();if(replaying)exitReplay();preserve();screen='levels';render();}break;
@@ -291,7 +294,7 @@ app.addEventListener('click',e=>{const b=(e.target as HTMLElement).closest<HTMLB
 app.addEventListener('change',async e=>{const input=e.target as HTMLInputElement;
  if(input.id==='case-files'){
   const status=$('#load-state')!;input.disabled=true;
-  try{const next=await loadCase(Array.from(input.files??[]),text=>status.textContent=text);installCase(next);const after=requestedAfterLoad;$<HTMLDialogElement>('#modal')!.close();screen='home';render();if(after==='course')void openPrediction(false,true);else if(after==='new')newChallenge();if(after==='continue')resume();if(after==='practice')startPractice();toast(`已核验并载入 28 个真实 STL。${warning}`);
+  try{const next=await loadCase(Array.from(input.files??[]),text=>status.textContent=text);installCase(next);const after=requestedAfterLoad;$<HTMLDialogElement>('#modal')!.close();screen='home';render();if(after==='restart-course')void openPrediction(false,true,true);else if(after==='restart-interaction')void openPrediction(true,false,true);else if(after==='course')void openPrediction(false,true);else if(after==='new')newChallenge();if(after==='continue')resume();if(after==='practice')startPractice();toast(`已核验并载入 28 个真实 STL。${warning}`);
   }catch(err){status.textContent=String(err);status.classList.add('error');input.disabled=false;}return;
  }
  switch(input.id){

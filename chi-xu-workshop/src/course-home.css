@@ -94,3 +94,13 @@
     padding: 8px 12px;
   }
 }
+/* Small replay actions belong beside each saved challenge, not in the main hierarchy. */
+.game-title .home-restart { margin-top: -5px; text-align: right; }
+.game-title .home-restart button {
+  min-height: 28px; width: auto; margin-left: auto; padding: 3px 6px;
+  background: transparent; box-shadow: none; border: 0; border-radius: 5px;
+  font-size: 13px; line-height: 1.4; letter-spacing: 0; color: #535d57;
+}
+.game-title .home-restart button .game-icon { width: 14px; height: 14px; }
+html[data-locale="en"] .game-title .home-restart button { font-size: 13px; }
+.game-title .home-restart button:focus-visible { outline: 3px solid #d47754; outline-offset: 2px; }

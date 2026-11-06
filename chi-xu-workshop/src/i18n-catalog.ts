@@ -903,6 +903,10 @@ WebGL画面|WebGL rendering
 ▣ 固定 / 仅查看|▣ Fixed / View only
 / 28 颗到达参考|/ 28 teeth at reference
 · 原始 STL 确定性均匀面序三角形重心采样近似|· Approximation from deterministic triangle-centroid samples of the original STL
+重新开始基础挑战|Restart foundation course
+重新开始九任务|Restart nine tasks
+从第一关重新开始基础挑战？这会清除基础挑战进度，九任务和其他练习不受影响。|Restart the foundation course from level one? This clears foundation progress only. Nine tasks and other practice stay unchanged.
+从第一个任务重新开始九任务？这会清除九任务进度和方案尝试，基础挑战和其他练习不受影响。|Restart from the first of the nine tasks? This clears nine-task progress and plan attempts only. Foundation and other practice stay unchanged.
 `.trim();
 export const english: Record<string, string> = Object.fromEntries(
   rows
